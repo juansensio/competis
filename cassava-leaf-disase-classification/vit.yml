@@ -1,0 +1,54 @@
+# optimization
+lr: 0.00036
+optimizer: "Adam"
+batch_size: 32
+scheduler:
+  OneCycleLR:
+    max_lr: 0.00036
+    total_steps: 15
+    pct_start: 0.2
+    verbose: True
+# data
+data: "data_extra"
+subset: 0.
+num_workers: 0
+pin_memory: True
+# model
+model: "ViT"
+backbone: "vit_base_patch16_384"
+pretrained: True
+unfreeze: 0
+# data augmentation
+size: 384
+train_trans:
+  PadIfNeeded:
+    min_height: 384
+    min_width: 384
+    border_mode: 0
+  RandomResizedCrop:
+    height: 384
+    width: 384
+  Transpose: {}
+  HorizontalFlip: {}
+  VerticalFlip: {}
+  ShiftScaleRotate: {}
+  Normalize: {}
+val_trans:
+  PadIfNeeded:
+    min_height: 384
+    min_width: 384
+    border_mode: 0
+  CenterCrop:
+    height: 384
+    width: 384
+  Normalize: {}
+# training params
+gpus: 1
+precision: 16
+max_epochs: 15
+es_start_from: 5
+patience: 3
+# debugging options
+train_batches: 1.
+val_batches: 1.
+val_with_train: False

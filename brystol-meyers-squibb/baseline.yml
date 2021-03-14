@@ -1,0 +1,37 @@
+# optimization
+lr: 0.001
+optimizer: "Adam"
+batch_size: 2048
+# scheduler:
+#   OneCycleLR:
+#     max_lr: 0.001
+#     total_steps: 5
+#     pct_start: 0.2
+#     verbose: True
+# data
+num_workers: 0
+pin_memory: True
+# model
+model: "Baseline"
+backbone: "resnet34"
+pretrained: True
+max_len: 21
+# data augmentation
+train_trans:
+  Resize:
+    width: 128
+    height: 128
+val_trans:
+  Resize:
+    width: 128
+    height: 128
+# training params
+gpus: 1
+precision: 16
+max_epochs: 10
+# debugging options
+train_batches: 50
+shuffle_train: False
+val_batches: 5
+val_with_train: False
+log: True
