@@ -34,9 +34,10 @@ class Dataset(torch.utils.data.Dataset):
     def collate(self, batch):
         if self.train:
             # calcular longitud máxima en el batch 
-            max_len = 0
-            for image, inchi in batch:
-                max_len = len(inchi) if len(inchi) > max_len else max_len        
+            #max_len = 0
+            #for image, inchi in batch:
+            #    max_len = len(inchi) if len(inchi) > max_len else max_len 
+            max_len = max([len(inchi) for _, inchi in batch])       
             # añadimos padding a los inchis cortos para que todos tengan la misma longitud
             images, inchis = [], []
             for image, inchi in batch:

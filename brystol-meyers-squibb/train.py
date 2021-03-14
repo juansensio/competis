@@ -33,6 +33,7 @@ def train(config):
         precision=config['precision'],
         logger=wandb_logger if config['log'] else None,
         max_epochs=config['max_epochs'],
+        gradient_clip_val=config['gradient_clip_val'],
         callbacks=get_cbs(config),
         limit_train_batches=config['train_batches'],
         limit_val_batches=config['val_batches']
