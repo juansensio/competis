@@ -31,10 +31,10 @@ if __name__ == '__main__':
     config = parse_config_file(config_file)
     # create model and data
     dm = DataModule(**config)
-    model = Transformer(len(VOCAB), config)
+    model = Transformer(config)
     # find best bs
-    find_batch_size(model, config)
-    config['batch_size'] = model.hparams.batch_size
+    #find_batch_size(model, config)
+    #config['batch_size'] = model.hparams.batch_size
     # find best lr
     lr_finder = find_lr(model, config)
     new_lr = lr_finder.suggestion()

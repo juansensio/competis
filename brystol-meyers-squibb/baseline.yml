@@ -1,24 +1,23 @@
 # optimization
-lr: 0.0003
+lr: 0.001
 optimizer: "Adam"
 batch_size: 2048
 scheduler:
-  OneCycleLR:
-    max_lr: 0.0003
-    total_steps: 20
-    pct_start: 0.1
+  CosineAnnealingLR:
+    T_max: 50
+    eta_min: 0.00001
     verbose: True
 # data
 num_workers: 24
 pin_memory: True
-subset: 0.01
+subset: 0.4
 # model
 img_size: 128
 patch_size: 16
 embed_dim: 256
 nhead: 4
-num_encoder_layers: 6
-num_decoder_layers: 6
+num_encoder_layers: 4
+num_decoder_layers: 4
 dropout: 0.1
 max_len: 21
 load_from: False
@@ -34,7 +33,7 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 20
+max_epochs: 50
 # debugging options
 train_batches: 1.
 shuffle_train: True
