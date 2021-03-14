@@ -26,7 +26,7 @@ class Dataset(torch.utils.data.Dataset):
             image = self.trans(image=image)['image']
         image = torch.tensor(image / 255., dtype=torch.float).unsqueeze(0)
         if self.train:
-            inchi = torch.tensor(self.inchis[ix] + [t2ix('EOS')], dtype=torch.long)
+            inchi = torch.tensor([t2ix('SOS')] + self.inchis[ix] + [t2ix('EOS')], dtype=torch.long)
             #inchi = torch.nn.functional.pad(inchi, (0, self.max_len - len(inchi)), 'constant', t2ix('PAD'))
             return image, inchi
         return image
@@ -83,7 +83,7 @@ class DataModule(pl.LightningDataModule):
         # read csv file with data
         df = pd.read_csv(self.path / self.data_file)
         if self.subset:
-            df = df.head(int(len(df)*self.subset))
+            df = df.sample(int(len(df)*self.subset), random_state=self.random_state)
         # build images absolute paths
         df.image_id = df.image_id.map(get_image_path)
         df.InChI = df.InChI.map(lambda x: x.split('/')[1])

@@ -1,21 +1,27 @@
 # optimization
-lr: 0.001
+lr: 0.0003
 optimizer: "Adam"
 batch_size: 2048
-# scheduler:
-#   OneCycleLR:
-#     max_lr: 0.001
-#     total_steps: 5
-#     pct_start: 0.2
-#     verbose: True
+scheduler:
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 20
+    pct_start: 0.1
+    verbose: True
 # data
-num_workers: 0
+num_workers: 24
 pin_memory: True
+subset: 0.01
 # model
-model: "Baseline"
-backbone: "resnet34"
-pretrained: True
+img_size: 128
+patch_size: 16
+embed_dim: 256
+nhead: 4
+num_encoder_layers: 6
+num_decoder_layers: 6
+dropout: 0.1
 max_len: 21
+load_from: False
 # data augmentation
 train_trans:
   Resize:
@@ -28,10 +34,10 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 10
+max_epochs: 20
 # debugging options
-train_batches: 50
-shuffle_train: False
-val_batches: 5
+train_batches: 1.
+shuffle_train: True
+val_batches: 1.
 val_with_train: False
 log: True

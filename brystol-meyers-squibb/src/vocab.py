@@ -54,4 +54,4 @@ def encode(InChI):
     return ixs
 
 def decode(encoded, vocab=VOCAB):
-    return ('').join([vocab[ix] for ix in encoded])
+    return ('').join([vocab[ix] for ix in encoded if ix not in [0, 1, 2]])

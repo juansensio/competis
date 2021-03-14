@@ -3,7 +3,8 @@ from src.dm import DataModule
 from src.utils import parse_config_file
 import sys
 import matplotlib.pyplot as plt
-from src import models
+from src.models import Transformer
+from src.vocab import VOCAB
 
 def find_batch_size(model, config):
     trainer = pl.Trainer(
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     config = parse_config_file(config_file)
     # create model and data
     dm = DataModule(**config)
-    model = getattr(models, config['model'])(config)
+    model = Transformer(len(VOCAB), config)
     # find best bs
     find_batch_size(model, config)
     config['batch_size'] = model.hparams.batch_size

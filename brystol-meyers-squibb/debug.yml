@@ -1,7 +1,7 @@
 # optimization
-lr: 0.01
+lr: 0.001
 optimizer: "Adam"
-batch_size: 10
+batch_size: 1
 # scheduler:
 #   OneCycleLR:
 #     max_lr: 0.001
@@ -13,10 +13,15 @@ num_workers: 0
 pin_memory: True
 subset: 0.001
 # model
-model: "Baseline"
-backbone: "resnet18"
-pretrained: False
+img_size: 128
+patch_size: 16
+embed_dim: 256
+nhead: 4
+num_encoder_layers: 4
+num_decoder_layers: 4
+dropout: 0.1
 max_len: 21
+load_from: False
 # data augmentation
 train_trans:
   Resize:
