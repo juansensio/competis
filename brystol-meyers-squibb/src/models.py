@@ -109,12 +109,12 @@ class Transformer(pl.LightningModule):
         x, y = batch
         val_loss, y_hat = self.compute_loss(batch)
         y_hat = torch.argmax(y_hat, axis=2)
-        #metric = []
-        #for pred, gt in zip(y_hat, y[:,1:]):
+        metric = []
+        for pred, gt in zip(y_hat, y[:,1:]):
             #print(pred, gt)
-        #    metric.append(distance(decode(pred), decode(gt)))
+            metric.append(distance(decode(pred), decode(gt)))
         self.log('val_loss', val_loss, prog_bar=True)
-        #self.log('val_ld', np.mean(metric), prog_bar=True)
+        self.log('val_ld', np.mean(metric), prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(self.parameters(), lr=self.hparams.lr)

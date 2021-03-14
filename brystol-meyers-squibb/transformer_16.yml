@@ -1,12 +1,17 @@
 # optimization
-lr: 0.0003
+lr: 0.001
 optimizer: "Adam"
-batch_size: 4
-gradient_clip_val: 1.
+batch_size: 1024
+gradient_clip_val: 1.0
+scheduler:
+  CosineAnnealingLR:
+    T_max: 10
+    eta_min: 0.00001
+    verbose: True
 # data
-num_workers: 0
+num_workers: 24
 pin_memory: True
-subset: 0.001
+subset: 0.1
 # model
 img_size: 128
 patch_size: 16
@@ -15,7 +20,7 @@ nhead: 4
 num_encoder_layers: 12
 num_decoder_layers: 12
 dropout: 0.1
-max_len: 22
+max_len: 21
 load_from: False
 # data augmentation
 train_trans:
@@ -29,10 +34,10 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 50
+max_epochs: 10
 # debugging options
-train_batches: 1
-shuffle_train: False
-val_batches: 1
-val_with_train: True
-log: False
+train_batches: 1.
+shuffle_train: True
+val_batches: 1.
+val_with_train: False
+log: True

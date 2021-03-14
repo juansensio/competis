@@ -34,9 +34,6 @@ class Dataset(torch.utils.data.Dataset):
     def collate(self, batch):
         if self.train:
             # calcular longitud máxima en el batch 
-            #max_len = 0
-            #for image, inchi in batch:
-            #    max_len = len(inchi) if len(inchi) > max_len else max_len 
             max_len = max([len(inchi) for _, inchi in batch])       
             # añadimos padding a los inchis cortos para que todos tengan la misma longitud
             images, inchis = [], []
@@ -90,7 +87,6 @@ class DataModule(pl.LightningDataModule):
         df.InChI = df.InChI.map(lambda x: x.split('/')[1])
         #df.InChI = df.InChI.map(lambda x: ('/').join(x.split('/')[1:4]))
         df.InChI = df.InChI.map(encode)
-        self.df = df
         # train test splits
         train, val = train_test_split(df, test_size=self.test_size, random_state=self.random_state, shuffle=True)
         print("Training samples: ", len(train))
