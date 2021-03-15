@@ -2,7 +2,7 @@ import timm
 import torch
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from .vocab import VOCAB, decode, t2ix
+from .vocab import VOCAB
 from Levenshtein import distance
 import numpy as np
 import torch.nn as nn
@@ -25,10 +25,11 @@ class PatchEmbedding(nn.Module):
         return x
 
 class Transformer(pl.LightningModule):
-    def __init__(self, config=None):
+    def __init__(self, config=None, decode=None):
         super().__init__()
         self.save_hyperparameters(config)
         self.len_vocab = len(VOCAB)
+        self.decode = decode
         
         self.patch_embed = PatchEmbedding(self.hparams.img_size, self.hparams.patch_size, 1, self.hparams.embed_dim)
         self.pos_embed = nn.Parameter(torch.zeros(1, self.patch_embed.n_patches, self.hparams.embed_dim))
@@ -51,17 +52,18 @@ class Transformer(pl.LightningModule):
         embed_imgs = self.patch_embed(images)
         embed_imgs = embed_imgs + self.pos_embed  # (B, N, E)
         # embed captions
+        #print(captions.shape)
         B, trg_seq_len = captions.shape 
         trg_positions = (torch.arange(0, trg_seq_len).expand(B, trg_seq_len).to(self.device))
         embed_trg = self.trg_emb(captions) + self.trg_pos_emb(trg_positions)
         trg_mask = self.transformer.generate_square_subsequent_mask(trg_seq_len).to(self.device)
-        tgt_padding_mask = captions == t2ix('PAD')
+        #tgt_padding_mask = captions == t2ix('PAD')
         # transformer
         y = self.transformer(
             embed_imgs.permute(1,0,2),  # S, B, E
             embed_trg.permute(1,0,2),  # T, B, E
             tgt_mask=trg_mask, # T, T
-            tgt_key_padding_mask = tgt_padding_mask
+            #tgt_key_padding_mask = tgt_padding_mask
         ).permute(1,0,2) # B, T, E
         # head
         return self.fc(self.l(y))
@@ -75,22 +77,21 @@ class Transformer(pl.LightningModule):
             module.bias.data.zero_()
             module.weight.data.fill_(1.0)
 
-    def predict(self, images):
+    def predict(self, images, SOS=1, EOS=2):
         self.eval()
         with torch.no_grad():
             images = images.to(self.device)
             B = images.shape[0]
             # start of sentence
-            eos = torch.tensor([t2ix('SOS')], dtype=torch.long, device=self.device).expand(B, 1)
+            eos = torch.tensor([SOS], dtype=torch.long, device=self.device).expand(B, 1)
             trg_input = eos
             while True:
             #for _ in range(self.hparams.max_len):
                 preds = self(images, trg_input)
                 preds = torch.argmax(preds, axis=2)
                 trg_input = torch.cat([eos, preds], 1)
-                if torch.any(preds == t2ix('EOS'), 1).sum().item() == B or preds.shape[1] >= self.hparams.max_len:
-                    #return preds
-                    return [decode(pred) for pred in preds]
+                if torch.any(preds == EOS, 1).sum().item() == B or preds.shape[1] >= self.hparams.max_len:
+                    return preds
             #return preds
 
     def compute_loss(self, batch):
@@ -109,12 +110,12 @@ class Transformer(pl.LightningModule):
         x, y = batch
         val_loss, y_hat = self.compute_loss(batch)
         y_hat = torch.argmax(y_hat, axis=2)
-        metric = []
-        for pred, gt in zip(y_hat, y[:,1:]):
+        #metric = []
+        #for pred, gt in zip(y_hat, y[:,1:]):
             #print(pred, gt)
-            metric.append(distance(decode(pred), decode(gt)))
+        #    metric.append(distance(self.decode(pred), self.decode(gt)))
         self.log('val_loss', val_loss, prog_bar=True)
-        self.log('val_ld', np.mean(metric), prog_bar=True)
+        #self.log('val_ld', np.mean(metric), prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(self.parameters(), lr=self.hparams.lr)

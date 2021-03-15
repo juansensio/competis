@@ -1,7 +1,7 @@
 # optimization
-lr: 0.0003
+lr: 0.0001
 optimizer: "Adam"
-batch_size: 4
+batch_size: 3
 gradient_clip_val: 1.
 # data
 num_workers: 0
@@ -14,8 +14,8 @@ embed_dim: 256
 nhead: 4
 num_encoder_layers: 12
 num_decoder_layers: 12
-dropout: 0.1
-max_len: 22
+dropout: 0.
+max_len: 277
 load_from: False
 # data augmentation
 train_trans:
@@ -29,7 +29,7 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 50
+max_epochs: 100
 # debugging options
 train_batches: 1
 shuffle_train: False

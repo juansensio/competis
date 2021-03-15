@@ -24,9 +24,9 @@ def get_cbs(config):
 def train(config):
     dm = DataModule(**config)
     if config['load_from']:
-        model = Transformer.load_from_checkpoint(config['load_from'])
+        model = Transformer.load_from_checkpoint(config['load_from'], decode=dm.decode)
     else:
-        model = Transformer(config)
+        model = Transformer(config, decode=dm.decode)
     wandb_logger = WandbLogger(project="bms-transformer", config=config)
     trainer = pl.Trainer(
         gpus=config['gpus'],

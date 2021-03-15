@@ -1,6 +1,6 @@
 import torch
 from skimage import io
-from .vocab import t2ix, encode
+from .vocab import VOCAB
 import pytorch_lightning as pl
 from pathlib import Path
 from .utils import get_image_path
@@ -10,12 +10,13 @@ from torch.utils.data import DataLoader
 import albumentations as A 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, images, inchis=None, max_len=512, trans=None, train=True):
+    def __init__(self, images, inchis=None, max_len=512, trans=None, train=True, tokens=(0, 1, 2)):
         self.images = images
         self.inchis = inchis
         self.trans = trans
         self.train = train
         self.max_len = max_len
+        self.PAD, self.SOS, self.EOS = tokens
 
     def __len__(self):
         return len(self.images)
@@ -26,8 +27,8 @@ class Dataset(torch.utils.data.Dataset):
             image = self.trans(image=image)['image']
         image = torch.tensor(image / 255., dtype=torch.float).unsqueeze(0)
         if self.train:
-            inchi = torch.tensor([t2ix('SOS')] + self.inchis[ix] + [t2ix('EOS')], dtype=torch.long)
-            #inchi = torch.nn.functional.pad(inchi, (0, self.max_len - len(inchi)), 'constant', t2ix('PAD'))
+            inchi = torch.tensor([self.SOS] + self.inchis[ix] + [self.EOS], dtype=torch.long)
+            #inchi = torch.nn.functional.pad(inchi, (0, self.max_len - len(inchi)), 'constant', self.PAD)
             return image, inchi
         return image
 
@@ -39,7 +40,7 @@ class Dataset(torch.utils.data.Dataset):
             images, inchis = [], []
             for image, inchi in batch:
                 images.append(image)
-                inchis.append(torch.nn.functional.pad(inchi, (0, max_len - len(inchi)), 'constant', t2ix('PAD')))
+                inchis.append(torch.nn.functional.pad(inchi, (0, max_len - len(inchi)), 'constant', self.PAD))
             # opcionalmente, podríamos re-ordenar las frases en el batch (algunos modelos lo requieren)
             return torch.stack(images), torch.stack(inchis)
         return torch.stack([img for img in batch])
@@ -47,8 +48,9 @@ class Dataset(torch.utils.data.Dataset):
 class DataModule(pl.LightningDataModule):
     def __init__(
         self, 
-        data_file = 'train_labels.csv', 
+        data_file = 'train_labels_tokenized.csv', 
         path=Path('data'), 
+        text_column="InChI_text",
         test_size=0.1, 
         random_state=42, 
         batch_size=64, 
@@ -76,26 +78,42 @@ class DataModule(pl.LightningDataModule):
         self.val_trans = val_trans
         self.subset = subset
         self.max_len = max_len
+        self.text_column = text_column
+        self.stoi = {}
+        self.itos = {}
+
+    def encode(self, InChI):
+        return [self.stoi[token] for token in InChI]
+
+    def decode(self, ixs):
+        skip = [self.stoi['PAD'], self.stoi['SOS'], self.stoi['EOS']]
+        return ('').join([self.itos[ix.item()] for ix in ixs if ix.item() not in skip])
 
     def setup(self, stage=None):
+        # build indices
+        for i, s in enumerate(VOCAB):
+            self.stoi[s] = i
+        self.itos = {item[1]: item[0] for item in self.stoi.items()}
         # read csv file with data
         df = pd.read_csv(self.path / self.data_file)
         if self.subset:
             df = df.sample(int(len(df)*self.subset), random_state=self.random_state)
         # build images absolute paths
         df.image_id = df.image_id.map(get_image_path)
-        df.InChI = df.InChI.map(lambda x: x.split('/')[1])
-        #df.InChI = df.InChI.map(lambda x: ('/').join(x.split('/')[1:4]))
-        df.InChI = df.InChI.map(encode)
+        #df.InChI = df.InChI.map(lambda x: x.split('/')[1])
+        df.InChI = df[self.text_column].map(lambda x: x.split(' '))
+        df.InChI = df.InChI.map(self.encode)
         # train test splits
         train, val = train_test_split(df, test_size=self.test_size, random_state=self.random_state, shuffle=True)
         print("Training samples: ", len(train))
         print("Validation samples: ", len(val))
         # datasets
-        self.train_ds = Dataset(train.image_id.values, train.InChI.values, self.max_len, trans = A.Compose([
+        self.train_ds = Dataset(train.image_id.values, train.InChI.values, self.max_len, 
+            tokens=(self.stoi['PAD'], self.stoi['SOS'], self.stoi['EOS']), trans = A.Compose([
             getattr(A, trans)(**params) for trans, params in self.train_trans.items()
         ]) if self.train_trans else None)
-        self.val_ds = Dataset(val.image_id.values, val.InChI.values, self.max_len, trans = A.Compose([
+        self.val_ds = Dataset(val.image_id.values, val.InChI.values, self.max_len, 
+            tokens=(self.stoi['PAD'], self.stoi['SOS'], self.stoi['EOS']), trans = A.Compose([
             getattr(A, trans)(**params) for trans, params in self.val_trans.items()
         ]) if self.val_trans else None)
         if self.val_with_train:

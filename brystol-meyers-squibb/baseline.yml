@@ -19,8 +19,8 @@ embed_dim: 256
 nhead: 4
 num_encoder_layers: 12
 num_decoder_layers: 12
-dropout: 0.1
-max_len: 21
+dropout: 0.
+max_len: 277
 load_from: False
 # data augmentation
 train_trans:
