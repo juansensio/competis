@@ -96,6 +96,13 @@ class Transformer(pl.LightningModule):
 
     def compute_loss(self, batch):
         x, y = batch
+        #loss = 0
+        #trg_input = y[:,:1] # SOS
+        #for i in range(y.shape[1] - 1):
+        #    y_hat = self(x, trg_input)
+            #loss += F.cross_entropy(y_hat.transpose(1,2), y[:,1:i+2]) 
+        #    preds = torch.argmax(y_hat, axis=2)
+        #    trg_input = torch.cat([y[:,:1], preds], 1)
         y_hat = self(x, y[:,:-1])
         #loss = F.cross_entropy(y_hat.view(-1, y_hat.size(-1)), y[:,1:].contiguous().view(-1)) 
         loss = F.cross_entropy(y_hat.transpose(1,2), y[:,1:]) 
@@ -110,12 +117,12 @@ class Transformer(pl.LightningModule):
         x, y = batch
         val_loss, y_hat = self.compute_loss(batch)
         y_hat = torch.argmax(y_hat, axis=2)
-        #metric = []
-        #for pred, gt in zip(y_hat, y[:,1:]):
+        metric = []
+        for pred, gt in zip(y_hat, y[:,1:]):
             #print(pred, gt)
-        #    metric.append(distance(self.decode(pred), self.decode(gt)))
+            metric.append(distance(self.decode(pred), self.decode(gt)))
         self.log('val_loss', val_loss, prog_bar=True)
-        #self.log('val_ld', np.mean(metric), prog_bar=True)
+        self.log('val_ld', np.mean(metric), prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(self.parameters(), lr=self.hparams.lr)
