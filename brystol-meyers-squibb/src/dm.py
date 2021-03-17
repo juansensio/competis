@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 import albumentations as A 
+import numpy as np
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, images, inchis=None, max_len=512, trans=None, train=True, tokens=(0, 1, 2)):
@@ -35,14 +36,17 @@ class Dataset(torch.utils.data.Dataset):
     def collate(self, batch):
         if self.train:
             # calcular longitud máxima en el batch 
-            max_len = max([len(inchi) for _, inchi in batch])       
+            lens = [len(inchi) for _, inchi in batch]
+            max_len = max(lens)    
             # añadimos padding a los inchis cortos para que todos tengan la misma longitud
             images, inchis = [], []
             for image, inchi in batch:
                 images.append(image)
                 inchis.append(torch.nn.functional.pad(inchi, (0, max_len - len(inchi)), 'constant', self.PAD))
             # opcionalmente, podríamos re-ordenar las frases en el batch (algunos modelos lo requieren)
-            return torch.stack(images), torch.stack(inchis)
+            ixs = torch.argsort(torch.tensor(lens), descending=True)
+            return torch.stack(images)[ixs], torch.stack(inchis)[ixs]
+            #return torch.stack(images)[ixs], torch.stack(inchis)[ixs]
         return torch.stack([img for img in batch])
 
 class DataModule(pl.LightningDataModule):
