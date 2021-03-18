@@ -27,7 +27,7 @@ def train(config):
         model = Transformer.load_from_checkpoint(config['load_from'])
     else:
         model = Transformer(config)
-    wandb_logger = WandbLogger(project="bms-transformer", config=config)
+    wandb_logger = WandbLogger(project="bms", config=config)
     trainer = pl.Trainer(
         gpus=config['gpus'],
         precision=config['precision'],

@@ -102,7 +102,7 @@ class Transformer(pl.LightningModule):
         x, y = batch
         y_hat = self(x, y[:,:-1])
         loss = F.cross_entropy(y_hat.transpose(1,2), y[:,1:]) 
-        self.log('val_loss', val_loss, prog_bar=True)
+        self.log('val_loss', loss, prog_bar=True)
     
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(self.parameters(), lr=self.hparams.lr)
