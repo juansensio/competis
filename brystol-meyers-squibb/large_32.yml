@@ -1,36 +1,36 @@
 # optimization
-lr: 0.001
+lr: 0.0003
 optimizer: "Adam"
-batch_size: 256
+batch_size: 8
 gradient_clip_val: 1.0
 scheduler:
   CosineAnnealingLR:
     T_max: 10
-    eta_min: 0.0001
+    eta_min: 0.00003
     verbose: True
 # data
 num_workers: 24
 pin_memory: True
-subset: 0
+subset: 0.2
 # model
-img_size: 128
-patch_size: 16
-embed_dim: 256
-nhead: 4
-num_encoder_layers: 6
-num_decoder_layers: 6
+img_size: 224
+patch_size: 32
+embed_dim: 1024
+nhead: 16
+num_encoder_layers: 24
+num_decoder_layers: 24
 dropout: 0.1
 max_len: 277
 load_from: False
 # data augmentation
 train_trans:
   Resize:
-    width: 128
-    height: 128
+    width: 224
+    height: 224
 val_trans:
   Resize:
-    width: 128
-    height: 128
+    width: 224
+    height: 224
 # training params
 gpus: 1
 precision: 16
