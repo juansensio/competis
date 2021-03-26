@@ -1,7 +1,7 @@
 # optimization
-lr: 0.0003
+lr: 0.001
 optimizer: "Adam"
-batch_size: 512
+batch_size: 2048
 gradient_clip_val: 1.0
 # scheduler:
 #   CosineAnnealingLR:
@@ -15,10 +15,10 @@ subset: 0.1
 # model
 img_size: 128
 patch_size: 16
-embed_dim: 256
-nhead: 4
-num_encoder_layers: 4
-num_decoder_layers: 4
+embed_dim: 64
+nhead: 1
+num_encoder_layers: 1
+num_decoder_layers: 1
 dropout: 0.
 max_len: 277
 load_from: False
