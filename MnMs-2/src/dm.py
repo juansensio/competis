@@ -3,49 +3,50 @@ import nibabel as nib
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 import albumentations as A
-import os
 import numpy as np
+import pandas as pd
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, path, patients, trans=None, mode='train'):
+    def __init__(self, path, data, trans=None, mode='train'):
         self.path = path
-        self.patients = patients
+        self.data = data
         self.trans = trans
         self.mode = mode
-        self.max_val = (4104., 7875.) # LA_ED, LA_ES max values
+        self.num_classes = 4
+        self.max_val = {
+            'LA_ED': 4104.,
+            'LA_ES': 7875.,
+            'SA_ED': 11510.0,
+            'SA_ES': 9182.0
+        }
 
     def __len__(self):
-        return len(self.patients)
+        return len(self.data)
 
     def __getitem__(self, ix):
-        patient = self.patients[ix]
-        ed_img = nib.load(f'{self.path}/{patient}/{patient}_LA_ED.nii.gz').get_fdata() / self.max_val[0]
-        es_img = nib.load(f'{self.path}/{patient}/{patient}_LA_ES.nii.gz').get_fdata() / self.max_val[1]
-        img = np.stack([ed_img, es_img], axis=2)[...,0]
+        patient = self.data.iloc[ix].patient
+        image = self.data.iloc[ix].image
+        channel = self.data.iloc[ix].channel
+
+        img = nib.load(f'{self.path}/{patient}/{patient}_{image}.nii.gz').get_fdata()[...,channel] / self.max_val[image]
         if self.mode=='train':
-            ed_mask = nib.load(f'{self.path}/{patient}/{patient}_LA_ED_gt.nii.gz').get_fdata()
-            es_mask = nib.load(f'{self.path}/{patient}/{patient}_LA_ES_gt.nii.gz').get_fdata()
-            mask = np.stack([ed_mask, es_mask], axis=2)[...,0].astype(np.int)
+            mask = nib.load(f'{self.path}/{patient}/{patient}_{image}_gt.nii.gz').get_fdata()[...,channel].astype(np.int)
             if self.trans:
                 t = self.trans(image=img, mask=mask)
                 img = t['image']
-                mask = t['mask'] # funciona con varios canales ?
-            img_t = torch.from_numpy(img).float().permute(2,0,1)
-            # masks encoding
-            ed_mask_oh = torch.nn.functional.one_hot(torch.from_numpy(mask[...,0]).long())
-            es_mask_oh =  torch.nn.functional.one_hot(torch.from_numpy(mask[...,1]).long())
-            mask_oh = torch.cat([ed_mask_oh, es_mask_oh], axis=-1).permute(2,0,1).float()
+                mask = t['mask'] 
+            img_t = torch.from_numpy(img).float().unsqueeze(0)
+            # mask encoding
+            mask_oh = torch.nn.functional.one_hot(torch.from_numpy(mask).long(), self.num_classes).permute(2,0,1).float()
             return img_t, mask_oh
-        if self.trans:
-            img = self.trans(image=img)['image']
-        return torch.from_numpy(img).float().permute(2,0,1), self.imgs[ix]
 
 
 class DataModule(pl.LightningDataModule):
     def __init__(
         self, 
-        path='data/MnM-2/training', 
-        val_split=40, # 120 / 40 / 40
+        path='data/MnM-2/training',
+        file="training_data.csv", 
+        val_split=120, # 120 / 40 / 40
         batch_size=32, 
         num_workers=0, 
         pin_memory=True, 
@@ -57,6 +58,7 @@ class DataModule(pl.LightningDataModule):
     ):
         super().__init__()
         self.path = path
+        self.file = file
         self.val_split = val_split
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -65,16 +67,26 @@ class DataModule(pl.LightningDataModule):
         self.val_with_train = val_with_train
         self.train_trans = train_trans
         self.val_trans = val_trans
+
+    def num2str(self, num):
+        s = str(num)
+        if num < 100:
+            s = '0' + s 
+        if num < 10:
+            s = '0' + s
+        return s
             
     def setup(self, stage=None):
         
-        # get list of patients, sort by number
-        patients = os.listdir(self.path)
-        patients = sorted(patients)
+        # get list of patients
+        data = pd.read_csv(self.file)
 
         # train / val splits
-        train = patients[:-self.val_split]
-        val = patients[-self.val_split:]
+        train = data[data.patient <= self.val_split]
+        val = data[data.patient > self.val_split]
+
+        train.patient = train.patient.apply(lambda x: self.num2str(x))
+        val.patient = val.patient.apply(lambda x: self.num2str(x))
 
         if self.val_with_train:
             val = train

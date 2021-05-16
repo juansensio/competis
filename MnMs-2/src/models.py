@@ -8,13 +8,12 @@ class SMP(pl.LightningModule):
     def __init__(self, config=None):
         super().__init__()
         self.save_hyperparameters(config)
-        self.num_classes = 8
-        #self.loss = getattr(losses, self.hparams['loss'])
-        self.loss = getattr(losses, 'bce')
+        self.num_classes = 4
+        self.loss = getattr(losses, self.hparams['loss'])
         self.model = getattr(smp, self.hparams['model'])(
             encoder_name=self.hparams['backbone'],        
             encoder_weights=self.hparams['pretrained'],    
-            in_channels=2,                  
+            in_channels=1,                  
             classes=self.num_classes,                      
         )
 
@@ -33,12 +32,8 @@ class SMP(pl.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.loss(y_hat, y)
-        iou_ed = self.iou(y_hat[:,:4,...], y[:,:4,...])
-        iou_es = self.iou(y_hat[:,4:,...], y[:,4:,...])
-        iou = 0.5*(iou_ed + iou_es)
+        iou = self.iou(y_hat, y)
         self.log('loss', loss)
-        self.log('iou_ed', iou_ed, prog_bar=True)
-        self.log('iou_es', iou_es, prog_bar=True)
         self.log('iou', iou, prog_bar=True)
         return loss
 
@@ -47,12 +42,7 @@ class SMP(pl.LightningModule):
         y_hat = self(x)
         loss = self.loss(y_hat, y)
         iou = self.iou(y_hat, y)
-        iou_ed = self.iou(y_hat[:,:4,...], y[:,:4,...])
-        iou_es = self.iou(y_hat[:,4:,...], y[:,4:,...])
-        iou = 0.5*(iou_ed + iou_es)
         self.log('val_loss', loss, prog_bar=True)
-        self.log('val_iou_ed', iou_ed, prog_bar=True)
-        self.log('val_iou_es', iou_es, prog_bar=True)
         self.log('val_iou', iou, prog_bar=True)
     
     def configure_optimizers(self):
