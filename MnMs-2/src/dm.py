@@ -34,7 +34,7 @@ class Dataset(torch.utils.data.Dataset):
             # masks encoding
             ed_mask_oh = torch.nn.functional.one_hot(torch.from_numpy(mask[...,0]).long())
             es_mask_oh =  torch.nn.functional.one_hot(torch.from_numpy(mask[...,1]).long())
-            mask_oh = torch.cat([ed_mask_oh, es_mask_oh], axis=-1)
+            mask_oh = torch.cat([ed_mask_oh, es_mask_oh], axis=-1).permute(2,0,1).float()
             return img_t, mask_oh
         if self.trans:
             img = self.trans(image=img)['image']
@@ -75,6 +75,9 @@ class DataModule(pl.LightningDataModule):
         # train / val splits
         train = patients[:-self.val_split]
         val = patients[-self.val_split:]
+
+        if self.val_with_train:
+            val = train
 
         # datasets
         self.train_ds = Dataset(

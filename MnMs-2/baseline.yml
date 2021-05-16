@@ -13,16 +13,21 @@ pin_memory: True
 # model
 model: Unet
 backbone: resnet18
+pretrained: imagenet
 load_from: False
 # data augmentation
-# train_trans:
-#   Resize:
-#     width: 128
-#     height: 128
-# val_trans:
-#   Resize:
-#     width: 128
-#     height: 128
+train_trans:
+  Resize:
+    width: 224
+    height: 224
+  HorizontalFlip:
+  VerticalFlip:
+  Transpose:
+  Rotate:
+val_trans:
+  Resize:
+    width: 224
+    height: 224
 # training params
 gpus: 1
 precision: 16

@@ -1,7 +1,7 @@
 # optimization
 lr: 0.001
 optimizer: Adam
-batch_size: 1
+batch_size: 5
 loss: dice
 # data
 num_workers: 24
@@ -10,8 +10,16 @@ pin_memory: True
 model: Unet
 backbone: resnet18
 pretrained: imagenet
-num_channels: 1
 load_from: False
+# data augmentation
+train_trans:
+  Resize:
+    width: 256
+    height: 256
+val_trans:
+  Resize:
+    width: 256
+    height: 256
 # training params
 gpus: 1
 precision: 16
