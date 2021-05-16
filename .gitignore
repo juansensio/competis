@@ -14,3 +14,4 @@ Lyft*
 .vector_cache
 *.ckpt
 .vscode
+*.rar

@@ -1,0 +1,35 @@
+# optimization
+lr: 0.0003
+optimizer: "Adam"
+batch_size: 64
+# scheduler:
+#   CosineAnnealingLR:
+#     T_max: 10
+#     eta_min: 0.00003
+#     verbose: True
+# data
+num_workers: 24
+pin_memory: True
+# model
+model: Unet
+backbone: resnet18
+load_from: False
+# data augmentation
+# train_trans:
+#   Resize:
+#     width: 128
+#     height: 128
+# val_trans:
+#   Resize:
+#     width: 128
+#     height: 128
+# training params
+gpus: 1
+precision: 16
+max_epochs: 20
+# debugging options
+train_batches: 1.
+shuffle_train: True
+val_batches: 1.
+val_with_train: False
+log: True

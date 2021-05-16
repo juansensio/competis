@@ -1,0 +1,24 @@
+# optimization
+lr: 0.001
+optimizer: Adam
+batch_size: 1
+loss: dice
+# data
+num_workers: 24
+pin_memory: True
+# model
+model: Unet
+backbone: resnet18
+pretrained: imagenet
+num_channels: 1
+load_from: False
+# training params
+gpus: 1
+precision: 16
+max_epochs: 100
+# debugging options
+train_batches: 1
+shuffle_train: False
+val_batches: 1
+val_with_train: True
+log: False
