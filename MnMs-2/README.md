@@ -1,3 +1,5 @@
+challenge -> https://competitions.codalab.org/competitions/31559
+
 baseline todo ceros -> 0
 
 LD 2 channels
