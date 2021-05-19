@@ -43,7 +43,7 @@ class DataModule(pl.LightningDataModule):
         self, 
         path='data/MnM-2/training',
         file="training_data.csv", 
-        val_split=120, # 120 / 40 / 40
+        val_split=(121, 160), # 120 / 40 / 40
         batch_size=32, 
         num_workers=0, 
         pin_memory=True, 
@@ -71,8 +71,11 @@ class DataModule(pl.LightningDataModule):
         data = pd.read_csv(self.file)
 
         # train / val splits
-        train = data[data.patient <= self.val_split]
-        val = data[data.patient > self.val_split]
+        train = data[(data.patient < self.val_split[0]) | (data.patient > self.val_split[1])]
+        val = data[(data.patient >= self.val_split[0]) & (data.patient <= self.val_split[1])]
+
+        print(train.patient.unique())
+        print(val.patient.unique())
 
         train.patient = train.patient.astype(str).str.zfill(3)
         val.patient = val.patient.astype(str).str.zfill(3)

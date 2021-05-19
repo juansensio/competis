@@ -10,7 +10,7 @@ loss: "bce"
 #     total_steps: 50
 #     verbose: True
 # data
-num_workers: 0
+num_workers: 24
 pin_memory: True
 # model
 model: Unet
@@ -33,7 +33,7 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 150
+max_epochs: 50
 # debugging options
 train_batches: 1.
 shuffle_train: True
