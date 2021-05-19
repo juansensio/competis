@@ -7,17 +7,16 @@ import numpy as np
 import pandas as pd
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, path, data, trans=None, mode='train'):
+    def __init__(self, path, data, trans=None):
         self.path = path
         self.data = data
         self.trans = trans
-        self.mode = mode
         self.num_classes = 4
         self.max_val = {
             'LA_ED': 4104.,
             'LA_ES': 7875.,
-            'SA_ED': 11510.0,
-            'SA_ES': 9182.0
+            'SA_ED': 11510.,
+            'SA_ES': 9182.
         }
 
     def __len__(self):
@@ -27,18 +26,16 @@ class Dataset(torch.utils.data.Dataset):
         patient = self.data.iloc[ix].patient
         image = self.data.iloc[ix].image
         channel = self.data.iloc[ix].channel
-
         img = nib.load(f'{self.path}/{patient}/{patient}_{image}.nii.gz').get_fdata()[...,channel] / self.max_val[image]
-        if self.mode=='train':
-            mask = nib.load(f'{self.path}/{patient}/{patient}_{image}_gt.nii.gz').get_fdata()[...,channel].astype(np.int)
-            if self.trans:
-                t = self.trans(image=img, mask=mask)
-                img = t['image']
-                mask = t['mask'] 
-            img_t = torch.from_numpy(img).float().unsqueeze(0)
-            # mask encoding
-            mask_oh = torch.nn.functional.one_hot(torch.from_numpy(mask).long(), self.num_classes).permute(2,0,1).float()
-            return img_t, mask_oh
+        mask = nib.load(f'{self.path}/{patient}/{patient}_{image}_gt.nii.gz').get_fdata()[...,channel].astype(np.int)
+        if self.trans:
+            t = self.trans(image=img, mask=mask)
+            img = t['image']
+            mask = t['mask'] 
+        img_t = torch.from_numpy(img).float().unsqueeze(0)
+        # mask encoding
+        mask_oh = torch.nn.functional.one_hot(torch.from_numpy(mask).long(), self.num_classes).permute(2,0,1).float()
+        return img_t, mask_oh
 
 
 class DataModule(pl.LightningDataModule):
@@ -67,14 +64,6 @@ class DataModule(pl.LightningDataModule):
         self.val_with_train = val_with_train
         self.train_trans = train_trans
         self.val_trans = val_trans
-
-    def num2str(self, num):
-        s = str(num)
-        if num < 100:
-            s = '0' + s 
-        if num < 10:
-            s = '0' + s
-        return s
             
     def setup(self, stage=None):
         
@@ -85,8 +74,8 @@ class DataModule(pl.LightningDataModule):
         train = data[data.patient <= self.val_split]
         val = data[data.patient > self.val_split]
 
-        train.patient = train.patient.apply(lambda x: self.num2str(x))
-        val.patient = val.patient.apply(lambda x: self.num2str(x))
+        train.patient = train.patient.astype(str).str.zfill(3)
+        val.patient = val.patient.astype(str).str.zfill(3)
 
         if self.val_with_train:
             val = train
