@@ -74,9 +74,6 @@ class DataModule(pl.LightningDataModule):
         train = data[(data.patient < self.val_split[0]) | (data.patient > self.val_split[1])]
         val = data[(data.patient >= self.val_split[0]) & (data.patient <= self.val_split[1])]
 
-        print(train.patient.unique())
-        print(val.patient.unique())
-
         train.patient = train.patient.astype(str).str.zfill(3)
         val.patient = val.patient.astype(str).str.zfill(3)
 
