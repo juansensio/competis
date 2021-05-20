@@ -15,7 +15,7 @@ baseline + cv + tta -> 0.924 /
 
 probar:
 
-- losses
+- losses: focal > jaccard > bce > dice > log_cosh_dice
 - más da (crops, deformaciones)
 - más resolución (pad if needed)
 - más tta

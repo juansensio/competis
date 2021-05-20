@@ -7,9 +7,7 @@ import optuna
 from src.cbs import PyTorchLightningPruningCallback
 
 def objective(trial):
-
     pl.seed_everything(42, workers=True)
-    
     trans = {'Resize': {'width': 224, 'height' :224}}
     dm = DataModule(
         batch_size=64,
@@ -19,9 +17,7 @@ def objective(trial):
         val_trans=trans,
         shuffle_train=False
     )
-
     loss = trial.suggest_categorical("loss", ["bce", "dice", "jaccard", "focal", "log_cosh_dice"])
-    
     model = SMP({
         'optimizer': 'Adam',
         'lr': 0.0003,
@@ -30,7 +26,6 @@ def objective(trial):
         'backbone': 'resnet18',
         'pretrained': 'imagenet'
     })
-
     wandb_logger = WandbLogger(project="MnMs2-opt", name=loss)
     trainer = pl.Trainer(
         gpus=1,
@@ -43,13 +38,9 @@ def objective(trial):
         limit_val_batches=1.,
         deterministic=True
     )
-
     trainer.fit(model, dm)
-
     score = trainer.test(model, dm.val_dataloader())
-
     wandb_logger.experiment.finish()
-
     return score[0]['iou']
 
 #sampler = optuna.samplers.TPESampler(seed=42)
