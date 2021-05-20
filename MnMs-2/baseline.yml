@@ -2,7 +2,7 @@
 lr: 0.0003
 optimizer: "Adam"
 batch_size: 64
-loss: "focal"
+loss: "bce"
 # scheduler:
 #   OneCycleLR:
 #     pct_start: 0.1

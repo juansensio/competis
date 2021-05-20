@@ -9,15 +9,16 @@ unet18 224 dice -> 0.8085 / 0.218
 
 1 channel / imagen
 
-baseline -> 0.8416 / 0.883
-baseline + tta -> 0.8416 / 0.890
-baseline + cv + tta -> 0.924 /
+baseline bce -> 0.8416 / 0.883
+baseline bce + tta -> 0.8416 / 0.890
+baseline bce + cv + tta -> 0.924 / 0.891
 
 probar:
 
-- losses: focal > jaccard > bce > dice > log_cosh_dice
+- losses: en 10 epochs exp -> focal > jaccard > bce > dice > log_cosh_dice
 - más da (crops, deformaciones)
 - más resolución (pad if needed)
 - más tta
 - mejores modelos
+- lr scheduling
 - más ensamblado
