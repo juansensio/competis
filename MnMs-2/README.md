@@ -9,13 +9,15 @@ unet18 224 dice -> 0.8085 / 0.218
 
 1 channel / imagen
 
-unet18 224 bce -> 0.8416 / 0.883
+baseline -> 0.8416 / 0.883
+baseline + tta -> 0.8416 / 0.890
+baseline + cv + tta -> 0.924 /
 
 probar:
 
-- probar losses
+- losses
 - más da (crops, deformaciones)
 - más resolución (pad if needed)
-- tta
+- más tta
 - mejores modelos
-- CV y ensamblado (dataset pequeño)
+- más ensamblado
