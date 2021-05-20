@@ -9,16 +9,24 @@ unet18 224 dice -> 0.8085 / 0.218
 
 1 channel / imagen
 
-baseline bce -> 0.8416 / 0.883
-baseline bce + tta -> 0.8416 / 0.890
-baseline bce + cv + tta -> 0.924 / 0.891
+baseline bce 150e da flips -> 0.8416 / 0.883
+baseline bce 150e da flips + tta -> 0.8416 / 0.890
+baseline bce 150e da flips + cv + tta -> 0.924 / 0.891
+
+seed everything deterministic 50 da flips
+
+baseline bce -> 0.8339
+baseline focal -> 0.8279 / 0.837
+baseline bce crops -> running ...
+baseline bce crops distortion ->
+baseline bce crops distortion blur ->
 
 probar:
 
-- losses: en 10 epochs exp -> focal > jaccard > bce > dice > log_cosh_dice
+- losses: bce > focal > dice
 - más da (crops, deformaciones)
-- más resolución (pad if needed)
+- más resolución (384, pad if needed)
+- lr scheduling
 - más tta
 - mejores modelos
-- lr scheduling
 - más ensamblado
