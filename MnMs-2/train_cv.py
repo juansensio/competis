@@ -37,6 +37,7 @@ def train(config):
             limit_val_batches=config['val_batches']
         )
         trainer.fit(model, dm)
+        wandb_logger.experiment.finish()
 
 if __name__ == '__main__':
     config_file = sys.argv[1]
