@@ -44,6 +44,12 @@ class SMP(pl.LightningModule):
         iou = self.iou(y_hat, y)
         self.log('val_loss', loss, prog_bar=True)
         self.log('val_iou', iou, prog_bar=True)
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        iou = self.iou(y_hat, y)
+        self.log('iou', iou, prog_bar=True)
     
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(self.parameters(), lr=self.hparams.lr)

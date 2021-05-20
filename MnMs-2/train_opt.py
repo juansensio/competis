@@ -19,33 +19,40 @@ def objective(trial):
         shuffle_train=False
     )
 
-    net = trial.suggest_categorical("model", ["Unet", "UnetPlusPlus", "DeepLabV3", "DeepLabV3Plus"])
-    backbone = trial.suggest_categorical("backbone", ["resnet18", "se_resnext50_32x4d", "efficientnet-b3", "efficientnet-b5", "mobilenet_v2"])
+    loss = trial.suggest_categorical("loss", ["bce", "dice", "jaccard", "focal", "log_cosh_dice"])
+    print(loss)
     
     model = SMP({
         'optimizer': 'Adam',
         'lr': 0.0003,
-        'loss': 'bce',
-        'model': 'unet',
-        'backbone': 'renset18',
+        'loss': loss,
+        'model': 'Unet',
+        'backbone': 'resnet18',
         'pretrained': 'imagenet'
     })
 
-    wandb_logger = WandbLogger(project="MnMs2-opt", name=f'{net}-{backbone}')
+    #wandb_logger = WandbLogger(project="MnMs2-opt", name=loss)
     trainer = pl.Trainer(
         gpus=1,
         precision=16,
-        logger=wandb_logger,
-        max_epochs=10,
+        logger=None,#wandb_logger,
+        max_epochs=50,
         callbacks=[PyTorchLightningPruningCallback(trial, monitor="val_iou")],
         checkpoint_callback=False,
-        limit_train_batches=10,
-        limit_val_batches=10
+        limit_train_batches=1.,
+        limit_val_batches=0
     )
 
     trainer.fit(model, dm)
 
-sampler = optuna.samplers.TPESampler(seed=17)
-study = optuna.create_study(direction='maximize', sampler=sampler)
-study.optimize(objective, n_trials=100)
+    score = trainer.test(model, dm.val_dataloader())
+    return score[0]['iou']
+
+#sampler = optuna.samplers.TPESampler(seed=42)
+#study = optuna.create_study(direction='maximize', sampler=sampler)
+#study.optimize(objective, n_trials=100)
+
+search_space = {"loss": ["bce", "dice", "jaccard", "focal", "log_cosh_dice"]}
+study = optuna.create_study(sampler=optuna.samplers.GridSampler(search_space))
+study.optimize(objective, n_trials=5)
 print(study.best_params)
