@@ -22,7 +22,7 @@ def objective(trial):
         'optimizer': 'Adam',
         'lr': 0.0003,
         'loss': loss,
-        'model': 'Unet',
+        'model': 'Unet', 
         'backbone': 'resnet18',
         'pretrained': 'imagenet'
     })
@@ -41,7 +41,7 @@ def objective(trial):
     trainer.fit(model, dm)
     score = trainer.test(model, dm.val_dataloader())
     wandb_logger.experiment.finish()
-    return score[0]['iou']
+    return score[0]['test_iou']
 
 #sampler = optuna.samplers.TPESampler(seed=42)
 #study = optuna.create_study(direction='maximize', sampler=sampler)

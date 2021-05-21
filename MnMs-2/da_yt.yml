@@ -1,0 +1,49 @@
+# optimization
+lr: 0.0003
+optimizer: "Adam"
+batch_size: 64
+loss: "bce"
+# scheduler:
+#   OneCycleLR:
+#     pct_start: 0.1
+#     max_lr: 0.0003
+#     total_steps: 50
+#     verbose: True
+# data
+num_workers: 0
+pin_memory: True
+# model
+model: Unet
+backbone: resnet18
+pretrained: imagenet
+load_from: False
+# data augmentation
+train_trans:
+  PadIfNeeded:
+    min_width: 384
+    min_height: 384
+    border_mode: 0
+  RandomResizedCrop:
+    width: 384
+    height: 384
+  HorizontalFlip: {}
+  VerticalFlip: {}
+  RandomRotate90: {}
+  Transpose: {}
+  Rotate: {}
+  GridDistortion: {}
+  GaussianBlur: {}
+val_trans:
+  Resize:
+    width: 224
+    height: 224
+# training params
+gpus: 1
+precision: 16
+max_epochs: 150
+# debugging options
+train_batches: 1.
+shuffle_train: True
+val_batches: 1.
+val_with_train: False
+log: True
