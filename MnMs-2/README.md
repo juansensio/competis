@@ -23,7 +23,7 @@ baseline bce crops distortion blur -> 0.8191
 baseline bce no flips -> 0.8275 (of)
 baseline bce distortion -> 0.8293 (of)
 
-deeplabv3++ se_resnext50 lr scheduling da -> running
+deeplabv3++ se_resnext50 lr scheduling da 224 -> running ...
 
 384
 
