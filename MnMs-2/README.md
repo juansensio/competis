@@ -25,6 +25,8 @@ baseline bce distortion -> 0.8293 (of)
 
 deeplabv3++ se_resnext50 lr scheduling da -> running
 
+384
+
 probar:
 
 - losses: bce > focal > dice

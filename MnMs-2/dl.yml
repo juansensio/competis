@@ -6,8 +6,8 @@ loss: "bce"
 scheduler:
   OneCycleLR:
     pct_start: 0.05
-    max_lr: 0.0005
-    total_steps: 200
+    max_lr: 0.0003
+    total_steps: 100
     verbose: True
 # data
 num_workers: 24
@@ -38,7 +38,7 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 200
+max_epochs: 100
 # debugging options
 train_batches: 1.
 shuffle_train: True

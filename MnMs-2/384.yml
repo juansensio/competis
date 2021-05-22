@@ -20,22 +20,21 @@ load_from: False
 # data augmentation
 train_trans:
   PadIfNeeded:
-    min_width: 386
-    min_height: 386
+    min_width: 384
+    min_height: 384
     border_mode: 0
   RandomResizedCrop:
-    width: 386
-    height: 386
+    width: 384
+    height: 384
   HorizontalFlip: {}
   VerticalFlip: {}
   Transpose: {}
   Rotate: {}
   GridDistortion: {}
-  #GaussianBlur: {}
 val_trans:
   Resize:
-    width: 386
-    height: 386
+    width: 384
+    height: 384
 # training params
 gpus: 1
 precision: 16
