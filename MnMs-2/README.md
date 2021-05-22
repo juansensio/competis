@@ -26,13 +26,3 @@ baseline bce distortion -> 0.8293 (of)
 deeplabv3++ se_resnext50 lr scheduling da 224 -> running ...
 
 384
-
-probar:
-
-- losses: bce > focal > dice
-- más da (crops, deformaciones): flips + crops + distorsion (no da of y mejora solo crops)
-- más resolución (384, pad if needed)
-- lr scheduling
-- más tta
-- mejores modelos
-- más ensamblado
