@@ -19,13 +19,13 @@ pretrained: imagenet
 load_from: False
 # data augmentation
 train_trans:
-  #PadIfNeeded:
-  #  min_width: 224
-  #  min_height: 224
-  #  border_mode: 0
-  Resize:
-    width: 224
-    height: 224
+  PadIfNeeded:
+    min_width: 386
+    min_height: 386
+    border_mode: 0
+  RandomResizedCrop:
+    width: 386
+    height: 386
   HorizontalFlip: {}
   VerticalFlip: {}
   Transpose: {}
@@ -34,8 +34,8 @@ train_trans:
   #GaussianBlur: {}
 val_trans:
   Resize:
-    width: 224
-    height: 224
+    width: 386
+    height: 386
 # training params
 gpus: 1
 precision: 16

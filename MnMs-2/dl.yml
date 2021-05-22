@@ -1,29 +1,29 @@
 # optimization
-lr: 0.0003
+lr: 0.00001
 optimizer: "Adam"
 batch_size: 64
 loss: "bce"
-# scheduler:
-#   OneCycleLR:
-#     pct_start: 0.1
-#     max_lr: 0.0003
-#     total_steps: 50
-#     verbose: True
+scheduler:
+  OneCycleLR:
+    pct_start: 0.05
+    max_lr: 0.0005
+    total_steps: 200
+    verbose: True
 # data
 num_workers: 24
 pin_memory: True
 # model
-model: Unet
-backbone: resnet18
+model: DeepLabV3Plus
+backbone: se_resnext50_32x4d
 pretrained: imagenet
 load_from: False
 # data augmentation
 train_trans:
-  #PadIfNeeded:
-  #  min_width: 224
-  #  min_height: 224
-  #  border_mode: 0
-  Resize:
+  PadIfNeeded:
+    min_width: 224
+    min_height: 224
+    border_mode: 0
+  RandomResizedCrop:
     width: 224
     height: 224
   HorizontalFlip: {}
@@ -31,7 +31,6 @@ train_trans:
   Transpose: {}
   Rotate: {}
   GridDistortion: {}
-  #GaussianBlur: {}
 val_trans:
   Resize:
     width: 224
@@ -39,7 +38,7 @@ val_trans:
 # training params
 gpus: 1
 precision: 16
-max_epochs: 50
+max_epochs: 200
 # debugging options
 train_batches: 1.
 shuffle_train: True
