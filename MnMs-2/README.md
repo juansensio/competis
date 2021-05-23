@@ -33,4 +33,7 @@ bce 200e flips + crops + dist
 
 unet resnet18 -> 0.8476 / 0.884
 depplabv3++ resnet18 -> harley ...
-unet resnet18 lr5 ->
+
+lr5
+
+unet resnet18 -> 0.8414
