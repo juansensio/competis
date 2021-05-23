@@ -23,6 +23,10 @@ baseline bce crops distortion blur -> 0.8191
 baseline bce no flips -> 0.8275 (of)
 baseline bce distortion -> 0.8293 (of)
 
-deeplabv3++ se_resnext50 lr da 224 -> running ...
+models
 
-unet enb5 lr da 384 -> harley...
+deeplabv3++ se_resnext50 lrs3 da 224 bs64 70e -> 0.8321
+unet enb3 lrs5 da 224 bs32 100e -> harley... (bastante bien ! reentrenar)
+deeplabv3++ enb5 lrs5 da 384 bs64 100e
+
+probar alguna submission con dice loss
