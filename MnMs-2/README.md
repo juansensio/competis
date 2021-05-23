@@ -16,7 +16,7 @@ baseline bce 150e da flips + cv + tta -> 0.924 / 0.891
 seed everything deterministic 50 da flips
 
 baseline bce -> 0.8339 (of)
-baseline focal -> 0.8279 / 0.837 (of)
+baseline focal -> 0.8279 / 0.837 (of) (focal peor)
 baseline bce crops -> 0.8214
 baseline bce crops distortion -> 0.8220
 baseline bce crops distortion blur -> 0.8191
@@ -26,5 +26,6 @@ baseline bce distortion -> 0.8293 (of)
 models
 
 deeplabv3++ se_resnext50 lrs3 da 224 bs64 70e -> 0.8321 (podía seguir mejorando)
-unet enb3 lrs5 da 224 bs32 100e -> 0.853 (bastante bien ! cv)
-unet enb3 lrs5 da 224 bs64 100e dice -> pykon...
+unet enb3 lrs5 da 224 bs32 100e -> 0.853 / 0.872 (mejora val, peor test)
+unet enb3 lrs5 da 224 bs64 100e dice -> 0.8166 / 0.803 (dice da peor)
+unet resnet18 bce 200e da flips + crops + distortion -> pykon ...
