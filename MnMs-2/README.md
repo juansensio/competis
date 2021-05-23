@@ -25,8 +25,6 @@ baseline bce distortion -> 0.8293 (of)
 
 models
 
-deeplabv3++ se_resnext50 lrs3 da 224 bs64 70e -> 0.8321
-unet enb3 lrs5 da 224 bs32 100e -> harley... (bastante bien ! reentrenar)
-deeplabv3++ enb5 lrs5 da 384 bs64 100e
-
-probar alguna submission con dice loss
+deeplabv3++ se_resnext50 lrs3 da 224 bs64 70e -> 0.8321 (podía seguir mejorando)
+unet enb3 lrs5 da 224 bs32 100e -> 0.853 (bastante bien ! cv)
+unet enb3 lrs5 da 224 bs64 100e dice -> pykon...

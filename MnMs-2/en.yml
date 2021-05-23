@@ -1,8 +1,8 @@
 # optimization
 lr: 0.00005
-optimizer: "Adam"
-batch_size: 32
-loss: "bce"
+optimizer: Adam
+batch_size: 64
+loss: dice
 scheduler:
   OneCycleLR:
     pct_start: 0.05
