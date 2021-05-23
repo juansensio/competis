@@ -28,4 +28,9 @@ models
 deeplabv3++ se_resnext50 lrs3 da 224 bs64 70e -> 0.8321 (podía seguir mejorando)
 unet enb3 lrs5 da 224 bs32 100e -> 0.853 / 0.872 (mejora val, peor test)
 unet enb3 lrs5 da 224 bs64 100e dice -> 0.8166 / 0.803 (dice da peor)
-unet resnet18 bce 200e da flips + crops + distortion -> pykon ...
+
+bce 200e flips + crops + dist
+
+unet resnet18 -> 0.8476 / 0.884
+depplabv3++ resnet18 -> harley ...
+unet resnet18 lr5 ->
