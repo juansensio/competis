@@ -7,6 +7,7 @@ def get_npy(path, patch, name='data/BANDS'):
     f = gzip.GzipFile(file_path, "r")
     return np.load(f)
 
+    
 def generate_mask_with_mean_ndvi(path, patch, thresholds = (0.4, 0.6)):
     
     # load bands
