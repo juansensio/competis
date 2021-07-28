@@ -5,11 +5,10 @@ from tqdm import tqdm
 import pandas as pd 
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor
-from sklearn.model_selection import train_test_split
 from torch.utils.data import random_split
 from src.utils import get_npy
-from .ds import Dataset
-
+from ..datasets.ds_fast import Dataset
+import numpy as np
 #warnings.simplefilter("ignore")
 
 class UNetDataModule(pl.LightningDataModule):
@@ -42,39 +41,68 @@ class UNetDataModule(pl.LightningDataModule):
                 for future in futures:
                     result = future.result()
                     steps.append(result)
-        train_files, train_steps, train_masks = [], [], []
+        train_files, train_steps = [], []
+        os.makedirs(f'{self.path}/{mode}_processed', exist_ok=True)
         for patch, _steps in steps:
+            os.makedirs(f'{self.path}/{mode}_processed/{patch}', exist_ok=True)
             for step in range(_steps):
-                train_files.append(f'{self.path}/{mode}/{patch}/data/BANDS.npy.gz')
+                train_files.append(f'{self.path}/{mode}_processed/{patch}')
                 train_steps.append(step)
-                train_masks.append(f'{self.path}/{mode}/{patch}/mask_timeless/CULTIVATED.npy.gz')
         return pd.DataFrame({
             'file': train_files,
-            'step': train_steps,
-            'mask': train_masks
+            'step': train_steps
         })
+
+    def process_image(self, args):
+        patch, mode = args
+        bands = get_npy(f'{self.path}/{mode}', patch)
+        steps = bands.shape[0]  
+        for step in range(steps):
+            rgb = bands[...,(3,2,1)][step]
+            np.save(f'{self.path}/{mode}_processed/{patch}/{step}.npy', rgb)
+        if mode == 'train':
+            mask = get_npy(f'{self.path}/{mode}', patch, name='mask_timeless/CULTIVATED')
+            np.save(f'{self.path}/{mode}_processed/{patch}/mask.npy', mask)
+
+    def generate_processed_images(self, patches, mode="train"):
+        num_cores = multiprocessing.cpu_count()
+        args = [(patch, mode) for patch in patches]
+        with ProcessPoolExecutor(max_workers=num_cores) as pool:
+            with tqdm(total=len(patches)) as progress:
+                futures = []
+                for _args in args:
+                    future = pool.submit(self.process_image, _args)
+                    future.add_done_callback(lambda p: progress.update())
+                    futures.append(future)
+                for future in futures:
+                    future.result()
 
     def setup(self, stage = None):
        
         try:
-            self.train_df = pd.read_csv('unet_processed_train_patches.csv')
-            self.val_df = pd.read_csv('unet_processed_val_patches.csv')
-            self.test_df = pd.read_csv('unet_processed_test_patches.csv')
+            self.train_df = pd.read_csv('unet_processed_train_patches_fast.csv')
+            self.val_df = pd.read_csv('unet_processed_val_patches_fast.csv')
         except:
-            print("Generando lista de imágenes")
             # cargar eopatches de training
             train_patches = os.listdir(f'{self.path}/train')
-            test_patches = os.listdir(f'{self.path}/test')
             # separar en train / val 
             train_patches, val_patches = random_split(train_patches, [80, 20])
             # separar series temporales
             self.train_df = self.generate_dataframes(train_patches)
-            self.train_df.to_csv(f'unet_processed_train_patches.csv', index=False)
+            self.train_df.to_csv(f'unet_processed_train_patches_fast.csv', index=False)
+            self.generate_processed_images(train_patches)
             self.val_df = self.generate_dataframes(val_patches)
-            self.val_df.to_csv(f'unet_processed_val_patches.csv', index=False)
+            self.val_df.to_csv(f'unet_processed_val_patches_fast.csv', index=False)
+            self.generate_processed_images(val_patches)
+            
+        try:
+            self.test_df = pd.read_csv('unet_processed_test_patches_fast.csv')
+        except:
+            test_patches = os.listdir(f'{self.path}/test')
             self.test_df = self.generate_dataframes(test_patches, mode='test')
-            self.test_df.to_csv(f'unet_processed_test_patches.csv', index=False)
-        
+            self.test_df.to_csv(f'unet_processed_test_patches_fast.csv', index=False)
+            self.generate_processed_images(test_patches, mode='test')
+
         # generar datasets
         self.train_ds = Dataset(
             self.train_df

@@ -1,0 +1,6 @@
+batch_size: 1
+shuffle: False
+val_with_train: True
+train_batches: 1
+val_batches: 1
+lr: 0.001
