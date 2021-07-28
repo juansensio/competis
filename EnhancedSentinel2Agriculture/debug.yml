@@ -1,6 +1,7 @@
-batch_size: 1
+batch_size: 5
 shuffle: False
 val_with_train: True
 train_batches: 1
 val_batches: 1
 lr: 0.001
+max_epochs: 60

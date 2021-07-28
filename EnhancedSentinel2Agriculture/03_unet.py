@@ -19,7 +19,8 @@ config = {
     'shuffle': True,
     'val_with_train': False,
     'train_batches': 1.,
-    'val_batches': 1.
+    'val_batches': 1.,
+    'resume': None
 }
 
 def train(config):
@@ -43,6 +44,7 @@ def train(config):
         callbacks=[checkpoint],
         limit_train_batches=config['train_batches'],
         limit_val_batches=config['val_batches'],
+        resume_from_checkpoint=config['resume']
     )
     trainer.fit(model, dm)
 
@@ -51,5 +53,5 @@ if __name__ == '__main__':
     if config_file:
         with open(config_file, 'r') as stream:
             loaded_config = yaml.safe_load(stream)
-        config = config.update(loaded_config)
+        config.update(loaded_config)
     train(config)

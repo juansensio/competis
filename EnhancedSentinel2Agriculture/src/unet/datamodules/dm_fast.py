@@ -13,7 +13,7 @@ import numpy as np
 
 class UNetDataModule(pl.LightningDataModule):
 
-    def __init__(self, path = "data/eopatches", batch_size = 256, num_workers=20, shuffle=True, val_with_train=False):
+    def __init__(self, path = "data/eopatches", batch_size = 256, num_workers=20, shuffle=True, val_with_train=False, **kwargs):
         super().__init__()
         self.path = path
         self.batch_size = batch_size

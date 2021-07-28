@@ -21,22 +21,31 @@ class UNet(pl.LightningModule):
         upsampled = F.interpolate(decoder_output, scale_factor=4, mode="nearest")
         masks = self.unet.segmentation_head(upsampled)
         return masks
-        
-    def training_step(self, batch, batch_idx):
+
+    def predict(self, x):
+        self.eval()
+        with torch.no_grad():
+            x = x.to(self.device)
+            y_hat = self(x)
+            return torch.sigmoid(y_hat)
+
+    def shared_step(self, batch):
         x, y = batch
         y_hat = self(x)
         loss = F.binary_cross_entropy_with_logits(y_hat, y)
+        return y_hat, loss
+        
+    def training_step(self, batch, batch_idx):
+        _, loss = self.shared_step(batch)
         self.log('loss', loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
-        loss = F.binary_cross_entropy_with_logits(y_hat, y)
+        _, y = batch
+        y_hat, loss = self.shared_step(batch)
         metric = self.metric(y_hat, y.long())
         self.log('val_loss', loss, prog_bar=True)
         self.log('val_mathCorrCoef', metric, prog_bar=True)
-
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
