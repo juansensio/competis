@@ -37,7 +37,6 @@ class UNet(pl.LightningModule):
         
     def training_step(self, batch, batch_idx):
         _, loss = self.shared_step(batch)
-        self.log('loss', loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):

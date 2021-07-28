@@ -20,7 +20,8 @@ config = {
     'val_with_train': False,
     'train_batches': 1.,
     'val_batches': 1.,
-    'resume': None
+    'resume': None,
+    'accelerator': None
 }
 
 def train(config):
@@ -44,7 +45,8 @@ def train(config):
         callbacks=[checkpoint],
         limit_train_batches=config['train_batches'],
         limit_val_batches=config['val_batches'],
-        resume_from_checkpoint=config['resume']
+        resume_from_checkpoint=config['resume'],
+        accelerator=config['accelerator']
     )
     trainer.fit(model, dm)
 
