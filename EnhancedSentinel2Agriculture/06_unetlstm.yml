@@ -1,0 +1,9 @@
+batch_size: 8
+lr: 0.0003
+max_epochs: 60
+max_len: 5
+hidden_dim:
+  - 16
+  - 32
+  - 64
+  - 128

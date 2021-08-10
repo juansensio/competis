@@ -1,0 +1,5 @@
+batch_size: 1
+lr: 0.0003
+max_epochs: 60
+overfit_batches: 1
+max_len: 3
