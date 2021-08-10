@@ -40,7 +40,7 @@ def train(config):
         max_epochs=config['max_epochs'],
         logger=wandb_logger if config['log'] else None,
         deterministic=True,
-        callbacks=[checkpoint],
+        callbacks=[checkpoint] if config['log'] else None,
         resume_from_checkpoint=config['resume'],
         accelerator=config['accelerator'],
         overfit_batches=config['overfit_batches']
