@@ -49,3 +49,14 @@ class RGBModule(pl.LightningModule):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(self.parameters(),
                                                                  **self.hparams['optimizer_params'])
         return optimizer
+
+
+class RGBNirModule(RGBModule):
+    def __init__(self, hparams):
+        super().__init__(hparams)
+        self.model = timm.create_model(
+            self.hparams.backbone,
+            pretrained=self.hparams.pretrained,
+            num_classes=17037,
+            in_chans=4,
+        )
