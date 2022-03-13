@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 import timm
 import torch.nn.functional as F
 import torch
+from GLC.metrics import top_30_error_rate
 
 
 class RGBModule(pl.LightningModule):
@@ -29,8 +30,7 @@ class RGBModule(pl.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = F.cross_entropy(y_hat, y)
-        acc = (torch.argmax(y_hat, dim=1) == y).sum() / len(y)
-
+        acc = top_30_error_rate(y, torch.softmax(y_hat, dim=1))
         return loss, acc
 
     def training_step(self, batch, batch_idx):
