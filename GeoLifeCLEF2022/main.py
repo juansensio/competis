@@ -4,7 +4,7 @@ import sys
 import yaml
 from src import deep_update
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
 config = {
     'backbone': 'resnet18',
@@ -15,9 +15,10 @@ config = {
     },
     'trainer': {
         'gpus': 1,
-        'max_epochs': 10,
+        'max_epochs': 30,
         'logger': None,
         'enable_checkpointing': False,
+        'early_stopping': False,
         'overfit_batches': 0,
         'deterministic': True
     },
@@ -39,14 +40,23 @@ def train(config, name):
             name=name,
             config=config
         )
+    config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
-        config['trainer']['callbacks'] = [
+        config['trainer']['callbacks'] += [
             ModelCheckpoint(
                 dirpath='./checkpoints',
                 filename=f'{name}-{{val_loss:.5f}}-{{epoch}}',
                 monitor='val_loss',
                 mode='min',
                 save_top_k=1
+            )
+        ]
+    if config['trainer']['early_stopping']:
+        config['trainer']['callbacks'] += [
+            EarlyStopping(
+                monitor='val_loss',
+                patience=5,
+                verbose=True
             )
         ]
     trainer = pl.Trainer(**config['trainer'])
