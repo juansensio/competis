@@ -13,12 +13,12 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
+    'early_stopping': False,
     'trainer': {
         'gpus': 1,
         'max_epochs': 30,
         'logger': None,
         'enable_checkpointing': False,
-        'early_stopping': False,
         'overfit_batches': 0,
         'deterministic': True
     },
@@ -51,7 +51,7 @@ def train(config, name):
                 save_top_k=1
             )
         ]
-    if config['trainer']['early_stopping']:
+    if config['early_stopping']:
         config['trainer']['callbacks'] += [
             EarlyStopping(
                 monitor='val_loss',
