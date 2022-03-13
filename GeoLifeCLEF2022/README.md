@@ -1,7 +1,7 @@
-baseline
+baseline r18
 r18 10e 100 batches -> 0.84274/0.83410
 r18 bs512 Adam1e-3 -> 0.74773/0.72305 (overfit en epoch 2)
-r18 bs1024 Adam1e-3 rgbnir -> running ...
+r18 bs512 fp16 Adam1e-3 rgbnir -> running ... (hasta epoch 4 con bs1024 pero luego paso a 512 porque peta)
 
 probar:
 
