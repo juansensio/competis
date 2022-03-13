@@ -20,7 +20,8 @@ config = {
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
-        'deterministic': True
+        'deterministic': True,
+        'precision': 16
     },
     'datamodule': {
         'batch_size': 512,
