@@ -5,8 +5,9 @@ r18 bs512 Adam1e-3 rgbnir -> running ...
 
 probar:
 
-- añadir imágenes adicionales
-- añadir metadatos
+- añadir imágenes adicionales (nir en canal 4 con rgb, altitud y landcover en custom CNN feature extractor)
+- añadir metadatos (país (1), environmental (27, hay que hacer imputing y standarization)) con mlp head
+- transformer head ?
 - data augmentation
 - modelos más grandes
 - lr scheduling

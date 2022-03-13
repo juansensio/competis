@@ -1,9 +1,6 @@
 trainer:
-  gpus: 2
+  gpus: 1
   enable_checkpointing: True
   logger: True
-
-datamodule:
-  num_workers: 0
 
 early_stopping: True
