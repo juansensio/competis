@@ -18,7 +18,8 @@ config = {
         'max_epochs': 10,
         'logger': None,
         'enable_checkpointing': False,
-        'overfit_batches': 0
+        'overfit_batches': 0,
+        'deterministic': True
     },
     'datamodule': {
         'batch_size': 512,
@@ -29,6 +30,7 @@ config = {
 
 
 def train(config, name):
+    pl.seed_everything(42, workers=True)
     dm = RGBDataModule(**config['datamodule'])
     module = RGBModule(config)
     if config['trainer']['logger']:
