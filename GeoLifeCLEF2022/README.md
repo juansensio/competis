@@ -5,7 +5,8 @@ r18 bs512 fp16 Adam1e-3 rgbnir -> 0.73979/0.72087 (hasta epoch 4 con bs1024 pero
 r50 rgbnir
 
 da
-r18 (flips) -> runinng ..
+r18 (flips) -> 0.728839
+r18 bs1024 -> running...
 
 probar:
 
