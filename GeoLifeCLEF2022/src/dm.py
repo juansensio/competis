@@ -5,15 +5,16 @@ import pandas as pd
 from .utils import get_patch_rgb
 from .ds import RGBDataset, RGBNirDataset
 from torch.utils.data import DataLoader
-
+import albumentations as A
 
 class RGBDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None):
         super().__init__()
         self.batch_size = batch_size
         self.path = path
         self.num_workers = num_workers
         self.pin_memory = pin_memory
+        self.train_trans = train_trans
 
     def read_data(self, mode="train"):
         path = Path(self.path)
@@ -29,7 +30,11 @@ class RGBDataModule(pl.LightningDataModule):
 
     def generate_datasets(self):
         self.ds_train = RGBDataset(
-            self.data_train.image.values, self.data_train.species_id.values)
+            self.data_train.image.values, self.data_train.species_id.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+                ]) 
+                if self.train_trans is not None else None
+            )
         self.ds_val = RGBDataset(
             self.data_val.image.values, self.data_val.species_id.values)
         self.ds_test = RGBDataset(self.data_test.image.values)
@@ -69,12 +74,16 @@ class RGBDataModule(pl.LightningDataModule):
 
 
 class RGBNirDataModule(RGBDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False):
-        super().__init__(batch_size, path, num_workers, pin_memory)
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None):
+        super().__init__(batch_size, path, num_workers, pin_memory, train_trans)
 
     def generate_datasets(self):
         self.ds_train = RGBNirDataset(
-            self.data_train.observation_id.values, self.data_train.species_id.values)
+            self.data_train.observation_id.values, self.data_train.species_id.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+                ]) 
+                if self.train_trans is not None else None
+            )
         self.ds_val = RGBNirDataset(
             self.data_val.observation_id.values, self.data_val.species_id.values)
         self.ds_test = RGBNirDataset(self.data_test.observation_id.values)

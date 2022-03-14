@@ -1,0 +1,17 @@
+trainer:
+  gpus: 1
+  enable_checkpointing: True
+  logger: True
+
+datamodule:
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+
+early_stopping: True
