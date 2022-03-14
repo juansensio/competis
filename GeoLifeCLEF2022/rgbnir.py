@@ -25,7 +25,7 @@ config = {
     },
     'datamodule': {
         'batch_size': 512,
-        'num_workers': 20,
+        'num_workers': 10,
         'pin_memory': True
     },
 }
