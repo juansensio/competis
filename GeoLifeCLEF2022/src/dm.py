@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 from .utils import get_patch_rgb
-from .ds import RGBDataset, RGBNirDataset
+from .ds import RGBDataset, RGBNirDataset, RGNirDataset
 from torch.utils.data import DataLoader
 import albumentations as A
 
@@ -72,8 +72,30 @@ class RGBDataModule(pl.LightningDataModule):
     def test_dataloader(self, batch_size=None, shuffle=False):
         return self.get_dataloader(self.ds_test, batch_size, shuffle)
 
+class RGNirDataModule(RGBDataModule):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None):
+        super().__init__(batch_size, path, num_workers, pin_memory, train_trans)
 
-class RGBNirDataModule(RGBDataModule):
+    def generate_datasets(self):
+        self.ds_train = RGNirDataset(
+            self.data_train.observation_id.values, self.data_train.species_id.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+                ]) 
+                if self.train_trans is not None else None
+            )
+        self.ds_val = RGNirDataset(
+            self.data_val.observation_id.values, self.data_val.species_id.values)
+        self.ds_test = RGNirDataset(self.data_test.observation_id.values)
+
+    def setup(self, stage=None):
+        self.data = self.read_data()
+        self.data_test = self.read_data('test')
+        self.split_data()
+        self.generate_datasets()
+        self.print_dataset_info()
+
+
+class RGBNirDataModule(RGNirDataModule):
     def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None):
         super().__init__(batch_size, path, num_workers, pin_memory, train_trans)
 
@@ -87,10 +109,3 @@ class RGBNirDataModule(RGBDataModule):
         self.ds_val = RGBNirDataset(
             self.data_val.observation_id.values, self.data_val.species_id.values)
         self.ds_test = RGBNirDataset(self.data_test.observation_id.values)
-
-    def setup(self, stage=None):
-        self.data = self.read_data()
-        self.data_test = self.read_data('test')
-        self.split_data()
-        self.generate_datasets()
-        self.print_dataset_info()

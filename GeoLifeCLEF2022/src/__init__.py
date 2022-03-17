@@ -1,4 +1,4 @@
-from .ds import RGBDataset, RGBNirDataset
-from .dm import RGBDataModule, RGBNirDataModule
+from .ds import RGBDataset, RGBNirDataset, RGNirDataset
+from .dm import RGBDataModule, RGBNirDataModule, RGNirDataModule
 from .utils import *
-from .module import RGBModule, RGBNirModule
+from .module import RGBModule, RGBNirModule, RGNirModule
