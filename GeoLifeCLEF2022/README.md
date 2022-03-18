@@ -2,13 +2,12 @@ baseline
 r18 10e 100 batches -> 0.84274/0.83410
 r18 bs512 Adam1e-3 -> 0.74773/0.72305 (overfit en epoch 2)
 r18 bs512 fp16 Adam1e-3 rgbnir -> 0.73979/0.72087 (hasta epoch 4 con bs1024 pero luego paso a 512 porque peta)
-r18 rgnir -> running ...
-from scratch ?
+r18 rgnir -> 0.73669/0.72878
 r50 rgbnir
+(from scratch da peor)
 
 da
-r18 (flips) -> 0.728839
-r18 bs1024 -> running...
+r18 rgbnir (flips) -> 0.728839
 
 probar:
 
@@ -20,3 +19,7 @@ probar:
 - lr scheduling
 - tta
 - ensambling
+
+conclusiones:
+
+rgbnir > rgb > rgnir
