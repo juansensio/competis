@@ -123,17 +123,10 @@ class RGBNirBioDataModule(RGBDataModule):
         self.split_data()
         # read bioclimatic data
         df_env = pd.read_csv(self.path / "pre-extracted" / "environmental_vectors.csv", sep=";", index_col="observation_id")
-        # get train, val, test observation ids
-        obs_id_train = self.data.observation_id[self.data["subset"] == "train"].values
-        obs_id_val = self.data.observation_id[self.data["subset"] == "val"].values
-        obs_id_test = self.data_test.observation_id.values
         # get train, val, test bioclimatic data
-        X_train = df_env.loc[obs_id_train]
-        self.X_train_ids = X_train.index.tolist()
-        X_val = df_env.loc[obs_id_val]
-        self.X_val_ids = X_val.index.tolist()
-        X_test = df_env.loc[obs_id_test]
-        self.X_test_ids = X_test.index.tolist()
+        X_train = df_env.loc[self.data_train.observation_id.values]
+        X_val = df_env.loc[self.data_val.observation_id.values]
+        X_test = df_env.loc[self.data_test.observation_id.values]
         # inputer and normalizer
         pipeline = Pipeline([
             ('imputer', SimpleImputer(strategy="median")),
@@ -147,11 +140,11 @@ class RGBNirBioDataModule(RGBDataModule):
 
     def generate_datasets(self):
         self.ds_train = RGBNirBioDataset(
-            self.data_train.observation_id.values, self.X_train, self.X_train_ids, self.data_train.species_id.values, trans=A.Compose([
+            self.data_train.observation_id.values, self.X_train, self.data_train.species_id.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.train_trans.items()
                 ]) 
                 if self.train_trans is not None else None
             )
         self.ds_val = RGBNirBioDataset(
-            self.data_val.observation_id.values, self.X_val, self.X_val_ids, self.data_val.species_id.values)
-        self.ds_test = RGBNirBioDataset(self.data_test.observation_id.values, self.X_test, self.X_test_ids)
+            self.data_val.observation_id.values, self.X_val, self.data_val.species_id.values)
+        self.ds_test = RGBNirBioDataset(self.data_test.observation_id.values, self.X_test)

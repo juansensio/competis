@@ -73,10 +73,9 @@ class RGBNirDataset(torch.utils.data.Dataset):
 
 
 class RGBNirBioDataset(torch.utils.data.Dataset):
-    def __init__(self, observation_ids, bio, bio_ids, labels=None, trans=None):
+    def __init__(self, observation_ids, bio, labels=None, trans=None):
         self.observation_ids = observation_ids
         self.bio = bio
-        self.bio_ids = bio_ids
         self.labels = labels
         self.trans = trans
 
@@ -90,13 +89,10 @@ class RGBNirBioDataset(torch.utils.data.Dataset):
         rgb = imread(rgb)
         nir = patch + '/' + str(observation_id) + '_near_ir.jpg'
         nir = imread(nir)
-        bio_id = self.bio_ids.index(observation_id)
-        bio = self.bio[bio_id].astype(np.float32)
+        bio = self.bio[ix].astype(np.float32)
         if self.trans is not None: # TODO: apply same transform to all images
             img = self.trans(image=img)['image']
         if self.labels is not None:
             label = self.labels[ix]
-            # return {'rgb': rgb, 'nir': nir, 'bio': bio,'label': label}
-            return rgb, nir, bio, label
-        # return {'rgb': rgb, 'nir': nir, 'bio': bio,'observation_id': observation_id}        
-        return rgb, nir, bio, observation_id
+            return {'rgb': rgb, 'nir': nir, 'bio': bio,'label': label}
+        return {'rgb': rgb, 'nir': nir, 'bio': bio,'observation_id': observation_id}        

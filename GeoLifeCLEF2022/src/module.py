@@ -94,8 +94,8 @@ class RGBNirBioModule(RGBModule):
         )
         self.classifier = nn.Linear(self.hparams.bio_layers[-1] + self.model.feature_info[-1]['num_chs'], 17037)
 
-    def forward(self, rgb, nir, bio):
-        # rgb, nir, bio = x['rgb'], x['nir'], x['bio']
+    def forward(self, x):
+        rgb, nir, bio = x['rgb'], x['nir'], x['bio']
         img = torch.cat((rgb, nir.unsqueeze(-1)), dim=-1)
         img = img.float() / 255
         img = img.permute(0, 3, 1, 2)
@@ -105,9 +105,8 @@ class RGBNirBioModule(RGBModule):
         return  self.classifier(f)
 
     def shared_step(self, batch, batch_idx):
-        rgb, nir, bio, y = batch
-        # y = batch['label']
-        y_hat = self(rgb, nir, bio)
+        y = batch['label']
+        y_hat = self(batch)
         loss = F.cross_entropy(y_hat, y)
         error = top_30_error_rate(
             y.cpu(), torch.softmax(y_hat, dim=1).cpu().detach())
