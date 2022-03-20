@@ -51,18 +51,6 @@ class RGBModule(pl.LightningModule):
         return optimizer
 
 
-
-class NirGBModule(RGBModule):
-    def __init__(self, hparams):
-        super().__init__(hparams)
-        self.model = timm.create_model(
-            self.hparams.backbone,
-            pretrained=self.hparams.pretrained,
-            num_classes=17037,
-            in_chans=3,
-        )
-
-
 class RGBNirModule(RGBModule):
     def __init__(self, hparams):
         super().__init__(hparams)
@@ -72,7 +60,6 @@ class RGBNirModule(RGBModule):
             num_classes=17037,
             in_chans=4,
         )
-
 
 class RGBNirBioModule(RGBModule):
     def __init__(self, hparams):
