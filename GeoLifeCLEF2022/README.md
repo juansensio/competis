@@ -7,9 +7,10 @@ r18 nirgb -> probar
 
 RGBNirBio
 r18 256-512 -> 0.71825/0.69522
-r18 100 -> running...
+r18 100 -> 0.71528/0.70231
 
 RGBNirBioCountry
+r18 100 -> running...
 
 da
 r18 rgbnir (flips) -> 0.728839

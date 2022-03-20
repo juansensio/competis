@@ -1,0 +1,6 @@
+trainer:
+  gpus: 1
+  enable_checkpointing: True
+  logger: True
+
+early_stopping: True
