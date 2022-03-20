@@ -8,7 +8,8 @@ r50 rgbnir
 (from scratch da peor)
 
 RGBNirBIO
-r18 256-512 -> running ...
+r18 256-512 -> 0.71825/0.69522
+r18 100 -> running...
 
 da
 r18 rgbnir (flips) -> 0.728839

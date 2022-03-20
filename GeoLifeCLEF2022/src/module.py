@@ -71,12 +71,14 @@ class RGBNirBioModule(RGBModule):
             in_chans=4,
         )
         layer = lambda h: nn.Sequential(
+            nn.Linear(self.hparams.bio_layers[h], self.hparams.bio_layers[h+1]),
             nn.ReLU(), 
-            nn.Dropout(self.hparams.bio_dropout),
-            nn.Linear(self.hparams.bio_layers[h], self.hparams.bio_layers[h+1])
+            nn.Dropout(self.hparams.bio_dropout)
         )
         self.bio_mlp = nn.Sequential(
             nn.Linear(self.hparams.num_bio, self.hparams.bio_layers[0]),
+            nn.ReLU(), 
+            nn.Dropout(self.hparams.bio_dropout),
             *[layer(h) for h in range(len(self.hparams.bio_layers)-1)],
         )
         self.classifier = nn.Linear(self.hparams.bio_layers[-1] + self.model.feature_info[-1]['num_chs'], 17037)
@@ -98,3 +100,12 @@ class RGBNirBioModule(RGBModule):
         error = top_30_error_rate(
             y.cpu(), torch.softmax(y_hat, dim=1).cpu().detach())
         return loss, error
+
+    def predict(self, x):
+        x['rgb'] = x['rgb'].to(self.device)
+        x['nir'] = x['nir'].to(self.device)
+        x['bio'] = x['bio'].to(self.device)
+        self.eval()
+        with torch.no_grad():
+            preds = self(x)
+            return torch.softmax(preds, dim=1)

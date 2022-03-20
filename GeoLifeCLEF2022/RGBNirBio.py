@@ -11,7 +11,7 @@ config = {
     'pretrained': True,
     'optimizer': 'Adam',
     'num_bio': 27,
-    'bio_layers': [256, 512],
+    'bio_layers': [100],
     'bio_dropout': 0.,
     'optimizer_params': {
         'lr': 1e-3
