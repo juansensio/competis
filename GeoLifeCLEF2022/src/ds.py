@@ -23,7 +23,7 @@ class RGBDataset(torch.utils.data.Dataset):
         observation_id = self.images[ix].split('/')[-1].split('_')[0]
         return img, observation_id
 
-class RGNirDataset(torch.utils.data.Dataset):
+class NirGBDataset(torch.utils.data.Dataset):
     def __init__(self, observation_ids, labels=None, trans=None):
         self.observation_ids = observation_ids
         self.labels = labels
@@ -39,7 +39,7 @@ class RGNirDataset(torch.utils.data.Dataset):
         rgb = imread(rgb)
         nir = patch + '/' + str(observation_id) + '_near_ir.jpg'
         nir = imread(nir)
-        img = np.concatenate((rgb[...,:2], np.expand_dims(nir, axis=-1)), axis=2)
+        img = np.concatenate((np.expand_dims(nir, axis=-1), rgb[...,-2:]), axis=2)
         if self.trans is not None:
             img = self.trans(image=img)['image']
         if self.labels is not None:
@@ -70,3 +70,33 @@ class RGBNirDataset(torch.utils.data.Dataset):
             label = self.labels[ix]
             return img, label
         return img, observation_id
+
+
+class RGBNirBioDataset(torch.utils.data.Dataset):
+    def __init__(self, observation_ids, bio, bio_ids, labels=None, trans=None):
+        self.observation_ids = observation_ids
+        self.bio = bio
+        self.bio_ids = bio_ids
+        self.labels = labels
+        self.trans = trans
+
+    def __len__(self):
+        return len(self.observation_ids)
+
+    def __getitem__(self, ix):
+        observation_id = self.observation_ids[ix]
+        patch = get_patch(observation_id)
+        rgb = patch + '/' + str(observation_id) + '_rgb.jpg'
+        rgb = imread(rgb)
+        nir = patch + '/' + str(observation_id) + '_near_ir.jpg'
+        nir = imread(nir)
+        bio_id = self.bio_ids.index(observation_id)
+        bio = self.bio[bio_id].astype(np.float32)
+        if self.trans is not None: # TODO: apply same transform to all images
+            img = self.trans(image=img)['image']
+        if self.labels is not None:
+            label = self.labels[ix]
+            # return {'rgb': rgb, 'nir': nir, 'bio': bio,'label': label}
+            return rgb, nir, bio, label
+        # return {'rgb': rgb, 'nir': nir, 'bio': bio,'observation_id': observation_id}        
+        return rgb, nir, bio, observation_id

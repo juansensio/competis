@@ -11,6 +11,7 @@ r18 rgbnir (flips) -> 0.728839
 
 probar:
 
+- repetir rgnir con nirgb que estaba mal !
 - añadir imágenes adicionales (nir en canal 4 con rgb, altitud y landcover en custom CNN feature extractor)
 - añadir metadatos (país (1), environmental (27, hay que hacer imputing y standarization)) con mlp head
 - transformer head ?
