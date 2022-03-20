@@ -1,6 +1,6 @@
 import torch
 from skimage.io import imread
-from .utils import get_patch
+from .utils import get_patch, get_country
 import numpy as np
 
 
@@ -119,3 +119,29 @@ class RGBNirBioDataset(torch.utils.data.Dataset):
             label = self.labels[ix]
             return {'rgb': rgb, 'nir': nir, 'bio': bio,'label': label}
         return {'rgb': rgb, 'nir': nir, 'bio': bio,'observation_id': observation_id}        
+
+class RGBNirBioCountryDataset(torch.utils.data.Dataset):
+    def __init__(self, observation_ids, bio, labels=None, trans=None):
+        self.observation_ids = observation_ids
+        self.bio = bio
+        self.labels = labels
+        self.trans = trans
+
+    def __len__(self):
+        return len(self.observation_ids)
+
+    def __getitem__(self, ix):
+        observation_id = self.observation_ids[ix]
+        patch = get_patch(observation_id)
+        rgb = patch + '/' + str(observation_id) + '_rgb.jpg'
+        rgb = imread(rgb)
+        nir = patch + '/' + str(observation_id) + '_near_ir.jpg'
+        nir = imread(nir)
+        bio = self.bio[ix].astype(np.float32)
+        country = get_country(observation_id)
+        if self.trans is not None: # TODO: apply same transform to all images
+            img = self.trans(image=img)['image']
+        if self.labels is not None:
+            label = self.labels[ix]
+            return {'rgb': rgb, 'nir': nir, 'bio': bio, 'country': country, 'label': label}
+        return {'rgb': rgb, 'nir': nir, 'bio': bio, 'country': country, 'observation_id': observation_id} 

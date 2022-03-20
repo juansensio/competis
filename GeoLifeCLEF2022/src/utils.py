@@ -8,6 +8,11 @@ def get_patch(sample, path='data'):
     subsubfolder = str(sample)[-4:-2]
     return path + '/patches-' + country + '/' + subfolder + '/' + subsubfolder
 
+def get_country(sample, path='data'):
+    country_id = str(sample)[0]
+    country = 0 if country_id == '1' else 1
+    return country
+
 
 def get_patch_image(sample, image, path='data'):
     patch = get_patch(sample, path)

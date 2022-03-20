@@ -109,3 +109,27 @@ class RGBNirBioModule(RGBModule):
         with torch.no_grad():
             preds = self(x)
             return torch.softmax(preds, dim=1)
+
+class RGBNirBioCountryModule(RGBNirBioModule):
+    def __init__(self, hparams):
+        super().__init__(hparams)
+
+    def forward(self, x):
+        rgb, nir, bio, country = x['rgb'], x['nir'], x['bio'], x['country']
+        img = torch.cat((rgb, nir.unsqueeze(-1)), dim=-1)
+        img = img.float() / 255
+        img = img.permute(0, 3, 1, 2)
+        fi = self.model(img)
+        fb = self.bio_mlp(torch.cat((bio, country.float().unsqueeze(-1)), dim=-1))
+        f = torch.cat((fi, fb), dim=-1)
+        return  self.classifier(f)
+
+    def predict(self, x):
+        x['rgb'] = x['rgb'].to(self.device)
+        x['nir'] = x['nir'].to(self.device)
+        x['bio'] = x['bio'].to(self.device)
+        x['country'] = x['country'].to(self.device)
+        self.eval()
+        with torch.no_grad():
+            preds = self(x)
+            return torch.softmax(preds, dim=1)

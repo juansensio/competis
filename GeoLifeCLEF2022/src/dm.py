@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 from .utils import get_patch_rgb
-from .ds import RGBDataset, RGBNirDataset, NirGBDataset, RGBNirBioDataset, RGNirDataset
+from .ds import RGBDataset, RGBNirDataset, NirGBDataset, RGBNirBioDataset, RGNirDataset, RGBNirBioCountryDataset
 from torch.utils.data import DataLoader
 import albumentations as A
 from sklearn.impute import SimpleImputer
@@ -161,3 +161,20 @@ class RGBNirBioDataModule(RGBDataModule):
         self.ds_val = RGBNirBioDataset(
             self.data_val.observation_id.values, self.X_val, self.data_val.species_id.values)
         self.ds_test = RGBNirBioDataset(self.data_test.observation_id.values, self.X_test)
+
+
+class RGBNirBioCountryDataModule(RGBNirBioDataModule):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None):
+        super().__init__(batch_size, path, num_workers, pin_memory, train_trans)
+
+
+    def generate_datasets(self):
+        self.ds_train = RGBNirBioCountryDataset(
+            self.data_train.observation_id.values, self.X_train, self.data_train.species_id.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+                ]) 
+                if self.train_trans is not None else None
+            )
+        self.ds_val = RGBNirBioCountryDataset(
+            self.data_val.observation_id.values, self.X_val, self.data_val.species_id.values)
+        self.ds_test = RGBNirBioCountryDataset(self.data_test.observation_id.values, self.X_test)
