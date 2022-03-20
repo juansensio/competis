@@ -10,7 +10,8 @@ r18 256-512 -> 0.71825/0.69522
 r18 100 -> 0.71528/0.70231
 
 RGBNirBioCountry
-r18 100 -> running...
+r18 -> 0.71052/0.70013
+r18 (checkpoint val_error) -> running ...
 
 da
 r18 rgbnir (flips) -> 0.728839
@@ -30,3 +31,4 @@ conclusiones:
 
 rgbnir > rgb > rgnir
 bio > rgbnir
+da > no da

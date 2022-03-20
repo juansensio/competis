@@ -49,8 +49,8 @@ def train(config, name):
         config['trainer']['callbacks'] += [
             ModelCheckpoint(
                 dirpath='./checkpoints',
-                filename=f'{name}-{{val_loss:.5f}}-{{epoch}}',
-                monitor='val_loss',
+                filename=f'{name}-{{val_error:.5f}}-{{epoch}}',
+                monitor='val_error',
                 mode='min',
                 save_top_k=1
             )
@@ -58,7 +58,7 @@ def train(config, name):
     if config['early_stopping']:
         config['trainer']['callbacks'] += [
             EarlyStopping(
-                monitor='val_loss',
+                monitor='val_error',
                 patience=5,
                 verbose=True
             )
