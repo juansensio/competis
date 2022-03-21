@@ -30,5 +30,7 @@ probar:
 conclusiones:
 
 rgbnir > rgb > rgnir
-bio > rgbnir
+bio+country > bio > rgbnir
+monitor val_error > monitor val_loss
+
 da > no da
