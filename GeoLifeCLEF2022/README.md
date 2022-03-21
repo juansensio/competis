@@ -11,7 +11,8 @@ r18 100 -> 0.71528/0.70231
 
 RGBNirBioCountry
 r18 -> 0.71052/0.70013
-r18 (checkpoint val_error) -> running ...
+r18 (checkpoint val_error) ->0.704982/0.69495
+r34 -> running ...
 
 da
 r18 rgbnir (flips) -> 0.728839
