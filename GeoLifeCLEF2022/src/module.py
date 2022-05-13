@@ -207,8 +207,8 @@ class AllModule(pl.LightningModule):
             return torch.softmax(preds, dim=1)
 
     def shared_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
+        y_hat = self(batch)
+        y = batch['label']
         loss = F.cross_entropy(y_hat, y)
         error = top_30_error_rate(
             y.cpu(), torch.softmax(y_hat, dim=1).cpu().detach())
