@@ -2,7 +2,7 @@ trainer:
   gpus: 1
   enable_checkpointing: False
   logger: True
-  max_epochs: 3
+  max_epochs: 5
 
 datamodule:
   use_val: False
