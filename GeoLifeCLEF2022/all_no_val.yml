@@ -1,0 +1,17 @@
+trainer:
+  gpus: 1
+  enable_checkpointing: False
+  logger: True
+  max_epochs: 3
+
+datamodule:
+  use_val: False
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5

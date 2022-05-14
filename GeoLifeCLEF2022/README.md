@@ -17,7 +17,7 @@ r34 -> running ...
 da
 r18 rgbnir (flips) -> 0.728839
 
-all r18 -> 0.7084 / 0.68894 (best)
+all r18 -> 0.7084 / 0.68894 (best) 0.68567 (tta)
 
 probar:
 

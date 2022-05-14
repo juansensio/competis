@@ -188,7 +188,7 @@ class RGBNirBioCountryDataModule(RGBNirBioDataModule):
 
 
 class AllDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, test_trans=None):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, test_trans=None, use_val=True):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
@@ -196,6 +196,7 @@ class AllDataModule(pl.LightningDataModule):
         self.pin_memory = pin_memory
         self.train_trans = train_trans
         self.test_trans = test_trans
+        self.use_val = use_val
 
     def read_data(self, mode="train"):
         obs_fr = pd.read_csv(self.path / 'observations' /
@@ -205,8 +206,12 @@ class AllDataModule(pl.LightningDataModule):
         return pd.concat([obs_fr, obs_us])
 
     def split_data(self):
-        self.data_train = self.data[self.data['subset'] == 'train']
-        self.data_val = self.data[self.data['subset'] == 'val']
+        if self.use_val:
+            self.data_train = self.data[self.data['subset'] == 'train']
+            self.data_val = self.data[self.data['subset'] == 'val']
+        else:
+            self.data_train = self.data
+            self.data_val = None
 
     def generate_datasets(self):
         self.ds_train = AllDataset(
@@ -215,8 +220,10 @@ class AllDataModule(pl.LightningDataModule):
             ], additional_targets={'nir': 'image', 'alt': 'image', 'lc': 'image'})
             if self.train_trans is not None else None
         )
-        self.ds_val = AllDataset(
-            self.data_val.observation_id.values, self.latlng_val, self.bio_val, self.data_val.species_id.values)
+        self.ds_val = None
+        if self.data_val:
+            self.ds_val = AllDataset(
+                self.data_val.observation_id.values, self.latlng_val, self.bio_val, self.data_val.species_id.values)
         self.ds_test = AllDataset(
             self.data_test.observation_id.values, self.latlng_test, self.bio_test, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.test_trans.items()
@@ -225,7 +232,8 @@ class AllDataModule(pl.LightningDataModule):
 
     def print_dataset_info(self):
         print('train:', len(self.ds_train))
-        print('val:', len(self.ds_val))
+        if self.data_val:
+            print('val:', len(self.ds_val))
         print('test:', len(self.ds_test))
 
     def setup(self, stage=None):
@@ -234,19 +242,22 @@ class AllDataModule(pl.LightningDataModule):
         self.split_data()
         # latlng
         latlng_train = self.data_train[['latitude', 'longitude']]
-        latlng_val = self.data_val[['latitude', 'longitude']]
+        if self.data_val:
+            latlng_val = self.data_val[['latitude', 'longitude']]
         latlng_test = self.data_test[['latitude', 'longitude']]
         # normalizer
         scaler = StandardScaler()
         self.latlng_train = scaler.fit_transform(latlng_train)
-        self.latlng_val = scaler.transform(latlng_val)
+        if self.data_val:
+            self.latlng_val = scaler.transform(latlng_val)
         self.latlng_test = scaler.transform(latlng_test)
         # read bioclimatic data
         df_env = pd.read_csv(self.path / "pre-extracted" /
                              "environmental_vectors.csv", sep=";", index_col="observation_id")
         # get train, val, test bioclimatic data
         bio_train = df_env.loc[self.data_train.observation_id.values]
-        bio_val = df_env.loc[self.data_val.observation_id.values]
+        if self.data_val:
+            bio_val = df_env.loc[self.data_val.observation_id.values]
         bio_test = df_env.loc[self.data_test.observation_id.values]
         # inputer and normalizer
         pipeline = Pipeline([
@@ -254,7 +265,8 @@ class AllDataModule(pl.LightningDataModule):
             ('std_scaler', StandardScaler()),
         ])
         self.bio_train = pipeline.fit_transform(bio_train.values)
-        self.bio_val = pipeline.transform(bio_val.values)
+        if self.data_val:
+            self.bio_val = pipeline.transform(bio_val.values)
         self.bio_test = pipeline.transform(bio_test.values)
         self.generate_datasets()
         self.print_dataset_info()
@@ -272,7 +284,9 @@ class AllDataModule(pl.LightningDataModule):
         return self.get_dataloader(self.ds_train, batch_size, shuffle)
 
     def val_dataloader(self, batch_size=None, shuffle=False):
-        return self.get_dataloader(self.ds_val, batch_size, shuffle)
+        return self.get_dataloader(self.ds_val, batch_size, shuffle) if self.ds_val else None
 
     def test_dataloader(self, batch_size=None, shuffle=False):
+        if self.ds_test.trans is not None:
+            print(self.ds_test.trans)
         return self.get_dataloader(self.ds_test, batch_size, shuffle)

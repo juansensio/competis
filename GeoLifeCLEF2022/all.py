@@ -64,7 +64,7 @@ def train(config, name):
         ]
     trainer = pl.Trainer(**config['trainer'])
     trainer.fit(module, dm)
-    trainer.save_checkpoint('final.ckpt')
+    trainer.save_checkpoint('checkpoints/final.ckpt')
 
 
 if __name__ == '__main__':
