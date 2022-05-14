@@ -26,7 +26,7 @@ config = {
         'precision': 16
     },
     'datamodule': {
-        'batch_size': 512,
+        'batch_size': 256,
         'num_workers': 10,
         'pin_memory': True
     },

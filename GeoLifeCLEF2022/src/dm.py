@@ -188,13 +188,14 @@ class RGBNirBioCountryDataModule(RGBNirBioDataModule):
 
 
 class AllDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, test_trans=None):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
         self.num_workers = num_workers
         self.pin_memory = pin_memory
         self.train_trans = train_trans
+        self.test_trans = test_trans
 
     def read_data(self, mode="train"):
         obs_fr = pd.read_csv(self.path / 'observations' /
@@ -217,7 +218,10 @@ class AllDataModule(pl.LightningDataModule):
         self.ds_val = AllDataset(
             self.data_val.observation_id.values, self.latlng_val, self.bio_val, self.data_val.species_id.values)
         self.ds_test = AllDataset(
-            self.data_test.observation_id.values, self.latlng_test, self.bio_test)
+            self.data_test.observation_id.values, self.latlng_test, self.bio_test, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.test_trans.items()
+            ], additional_targets={'nir': 'image', 'alt': 'image', 'lc': 'image'})
+            if self.test_trans is not None else None)
 
     def print_dataset_info(self):
         print('train:', len(self.ds_train))
