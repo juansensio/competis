@@ -18,7 +18,7 @@ config = {
     'early_stopping': False,
     'trainer': {
         'gpus': 1,
-        'max_epochs': 30,
+        'max_epochs': 10,
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
