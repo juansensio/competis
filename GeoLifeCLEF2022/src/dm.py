@@ -221,7 +221,7 @@ class AllDataModule(pl.LightningDataModule):
             if self.train_trans is not None else None
         )
         self.ds_val = None
-        if self.data_val:
+        if self.data_val is not None:
             self.ds_val = AllDataset(
                 self.data_val.observation_id.values, self.latlng_val, self.bio_val, self.data_val.species_id.values)
         self.ds_test = AllDataset(
@@ -232,7 +232,7 @@ class AllDataModule(pl.LightningDataModule):
 
     def print_dataset_info(self):
         print('train:', len(self.ds_train))
-        if self.data_val:
+        if self.data_val is not None:
             print('val:', len(self.ds_val))
         print('test:', len(self.ds_test))
 
@@ -242,13 +242,13 @@ class AllDataModule(pl.LightningDataModule):
         self.split_data()
         # latlng
         latlng_train = self.data_train[['latitude', 'longitude']]
-        if self.data_val:
+        if self.data_val is not None:
             latlng_val = self.data_val[['latitude', 'longitude']]
         latlng_test = self.data_test[['latitude', 'longitude']]
         # normalizer
         scaler = StandardScaler()
         self.latlng_train = scaler.fit_transform(latlng_train)
-        if self.data_val:
+        if self.data_val is not None:
             self.latlng_val = scaler.transform(latlng_val)
         self.latlng_test = scaler.transform(latlng_test)
         # read bioclimatic data
@@ -256,7 +256,7 @@ class AllDataModule(pl.LightningDataModule):
                              "environmental_vectors.csv", sep=";", index_col="observation_id")
         # get train, val, test bioclimatic data
         bio_train = df_env.loc[self.data_train.observation_id.values]
-        if self.data_val:
+        if self.data_val is not None:
             bio_val = df_env.loc[self.data_val.observation_id.values]
         bio_test = df_env.loc[self.data_test.observation_id.values]
         # inputer and normalizer
@@ -265,7 +265,7 @@ class AllDataModule(pl.LightningDataModule):
             ('std_scaler', StandardScaler()),
         ])
         self.bio_train = pipeline.fit_transform(bio_train.values)
-        if self.data_val:
+        if self.data_val is not None:
             self.bio_val = pipeline.transform(bio_val.values)
         self.bio_test = pipeline.transform(bio_test.values)
         self.generate_datasets()
