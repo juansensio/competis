@@ -1,7 +1,10 @@
 datamodule:
-  batch_size: 32
+  batch_size: 2
   num_workers: 0
   pin_memory: False
 
 trainer:
-  overfit_batches: 2
+  max_epochs: 30
+  overfit_batches: 1
+
+backbone: resnest14d

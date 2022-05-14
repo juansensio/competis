@@ -19,6 +19,8 @@ r18 rgbnir (flips) -> 0.728839
 
 all r18 -> 0.7084 / 0.68894 (best) 0.68567 (tta)
 all no val 5 epochs -> 0.62104430 (obvio, val in train) / 0.68840
+all r34 -> 0.70467 / subir submissions
+all resnest14d -> running ...
 
 probar:
 
