@@ -151,18 +151,21 @@ class AllModule(pl.LightningModule):
             pretrained=self.hparams.pretrained,
             num_classes=0,
             in_chans=4,  # rgbnir
+            zero_init_last_bn=False,
         )
         self.alt_backbone = timm.create_model(
             self.hparams.backbone,
             pretrained=self.hparams.pretrained,
             num_classes=0,
-            in_chans=1
+            in_chans=1,
+            zero_init_last_bn=False,
         )
         self.lc_backbone = timm.create_model(
             self.hparams.backbone,
             pretrained=self.hparams.pretrained,
             num_classes=0,
-            in_chans=34
+            in_chans=34,
+            zero_init_last_bn=False,
         )
 
         def layer(h): return nn.Sequential(
