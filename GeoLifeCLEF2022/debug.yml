@@ -7,4 +7,6 @@ trainer:
   max_epochs: 30
   overfit_batches: 1
 
-backbone: resnest14d
+backbone: seresnext26d_32x4d
+mlp_dim:
+  - 100

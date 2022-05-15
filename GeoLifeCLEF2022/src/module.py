@@ -151,21 +151,18 @@ class AllModule(pl.LightningModule):
             pretrained=self.hparams.pretrained,
             num_classes=0,
             in_chans=4,  # rgbnir
-            zero_init_last_bn=False,
         )
         self.alt_backbone = timm.create_model(
             self.hparams.backbone,
             pretrained=self.hparams.pretrained,
             num_classes=0,
             in_chans=1,
-            zero_init_last_bn=False,
         )
         self.lc_backbone = timm.create_model(
             self.hparams.backbone,
             pretrained=self.hparams.pretrained,
             num_classes=0,
             in_chans=34,
-            zero_init_last_bn=False,
         )
 
         def layer(h): return nn.Sequential(
@@ -181,8 +178,12 @@ class AllModule(pl.LightningModule):
             nn.Dropout(self.hparams.mlp_dropout),
             *[layer(h) for h in range(len(self.hparams.mlp_layers)-1)],
         )
+        # self.classifier = nn.Linear(
+        #     self.hparams.mlp_layers[-1] + self.image_backbone.feature_info[-1]['num_chs'] + self.alt_backbone.feature_info[-1]['num_chs'] + self.lc_backbone.feature_info[-1]['num_chs'], 17037)
         self.classifier = nn.Linear(
-            self.hparams.mlp_layers[-1] + self.image_backbone.feature_info[-1]['num_chs'] + self.alt_backbone.feature_info[-1]['num_chs'] + self.lc_backbone.feature_info[-1]['num_chs'], 17037)
+            self.hparams.mlp_layers[-1] + + self.lc_backbone.feature_info[-1]['num_chs'], 17037)
+        # self.classifier = nn.Linear(
+        #     self.hparams.mlp_layers[-1] + 1280, 17037)
 
     def forward(self, x):
         rgb, nir, alt, lc, latlng, bio, country = x['rgb'], x['nir'], x[
@@ -198,7 +199,9 @@ class AllModule(pl.LightningModule):
         fc = self.lc_backbone(lc)
         fb = self.mlp(
             torch.cat((bio, latlng, country.float().unsqueeze(-1)), dim=-1))
-        f = torch.cat((fi, fa, fc, fb), dim=-1)
+        # print(fi.shape, fa.shape, fc.shape, fb.shape)
+        # f = torch.cat((fi, fa, fc, fb), dim=-1)
+        f = torch.cat((fi+fa+fc, fb), dim=-1)
         return self.classifier(f)
 
     def predict(self, x):
