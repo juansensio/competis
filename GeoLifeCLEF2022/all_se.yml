@@ -8,6 +8,7 @@ mlp_dim:
   - 100
 
 datamodule:
+  batch_size: 64
   train_trans:
     HorizontalFlip:
       p: 0.5
