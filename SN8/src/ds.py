@@ -35,11 +35,14 @@ class Dataset(torch.utils.data.Dataset):
 
     def __getitem__(self, ix):
         sample = self.df.iloc[ix]
+        # read geojson
+        geom = gpd.read_file(sample['label'])
+        # open image
         img = sample['image']
         ds = rio.open(img)
         transform = ds.transform
-        geom = gpd.read_file(sample['label'])
         size = ds.shape
+        # apply transforms
         if 'center_crop' in self.trans:
             trans = self.trans['center_crop']
             size, p = trans['size'], trans['p']
@@ -72,13 +75,16 @@ class Dataset(torch.utils.data.Dataset):
                 img = ds.read((1, 2, 3))
         else:
             img = ds.read((1, 2, 3))
+        # convert multilines and multipolygons to single lines and polygons
         geom = geom.explode()
+        # convert geometry to pixel coordinates
         wkt_geom = [latlon_to_xy(x, transform)
                     for x in geom.geometry]
         geom.geometry = wkt_geom
         geom.crs = None
-        y1 = -1.*torch.ones(29, 256)
-        y2 = -1.*torch.ones(149, 256)
+        # generate targets
+        y1 = -1.*torch.ones(29, 256)  # lines
+        y2 = -1.*torch.ones(149, 256)  # polygons
         i, j = 0, 0
         for ix, g in enumerate(geom.geometry):
             if g.type == 'LineString':
@@ -88,7 +94,8 @@ class Dataset(torch.utils.data.Dataset):
                 y1[i, -1] = 1 if geom.flooded.iloc[ix] == 'yes' else 0
                 i += 1
             elif g.type == 'Polygon':
-                # remove last
+                # remove last point in polygons (will be added manually)
+                assert g.exterior.coords[0] == g.exterior.coords[-1]
                 for ixx, (y, x) in enumerate(g.exterior.coords[:-1]):
                     y2[j, ixx*2:(ixx+1)*2] = torch.tensor([y /
                                                            size[0], x / size[1]])
@@ -96,5 +103,6 @@ class Dataset(torch.utils.data.Dataset):
                 j += 1
             else:
                 raise ValueError(f'Unknown geometry type: {g.type}')
+        # TODO: permute valid geometries for data augmentation
         return img, geom, transform, sample['date'], y1, y2
         # return img, y1, y2
