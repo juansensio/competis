@@ -52,7 +52,7 @@ class Dataset(torch.utils.data.Dataset):
                 x2, y2 = x1 + size[1], y1 + size[0]
                 minx, miny = rio.transform.xy(ds.transform, x1, y1)
                 maxx, maxy = rio.transform.xy(ds.transform, x2, y2)
-                window = Window(y1, x1, size[0], size[1])
+                window = Window(x1, y1, size[1], size[0])
                 img = ds.read((1, 2, 3), window=window)
                 geom = gpd.clip(geom, box(minx, miny, maxx, maxy))
                 transform = ds.window_transform(window)
@@ -67,8 +67,9 @@ class Dataset(torch.utils.data.Dataset):
                 x2, y2 = x1 + size[1], y1 + size[0]
                 minx, miny = rio.transform.xy(ds.transform, x1, y1)
                 maxx, maxy = rio.transform.xy(ds.transform, x2, y2)
-                window = Window(y1, x1, size[0], size[1])
+                window = Window(x1, y1, size[1], size[0])
                 img = ds.read((1, 2, 3), window=window)
+                # print(window, ds.shape, img.shape)
                 geom = gpd.clip(geom, box(minx, miny, maxx, maxy))
                 transform = ds.window_transform(window)
             else:
@@ -78,31 +79,34 @@ class Dataset(torch.utils.data.Dataset):
         # convert multilines and multipolygons to single lines and polygons
         geom = geom.explode()
         # convert geometry to pixel coordinates
-        wkt_geom = [latlon_to_xy(x, transform)
-                    for x in geom.geometry]
+        wkt_geom = [latlon_to_xy(x, transform) for x in geom.geometry]
         geom.geometry = wkt_geom
         geom.crs = None
         # generate targets
-        y1 = -1.*torch.ones(29, 256)  # lines
-        y2 = -1.*torch.ones(149, 256)  # polygons
+        lines_y, lines_mask = torch.zeros(29, 256), torch.zeros(29, 256)
+        polys_y, polys_mask = torch.zeros(149, 256), torch.zeros(149, 256)
         i, j = 0, 0
         for ix, g in enumerate(geom.geometry):
             if g.type == 'LineString':
                 for ixx, (y, x) in enumerate(g.coords):
-                    y1[i, ixx*2:(ixx+1)*2] = torch.tensor([y /
-                                                           size[0], x / size[1]])
-                y1[i, -1] = 1 if geom.flooded.iloc[ix] == 'yes' else 0
+                    lines_y[i, ixx*2:(ixx+1)*2] = torch.tensor([y /
+                                                                size[0], x / size[1]])
+                    lines_mask[i, ixx*2:(ixx+1)*2] = 1
+                lines_y[i, -1] = 1 if geom.flooded.iloc[ix] == 'yes' else 0
+                lines_mask[i, -1] = 1
                 i += 1
             elif g.type == 'Polygon':
                 # remove last point in polygons (will be added manually)
                 assert g.exterior.coords[0] == g.exterior.coords[-1]
                 for ixx, (y, x) in enumerate(g.exterior.coords[:-1]):
-                    y2[j, ixx*2:(ixx+1)*2] = torch.tensor([y /
-                                                           size[0], x / size[1]])
-                y2[j, -1] = 1 if geom.flooded.iloc[ix] == 'yes' else 0
+                    polys_y[j, ixx*2:(ixx+1)*2] = torch.tensor([y /
+                                                                size[0], x / size[1]])
+                    polys_mask[j, ixx*2:(ixx+1)*2] = 1
+                polys_y[j, -1] = 1 if geom.flooded.iloc[ix] == 'yes' else 0
+                polys_mask[j, -1] = 1
                 j += 1
             else:
                 raise ValueError(f'Unknown geometry type: {g.type}')
-        # TODO: permute valid geometries for data augmentation
-        return img, geom, transform, sample['date'], y1, y2
-        # return img, y1, y2
+        # TODO: permute valid geometries for data augmentation (only for training)
+        # return img, geom, transform, sample['date'], lines_y, polys_y
+        return img, lines_y, polys_y, lines_mask.bool(), polys_mask.bool()

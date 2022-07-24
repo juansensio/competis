@@ -1,4 +1,5 @@
 import pytorch_lightning as pl
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from pathlib import Path
 import pandas as pd
@@ -15,10 +16,12 @@ class BaselineDM(pl.LightningDataModule):
         train_locations=['Germany_Training_Public',
                          'Louisiana-East_Training_Public'],
         test_locations=['Louisiana-West_Test_Public'],
-        trans={
+        train_trans={
             # 'center_crop': {'size': (1000, 1000), 'p': 1},
             # 'random_crop': {'size': (512, 512), 'p': 1.},
-        }
+        },
+        val_size=0,
+        val_trans={}
 
     ):
         super().__init__()
@@ -28,7 +31,9 @@ class BaselineDM(pl.LightningDataModule):
         self.path = Path(path)
         self.train_locations = train_locations
         self.test_locations = test_locations
-        self.trans = trans
+        self.train_trans = train_trans
+        self.val_size = val_size
+        self.val_trans = val_trans
 
     def setup(self, stage=None):
         images, locations, labels, date = [], [], [], []
@@ -53,7 +58,15 @@ class BaselineDM(pl.LightningDataModule):
             'label': labels,
             'date': date
         })
-        self.ds_train = Dataset(self.df, self.trans)
+        if self.val_size:
+            self.df_train, self.df_val = train_test_split(
+                self.df, test_size=self.val_size, random_state=42, stratify=self.df.location
+            )
+            self.ds_train = Dataset(self.df_train, self.train_trans)
+            self.ds_val = Dataset(self.df_train, self.val_trans)
+        else:
+            self.ds_train = Dataset(self.df, self.train_trans)
+            self.ds_val = None
 
     def get_dataloader(self, ds, batch_size=None, shuffle=None):
         return DataLoader(
@@ -66,3 +79,6 @@ class BaselineDM(pl.LightningDataModule):
 
     def train_dataloader(self, batch_size=None, shuffle=True):
         return self.get_dataloader(self.ds_train, batch_size, shuffle)
+
+    def val_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_val, batch_size, shuffle) if self.ds_val else None
