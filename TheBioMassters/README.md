@@ -36,9 +36,9 @@ The format for the submission is a .tar, .tgz, or .zip file containing predicted
 
 ### Baseline
 
-UNet on S2 single image (not temporal)
-
 Get familiar with the data, metric and submission process.
+
+UNet on S2 single image (not temporal) -> 0.86292 / 44.2356
 
 ### Final model
 
@@ -47,13 +47,15 @@ Get familiar with the data, metric and submission process.
 - 1 Transformer encoder that fuse sensor features and produce one final feature
 - 1 reprojection head that generates final output (perceiverIO)
 
-S1_0 (256x256x2) -> CNN1 -> F1_0 (512) -|
-S1_1 (256x256x2) -> CNN1 -> F1_1 (512) -|
+S1_0 (256x256x4) -> CNN1 -> F1_0 (512) -|
+S1_1 (256x256x4) -> CNN1 -> F1_1 (512) -|
 ...
-S1_11 (256x256x2) -> CNN1 -> F1_11 (512) -|-> F1 (12x512) -> T1 -> F3_1 (512) -|
+S1_11 (256x256x4) -> CNN1 -> F1_11 (512) -|-> F1 (12x512) -> T1 -> F3_1 (512) -|
 
-S2_0 (256x256x12) -> CNN2 -> F2_0 (512) -| |
-S2_1 (256x256x12) -> CNN2 -> F2_1 (512) -| |
+S2_0 (256x256x11) -> CNN2 -> F2_0 (512) -| |
+S2_1 (256x256x11) -> CNN2 -> F2_1 (512) -| |
 ...
-S2_11 (256x256x12) -> CNN2 -> F2_11 (512) -|-> F2 (12x512) -> T2 -> F3_2 (512) -|-> F3 (2x512) -> T3 -> F4 (512) -|-> H -> O (256x256)
+S2_11 (256x256x11) -> CNN2 -> F2_11 (512) -|-> F2 (12x512) -> T2 -> F3_2 (512) -|-> F3 (2x512) -> T3 -> F4 (512) -|-> H -> O (256x256)
 reprojection key -|
+
+(empezar solo con S2, luego añadir S1)

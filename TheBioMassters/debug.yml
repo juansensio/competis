@@ -1,0 +1,12 @@
+datamodule:
+  batch_size: 4
+  num_workers: 0
+  pin_memory: False
+  train_trans: null
+
+trainer:
+  max_epochs: 1000
+  overfit_batches: 1
+
+optimizer_params:
+  lr: 0.01
