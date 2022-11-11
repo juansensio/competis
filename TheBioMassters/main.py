@@ -1,5 +1,5 @@
-from src.dm import RGBDataModule
-from src.module import RGBModule
+from src.dm import RGBTemporalDataModule as DataModule
+from src.module import RGBTemporalModule as Module
 import pytorch_lightning as pl
 import sys
 import yaml
@@ -9,10 +9,11 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 config = {
     'backbone': 'resnet18',
-    'pretrained': False,
+    'pretrained': True,
     'num_latents': 256,  # N
     'latent_dim': 256,  # D
-    'num_blocks': 1,  # L
+    'num_blocks': 3,  # L
+    'n_heads': 4,
     'optimizer': 'Adam',
     'optimizer_params': {
         'lr': 1e-3
@@ -28,7 +29,7 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 8,
+        'batch_size': 32,
         'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,
@@ -44,8 +45,8 @@ config = {
 
 def train(config, name):
     pl.seed_everything(42, workers=True)
-    dm = RGBDataModule(**config['datamodule'])
-    module = RGBModule(config)
+    dm = DataModule(**config['datamodule'])
+    module = Module(config)
     if config['trainer']['logger']:
         config['trainer']['logger'] = WandbLogger(
             project="TheBioMassters",

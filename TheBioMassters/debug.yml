@@ -5,8 +5,8 @@ datamodule:
   train_trans: null
 
 trainer:
-  max_epochs: 100
+  max_epochs: 1000
   overfit_batches: 1
 
 optimizer_params:
-  lr: 0.01
+  lr: 0.001

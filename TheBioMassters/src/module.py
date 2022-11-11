@@ -20,6 +20,7 @@ class RGBTemporalModule(pl.LightningModule):
             latent_dim=self.hparams.latent_dim,
             input_dim=self.backbone.num_features,
             num_blocks=self.hparams.num_blocks,  # L
+            n_heads=self.hparams.n_heads,
         )
         self.pos_embed = torch.nn.Parameter(
             torch.zeros(1, 12, self.backbone.num_features))

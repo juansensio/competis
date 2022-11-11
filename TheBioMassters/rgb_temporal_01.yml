@@ -1,0 +1,3 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
