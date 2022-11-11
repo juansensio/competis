@@ -1,7 +1,7 @@
 import pytorch_lightning as pl
 from pathlib import Path
 import pandas as pd
-from .ds import RGBDataset
+from .ds import RGBDataset, RGBTemporalDataset
 from torch.utils.data import DataLoader
 import albumentations as A
 import numpy as np
@@ -34,68 +34,70 @@ class RGBTemporalDataModule(pl.LightningDataModule):
         test = test.groupby('chip_id').agg(
             list)[['filename', 'month', 'corresponding_agbm']]
         # keep unique label
-        train_labels, test_labels = [], []
+        train_labels = []
         for chip_id, chip in train.iterrows():
             assert len(set(chip.corresponding_agbm)) == 1
-            train_labels.append(chip['corresponding_agbm'][0])
+            train_labels.append(self.path / 'train_agbm' /
+                                chip['corresponding_agbm'][0])
         train['corresponding_agbm'] = train_labels
-        for chip_id, chip in test.iterrows():
-            assert len(set(chip.corresponding_agbm)) == 1
-            test_labels.append(chip['corresponding_agbm'][0])
-        test['corresponding_agbm'] = test_labels
         # inpute missing months
-        max_len, max_len_chip_id = 0, None
-        for chip_id, group in train.iterrows():
-            if len(group.month) > max_len:
-                max_len = len(group.month)
-                max_len_chip_id = chip_id
-        months = train.month.loc[max_len_chip_id]
+        months = ['September', 'October', 'November', 'December', 'January',
+                  'February', 'March', 'April', 'May', 'June', 'July', 'August']
         train_filenames, test_filenames = [], []
         for chip_id, group in train.iterrows():
             train_filenames.append([None]*len(months))
             for i, m in enumerate(months):
                 if m in group.month:
-                    train_filenames[-1][i] = train.filename[train.month.index(
-                        m)]
+                    train_filenames[-1][i] = self.path / \
+                        'train_features' / group.filename[group.month.index(m)]
         for chip_id, group in test.iterrows():
             test_filenames.append([None]*len(months))
             for i, m in enumerate(months):
                 if m in group.month:
-                    test_filenames[-1][i] = test.filename[test.month.index(m)]
+                    test_filenames[-1][i] = self.path / 'test_features' / group.filename[group.month.index(
+                        m)]
         train = pd.DataFrame(
             {'filename': train_filenames, 'corresponding_agbm': train_labels})
-        test = pd.DataFrame({'filename': test_filenames,
-                            'corresponding_agbm': test_labels})
+        test = pd.DataFrame({'filename': test_filenames})
         # generate image paths
-        train['image'] = train.filename.apply(
-            lambda x: [self.path / 'train_features' / _x for _x in x if _x is not None])
         train['label'] = train.corresponding_agbm.apply(
-            lambda x: self.path / 'train_agbm' / x)
-        test['image'] = test.filename.apply(
-            lambda x: [self.path / 'test_features' / _x for _x in x if _x is not None])
+            lambda x:  x)
         # validation split
         if self.val_size > 0:
-            ixs = np.random.choice(train.chip_id.values,
+            ixs = np.random.choice(train.index.values,
                                    int(self.val_size*len(train)), replace=False)
-            val = train[train.chip_id.isin(ixs)]
-            train = train[~train.chip_id.isin(ixs)]
+            val = train[train.index.isin(ixs)]
+            train = train[~train.index.isin(ixs)]
         # generate datastes
-        self.ds_train = RGBDataset(
-            train.image.values, train.label.values, trans=A.Compose([
+        additional_targets = {
+            'image2': 'image',
+            'image3': 'image',
+            'image4': 'image',
+            'image5': 'image',
+            'image6': 'image',
+            'image7': 'image',
+            'image8': 'image',
+            'image9': 'image',
+            'image10': 'image',
+            'image11': 'image',
+            'image12': 'image',
+        }
+        self.ds_train = RGBTemporalDataset(
+            train.filename.values, train.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.train_trans.items()
-            ])
+            ], additional_targets=additional_targets)
             if self.train_trans is not None else None
         )
-        self.ds_val = RGBDataset(
-            val.image.values, val.label.values, trans=A.Compose([
+        self.ds_val = RGBTemporalDataset(
+            val.filename.values, val.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.val_trans.items()
-            ])
+            ], additional_targets=additional_targets)
             if self.val_trans is not None else None
         ) if val is not None else None
-        self.ds_test = RGBDataset(
-            test.image.values, test.chip_id.values, False, trans=A.Compose([
+        self.ds_test = RGBTemporalDataset(
+            test.filename.values, test.index.values, False, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.test_trans.items()
-            ])
+            ], additional_targets=additional_targets)
             if self.test_trans is not None else None
         )
         print('train:', len(self.ds_train))
