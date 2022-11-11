@@ -20,7 +20,7 @@ config = {
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
-        'deterministic': True,
+        # 'deterministic': True, # no va con cuda cross_entropy 2d
         'precision': 16,
         'log_every_n_steps': 10
     },

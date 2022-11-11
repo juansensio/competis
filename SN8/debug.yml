@@ -2,7 +2,7 @@ datamodule:
   batch_size: 10
   num_workers: 0
   pin_memory: False
-  trans:
+  train_trans:
     center_crop:
       size:
         - 512
