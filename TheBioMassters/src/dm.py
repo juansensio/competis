@@ -8,7 +8,7 @@ import numpy as np
 
 
 class RGBTemporalDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
+    def __init__(self, months=None, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
@@ -19,6 +19,8 @@ class RGBTemporalDataModule(pl.LightningDataModule):
         self.val_trans = val_trans
         self.test_trans = test_trans
         self.temporal = temporal
+        self.months = months or ['September', 'October', 'November', 'December', 'January',
+                                 'February', 'March', 'April', 'May', 'June', 'July', 'August']
 
     def setup(self, stage=None):
         # read csv files
@@ -41,18 +43,17 @@ class RGBTemporalDataModule(pl.LightningDataModule):
                                 chip['corresponding_agbm'][0])
         train['corresponding_agbm'] = train_labels
         # inpute missing months
-        months = ['September', 'October', 'November', 'December', 'January',
-                  'February', 'March', 'April', 'May', 'June', 'July', 'August']
+
         train_filenames, test_filenames = [], []
         for chip_id, group in train.iterrows():
-            train_filenames.append([None]*len(months))
-            for i, m in enumerate(months):
+            train_filenames.append([None]*len(self.months))
+            for i, m in enumerate(self.months):
                 if m in group.month:
                     train_filenames[-1][i] = self.path / \
                         'train_features' / group.filename[group.month.index(m)]
         for chip_id, group in test.iterrows():
-            test_filenames.append([None]*len(months))
-            for i, m in enumerate(months):
+            test_filenames.append([None]*len(self.months))
+            for i, m in enumerate(self.months):
                 if m in group.month:
                     test_filenames[-1][i] = self.path / 'test_features' / group.filename[group.month.index(
                         m)]
@@ -69,36 +70,26 @@ class RGBTemporalDataModule(pl.LightningDataModule):
             val = train[train.index.isin(ixs)]
             train = train[~train.index.isin(ixs)]
         # generate datastes
-        additional_targets = {
-            'image2': 'image',
-            'image3': 'image',
-            'image4': 'image',
-            'image5': 'image',
-            'image6': 'image',
-            'image7': 'image',
-            'image8': 'image',
-            'image9': 'image',
-            'image10': 'image',
-            'image11': 'image',
-            'image12': 'image',
-        }
+        additional_targets = {}
+        for i in range(len(self.months)-1):
+            additional_targets[f'image{i}'] = 'image'
         self.ds_train = RGBTemporalDataset(
             train.filename.values, train.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.train_trans.items()
             ], additional_targets=additional_targets)
-            if self.train_trans is not None else None
+            if self.train_trans is not None else None, num_months=len(self.months)
         )
         self.ds_val = RGBTemporalDataset(
             val.filename.values, val.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.val_trans.items()
             ], additional_targets=additional_targets)
-            if self.val_trans is not None else None
+            if self.val_trans is not None else None, num_months=len(self.months)
         ) if val is not None else None
         self.ds_test = RGBTemporalDataset(
             test.filename.values, test.index.values, False, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.test_trans.items()
             ], additional_targets=additional_targets)
-            if self.test_trans is not None else None
+            if self.test_trans is not None else None, num_months=len(self.months)
         )
         print('train:', len(self.ds_train))
         if self.ds_val is not None:

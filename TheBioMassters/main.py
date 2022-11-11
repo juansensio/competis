@@ -14,6 +14,7 @@ config = {
     'latent_dim': 256,  # D
     'num_blocks': 3,  # L
     'n_heads': 4,
+    'num_months': 12,
     'optimizer': 'Adam',
     'optimizer_params': {
         'lr': 1e-3

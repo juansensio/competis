@@ -4,7 +4,7 @@ import numpy as np
 
 
 class RGBTemporalDataset(torch.utils.data.Dataset):
-    def __init__(self, images, labels, train=True, trans=None):
+    def __init__(self, images, labels, train=True, trans=None, num_months=12):
         self.images = images
         self.labels = labels
         self.trans = trans
@@ -13,6 +13,7 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
         self.mean = 63.32611
         self.std = 63.456604
         self.train = train
+        self.num_months = num_months
 
     def __len__(self):
         return len(self.images)
@@ -32,65 +33,18 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
             # label = (label - self.mean) / self.std
             label = (label - self.min) / (self.max - self.min)
             if self.trans is not None:
-                trans = self.trans(
-                    image=images[0],
-                    mask=label,
-                    image2=images[1],
-                    image3=images[2],
-                    image4=images[3],
-                    image5=images[4],
-                    image6=images[5],
-                    image7=images[6],
-                    image8=images[7],
-                    image9=images[8],
-                    image10=images[9],
-                    image11=images[10],
-                    image12=images[11],
-                )
-                return np.stack([
-                    trans['image'].transpose(2, 0, 1),
-                    trans['image2'].transpose(2, 0, 1),
-                    trans['image3'].transpose(2, 0, 1),
-                    trans['image4'].transpose(2, 0, 1),
-                    trans['image5'].transpose(2, 0, 1),
-                    trans['image6'].transpose(2, 0, 1),
-                    trans['image7'].transpose(2, 0, 1),
-                    trans['image8'].transpose(2, 0, 1),
-                    trans['image9'].transpose(2, 0, 1),
-                    trans['image10'].transpose(2, 0, 1),
-                    trans['image11'].transpose(2, 0, 1),
-                    trans['image12'].transpose(2, 0, 1),
-                ]).astype(np.float32), trans['mask']
+                params = {'image': images[0], 'mask': label}
+                for i in range(len(images)-1):
+                    params[f'image{i}'] = images[i]
+                trans = self.trans(**params)
+                return np.stack([trans['image'].transpose(2, 0, 1)]+[trans[f'image{i}'].transpose(2, 0, 1) for i in range(len(images)-1)]).astype(np.float32), trans['mask']
             return np.stack([img.transpose(2, 0, 1) for img in images]).astype(np.float32), label
         if self.trans is not None:
-            trans = self.trans(
-                image=images[0],
-                image2=images[1],
-                image3=images[2],
-                image4=images[3],
-                image5=images[4],
-                image6=images[5],
-                image7=images[6],
-                image8=images[7],
-                image9=images[8],
-                image10=images[9],
-                image11=images[10],
-                image12=images[11],
-            )
-            return np.stack([
-                trans['image'].transpose(2, 0, 1),
-                trans['image2'].transpose(2, 0, 1),
-                trans['image3'].transpose(2, 0, 1),
-                trans['image4'].transpose(2, 0, 1),
-                trans['image5'].transpose(2, 0, 1),
-                trans['image6'].transpose(2, 0, 1),
-                trans['image7'].transpose(2, 0, 1),
-                trans['image8'].transpose(2, 0, 1),
-                trans['image9'].transpose(2, 0, 1),
-                trans['image10'].transpose(2, 0, 1),
-                trans['image11'].transpose(2, 0, 1),
-                trans['image12'].transpose(2, 0, 1),
-            ]).astype(np.float32), self.labels[ix]
+            params = {'image': images[0], 'mask': label}
+            for i in range(len(images)-1):
+                params[f'image{i}'] = images[i]
+            trans = self.trans(**params)
+            return np.stack([trans['image'].transpose(2, 0, 1)]+[trans[f'image{i}'].transpose(2, 0, 1) for i in range(len(images)-1)]).astype(np.float32), self.labels[ix]
         return np.stack([img.transpose(2, 0, 1) for img in images]).astype(np.float32), self.labels[ix]
 
 
