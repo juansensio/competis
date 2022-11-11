@@ -59,3 +59,8 @@ S2_11 (256x256x11) -> CNN2 -> F2_11 (512) -|-> F2 (12x512) -> T2 -> F3_2 (512) -
 reprojection key -|
 
 (empezar solo con S2, luego añadir S1)
+
+Tips:
+
+- mean, std normalization
+- no sigmoid en output de modelos

@@ -30,8 +30,8 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
                 images.append(img)
         if self.train:
             label = imread(self.labels[ix])
-            # label = (label - self.mean) / self.std
-            label = (label - self.min) / (self.max - self.min)
+            label = (label - self.mean) / self.std
+            # label = (label - self.min) / (self.max - self.min)
             if self.trans is not None:
                 params = {'image': images[0], 'mask': label}
                 for i in range(len(images)-1):

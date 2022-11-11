@@ -66,16 +66,32 @@ class RGBTemporalModule(BaseModule):
         )
         self.pos_embed = torch.nn.Parameter(
             torch.zeros(1, self.hparams.num_months, self.backbone.num_features))
+        # self.apply(self._init_weights)
+        # freeze backbone
+        # for param in self.backbone.parameters():
+        #     param.requires_grad = False
 
     def forward(self, xs):
         B, L, C, H, W = xs.shape
         xs = rearrange(xs, 'b l c h w -> (b l) c h w')
+        # with torch.no_grad():
         features = self.backbone(xs)
         features = rearrange(features, '(b l) f -> b l f', b=B)
-        # print(features.shape)
-        features += self.pos_embed
-        fused_features = self.encoder(features)
-        return torch.sigmoid(fused_features)
+        features2 = features + self.pos_embed
+        fused_features = self.encoder(features2)
+        # return torch.sigmoid(fused_features)
+        return fused_features
+
+    def _init_weights(self, module):
+        if isinstance(module, torch.nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, torch.nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+        elif isinstance(module,  torch.nn.LayerNorm):
+            torch.nn.init.zeros_(module.bias)
+            torch.nn.init.ones_(module.weight)
 
 
 class RGBModule(BaseModule):
