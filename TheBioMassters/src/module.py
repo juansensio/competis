@@ -105,6 +105,7 @@ class RGBModule(BaseModule):
         )
 
     def forward(self, x):
-        return torch.sigmoid(self.unet(x)).squeeze(1)
+        # return torch.sigmoid(self.unet(x)).squeeze(1)
+        return self.unet(x).squeeze(1)
 
   

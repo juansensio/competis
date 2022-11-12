@@ -64,3 +64,5 @@ Tips:
 
 - mean, std normalization
 - no sigmoid en output de modelos
+
+12 rgb resnet18 256 3 4 -> 187 / 46.5375

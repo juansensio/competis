@@ -58,8 +58,8 @@ class RGBTemporalDataModule(pl.LightningDataModule):
                     test_filenames[-1][i] = self.path / 'test_features' / group.filename[group.month.index(
                         m)]
         train = pd.DataFrame(
-            {'filename': train_filenames, 'corresponding_agbm': train_labels})
-        test = pd.DataFrame({'filename': test_filenames})
+            {'filename': train_filenames, 'corresponding_agbm': train_labels}, index=train.index)
+        test = pd.DataFrame({'filename': test_filenames}, index=test.index)
         # generate image paths
         train['label'] = train.corresponding_agbm.apply(
             lambda x:  x)
@@ -126,7 +126,6 @@ class RGBDataModule(pl.LightningDataModule):
         self.val_size = val_size
         self.val_trans = val_trans
         self.test_trans = test_trans
-        self.temporal = temporal
 
     def setup(self, stage=None):
         # read csv files

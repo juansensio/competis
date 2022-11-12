@@ -67,8 +67,8 @@ class RGBDataset(torch.utils.data.Dataset):
         img = np.clip(img / 4000, 0., 1.).astype(np.float32)
         if self.train:
             label = imread(self.labels[ix])
-            # label = (label - self.mean) / self.std
-            label = (label - self.min) / (self.max - self.min)
+            label = (label - self.mean) / self.std
+            # label = (label - self.min) / (self.max - self.min)
             if self.trans is not None:
                 trans = self.trans(image=img, mask=label)
                 return trans['image'].transpose(2, 0, 1), trans['mask']
