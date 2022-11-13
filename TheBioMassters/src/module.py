@@ -5,7 +5,10 @@ import timm
 from .attention import PerceiverEncoder
 from einops import rearrange
 import segmentation_models_pytorch as smp
-
+from .unet_decoder import UnetDecoder
+from segmentation_models_pytorch.encoders import get_encoder
+from segmentation_models_pytorch.base import SegmentationHead
+from segmentation_models_pytorch.base import initialization as init
 
 class BaseModule(pl.LightningModule):
     def __init__(self, hparams=None):
@@ -20,20 +23,25 @@ class BaseModule(pl.LightningModule):
         with torch.no_grad():
             return self(x)
 
-    def training_step(self, batch, batch_idx):
+    def shared_step(self, batch):
         images, labels = batch
         y_hat = self(images)
         loss = torch.mean(torch.sqrt(
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
+        metric = torch.mean(torch.sqrt(
+            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+        return loss, metric
+
+    def training_step(self, batch, batch_idx):
+        loss, metric = self.shared_step(batch)
         self.log('loss', loss)
+        self.log('metric', metric, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        images, labels = batch
-        y_hat = self(images)
-        loss = torch.mean(torch.sqrt(
-            torch.sum((y_hat - labels)**2, dim=(1, 2))))
+        loss, metric = self.shared_step(batch)
         self.log('val_loss', loss, prog_bar=True)
+        self.log('val_metric', metric, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(
@@ -47,6 +55,87 @@ class BaseModule(pl.LightningModule):
             return [optimizer], schedulers
         return optimizer
 
+class UNet(BaseModule):
+    def __init__(self, hparams=None):
+        super().__init__(hparams)
+        self.unet = smp.Unet(
+            encoder_name=self.hparams.encoder,
+            encoder_weights=self.hparams.pretrained,
+            in_channels=self.hparams.in_channels,
+            classes=1,
+        )
+
+    def forward(self, x):
+        return torch.sigmoid(self.unet(x)).squeeze(1)
+        # return self.unet(x).squeeze(1)
+
+class UNetDF(BaseModule):
+    def __init__(self, hparams=None):
+        super().__init__(hparams)
+        encoder_depth = 5
+        self.encoder1 = get_encoder(
+            self.hparams.encoder,
+            in_channels=self.hparams.in_channels_s1,
+            depth=encoder_depth,
+            weights=self.hparams.pretrained,
+        )
+        self.encoder2 = get_encoder(
+            self.hparams.encoder,
+            in_channels=self.hparams.in_channels_s2,
+            depth=encoder_depth,
+            weights=self.hparams.pretrained,
+        )
+        # default values for unet
+        decoder_use_batchnorm = True
+        decoder_channels = (256, 128, 64, 32, 16)
+        decoder_attention_type = None
+        # double decoder channels for feature fusion
+        # assuming encoder1 and encoder2 have the same number of out_channels
+        self.decoder = UnetDecoder(
+            encoder_channels=[2*c for c in self.encoder1.out_channels],
+            decoder_channels=decoder_channels,
+            n_blocks=encoder_depth,
+            use_batchnorm=decoder_use_batchnorm,
+            center=True if self.hparams.encoder.startswith("vgg") else False,
+            attention_type=decoder_attention_type,
+        )
+        activation = None
+        self.segmentation_head = SegmentationHead(
+            in_channels=decoder_channels[-1],
+            out_channels=1,
+            activation=activation,
+            kernel_size=3,
+        )
+        self.name = "u-{}".format(self.hparams.encoder)
+        self.initialize()
+
+    def initialize(self):
+        init.initialize_decoder(self.decoder)
+        init.initialize_head(self.segmentation_head)
+
+    def forward(self, x1, x2):
+        features1 = self.encoder1(x1)
+        features2 = self.encoder2(x2)
+        features = []
+        for f1, f2 in zip(features1, features2):
+            features.append(torch.cat([f1, f2], dim=1))
+        decoder_output = self.decoder(*features)
+        outputs = self.segmentation_head(decoder_output)
+        return torch.sigmoid(outputs).squeeze(1)
+
+    def shared_step(self, batch):
+        s1, s2, labels = batch
+        y_hat = self(s1, s2)
+        loss = torch.mean(torch.sqrt(
+            torch.sum((y_hat - labels)**2, dim=(1, 2))))
+        metric = torch.mean(torch.sqrt(
+            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+        return loss, metric
+
+    def predict(self, x1, x2):
+        self.eval()
+        with torch.no_grad():
+            return self(x1, x2)
 
 class RGBTemporalModule(BaseModule):
     def __init__(self, hparams=None):
@@ -94,18 +183,6 @@ class RGBTemporalModule(BaseModule):
             torch.nn.init.ones_(module.weight)
 
 
-class RGBModule(BaseModule):
-    def __init__(self, hparams=None):
-        super().__init__(hparams)
-        self.unet = smp.Unet(
-            encoder_name=self.hparams.encoder,
-            encoder_weights=self.hparams.pretrained,
-            in_channels=3,
-            classes=1,
-        )
 
-    def forward(self, x):
-        # return torch.sigmoid(self.unet(x)).squeeze(1)
-        return self.unet(x).squeeze(1)
 
   

@@ -1,5 +1,5 @@
-from src.dm import RGBDataModule
-from src.module import RGBModule
+from src.dm import BaseDataModule
+from src.module import UNet
 import pytorch_lightning as pl
 import sys
 import yaml
@@ -11,6 +11,7 @@ config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
     'optimizer': 'Adam',
+    'in_channels': 3,
     'optimizer_params': {
         'lr': 1e-3
     },
@@ -25,10 +26,11 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'temporal': False,
         'batch_size': 64,
         'num_workers': 10,
         'pin_memory': True,
+        'bands': (2, 1, 0),
+        'sensor': 'S2',
         'val_size': 0.2,
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
@@ -42,8 +44,8 @@ config = {
 
 def train(config, name):
     pl.seed_everything(42, workers=True)
-    dm = RGBDataModule(**config['datamodule'])
-    module = RGBModule(config)
+    dm = BaseDataModule(**config['datamodule'])
+    module = UNet(config)
     if config['trainer']['logger']:
         config['trainer']['logger'] = WandbLogger(
             project="TheBioMassters",
@@ -55,8 +57,8 @@ def train(config, name):
         config['trainer']['callbacks'] += [
             ModelCheckpoint(
                 dirpath='./checkpoints',
-                filename=f'{name}-{{val_loss:.5f}}-{{epoch}}',
-                monitor='val_loss',
+                filename=f'{name}-{{val_metric:.5f}}-{{epoch}}',
+                monitor='val_metric',
                 mode='min',
                 save_top_k=1
             )

@@ -1,11 +1,190 @@
 import pytorch_lightning as pl
 from pathlib import Path
 import pandas as pd
-from .ds import RGBDataset, RGBTemporalDataset
+from .ds import RGBDataset, S1Dataset, DFDataset, RGBTemporalDataset
 from torch.utils.data import DataLoader
 import albumentations as A
 import numpy as np
 
+
+class BaseDataModule(pl.LightningDataModule):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, sensor='S2', bands=(2,1,0)):
+        super().__init__()
+        self.batch_size = batch_size
+        self.path = Path(path)
+        self.num_workers = num_workers
+        self.pin_memory = pin_memory
+        self.train_trans = train_trans
+        self.val_size = val_size
+        self.val_trans = val_trans
+        self.test_trans = test_trans
+        self.sensor = sensor
+        if self.sensor == 'S1':
+            self.Dataset = S1Dataset
+        elif self.sensor == 'S2':
+            self.Dataset = RGBDataset
+        else:
+            raise ValueError('sensor must be S1 or S2')
+        self.bands = bands
+
+    def setup(self, stage=None):
+        # read csv files
+        train = pd.read_csv(self.path / 'train.csv')
+        val = None
+        test = pd.read_csv(self.path / 'test.csv')
+        # keep only one sensor data
+        if self.sensor is not None:
+            train = train[train.satellite == self.sensor]
+            test = test[test.satellite == self.sensor]
+        # keep one image per chip
+        train = train.drop_duplicates(subset='chip_id')
+        test = test.drop_duplicates(subset='chip_id')
+        # generate image paths
+        train['image'] = train.filename.apply(
+            lambda x: self.path / 'train_features' / x)
+        train['label'] = train.corresponding_agbm.apply(
+            lambda x: self.path / 'train_agbm' / x)
+        test['image'] = test.filename.apply(
+            lambda x: self.path / 'test_features' / x)
+        # validation split
+        if self.val_size > 0:
+            ixs = np.random.choice(train.chip_id.values,
+                                   int(self.val_size*len(train)), replace=False)
+            val = train[train.chip_id.isin(ixs)]
+            train = train[~train.chip_id.isin(ixs)]
+        # generate datastes
+        self.ds_train = self.Dataset(
+            train.image.values, train.label.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+            ])
+            if self.train_trans is not None else None, bands=self.bands
+        )
+        self.ds_val = self.Dataset(
+            val.image.values, val.label.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.val_trans.items()
+            ])
+            if self.val_trans is not None else None, bands=self.bands
+        ) if val is not None else None
+        self.ds_test = self.Dataset(
+            test.image.values, test.chip_id.values, False, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.test_trans.items()
+            ])
+            if self.test_trans is not None else None, bands=self.bands
+        )
+        print('train:', len(self.ds_train))
+        if self.ds_val is not None:
+            print('val:', len(self.ds_val))
+        print('test:', len(self.ds_test))
+
+    def get_dataloader(self, ds, batch_size=None, shuffle=None):
+        return DataLoader(
+            ds,
+            batch_size=batch_size if batch_size is not None else self.batch_size,
+            shuffle=shuffle if shuffle is not None else True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory
+        ) if ds is not None else None
+
+    def train_dataloader(self, batch_size=None, shuffle=True):
+        return self.get_dataloader(self.ds_train, batch_size, shuffle)
+
+    def val_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_val, batch_size, shuffle)
+
+    def test_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_test, batch_size, shuffle)
+
+
+class DFModule(pl.LightningDataModule):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, s1_bands=(0,1), s2_bands=(2,1,0)):
+        super().__init__()
+        self.batch_size = batch_size
+        self.path = Path(path)
+        self.num_workers = num_workers
+        self.pin_memory = pin_memory
+        self.train_trans = train_trans
+        self.val_size = val_size
+        self.val_trans = val_trans
+        self.test_trans = test_trans
+        self.s1_bands = s1_bands
+        self.s2_bands = s2_bands
+
+    def setup(self, stage=None):
+        # read csv files
+        train = pd.read_csv(self.path / 'train.csv')
+        val = None
+        test = pd.read_csv(self.path / 'test.csv')
+        # group by chip_id
+        train = train.groupby('chip_id').agg(list)[['filename', 'satellite', 'corresponding_agbm']]
+        test = test.groupby('chip_id').agg(list)[['filename', 'satellite']]
+        # generate columns 
+        filename, corresponding_agbm = [], []
+        for chip_id, row in train.iterrows():
+            ix1 = row['satellite'].index('S1')
+            ix2 = row['satellite'].index('S2')
+            filename.append([
+                self.path / 'train_features' / row['filename'][ix1], 
+                self.path / 'train_features' / row['filename'][ix2]
+            ])
+            corresponding_agbm.append(self.path / 'train_agbm' / row['corresponding_agbm'][0])
+        train = pd.DataFrame({'image': filename, 'label': corresponding_agbm}, index=train.index)
+        filename = []
+        for chip_id, row in test.iterrows():
+            ix1 = row['satellite'].index('S1')
+            ix2 = row['satellite'].index('S2')
+            filename.append([
+                self.path / 'test_features' / row['filename'][ix1], 
+                self.path / 'test_features' / row['filename'][ix2]
+            ])
+        test = pd.DataFrame({'image': filename}, index=test.index)
+        # validation split
+        if self.val_size > 0:
+            ixs = np.random.choice(train.index.values,
+                                   int(self.val_size*len(train)), replace=False)
+            val = train[train.index.isin(ixs)]
+            train = train[~train.index.isin(ixs)]
+        # generate datastes
+        additional_targets = {'image2': 'image'}
+        self.ds_train = DFDataset(
+            train.image.values, train.label.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+            ], additional_targets=additional_targets)
+            if self.train_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands
+        )
+        self.ds_val = DFDataset(
+            val.image.values, val.label.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.val_trans.items()
+            ], additional_targets=additional_targets)
+            if self.val_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands
+        ) if val is not None and val is not None else None
+        self.ds_test = DFDataset(
+            test.image.values, test.index.values, train=False, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.test_trans.items()
+            ], additional_targets=additional_targets)
+            if self.test_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands
+        )
+        print('train:', len(self.ds_train))
+        if self.ds_val is not None:
+            print('val:', len(self.ds_val))
+        print('test:', len(self.ds_test))
+
+    def get_dataloader(self, ds, batch_size=None, shuffle=None):
+        return DataLoader(
+            ds,
+            batch_size=batch_size if batch_size is not None else self.batch_size,
+            shuffle=shuffle if shuffle is not None else True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory
+        ) if ds is not None else None
+
+    def train_dataloader(self, batch_size=None, shuffle=True):
+        return self.get_dataloader(self.ds_train, batch_size, shuffle)
+
+    def val_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_val, batch_size, shuffle)
+
+    def test_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_test, batch_size, shuffle)
 
 class RGBTemporalDataModule(pl.LightningDataModule):
     def __init__(self, months=None, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
@@ -115,80 +294,6 @@ class RGBTemporalDataModule(pl.LightningDataModule):
         return self.get_dataloader(self.ds_test, batch_size, shuffle)
 
 
-class RGBDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
-        super().__init__()
-        self.batch_size = batch_size
-        self.path = Path(path)
-        self.num_workers = num_workers
-        self.pin_memory = pin_memory
-        self.train_trans = train_trans
-        self.val_size = val_size
-        self.val_trans = val_trans
-        self.test_trans = test_trans
 
-    def setup(self, stage=None):
-        # read csv files
-        train = pd.read_csv(self.path / 'train.csv')
-        val = None
-        test = pd.read_csv(self.path / 'test.csv')
-        # keep only s2 data
-        train = train[train.satellite == 'S2']
-        test = test[test.satellite == 'S2']
-        # keep one image per chip
-        train = train.drop_duplicates(subset='chip_id')
-        test = test.drop_duplicates(subset='chip_id')
-        # generat image paths
-        train['image'] = train.filename.apply(
-            lambda x: self.path / 'train_features' / x)
-        train['label'] = train.corresponding_agbm.apply(
-            lambda x: self.path / 'train_agbm' / x)
-        test['image'] = test.filename.apply(
-            lambda x: self.path / 'test_features' / x)
-        # validation split
-        if self.val_size > 0:
-            ixs = np.random.choice(train.chip_id.values,
-                                   int(self.val_size*len(train)), replace=False)
-            val = train[train.chip_id.isin(ixs)]
-            train = train[~train.chip_id.isin(ixs)]
-        # generate datastes
-        self.ds_train = RGBDataset(
-            train.image.values, train.label.values, trans=A.Compose([
-                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
-            ])
-            if self.train_trans is not None else None
-        )
-        self.ds_val = RGBDataset(
-            val.image.values, val.label.values, trans=A.Compose([
-                getattr(A, trans)(**params) for trans, params in self.val_trans.items()
-            ])
-            if self.val_trans is not None else None
-        ) if val is not None else None
-        self.ds_test = RGBDataset(
-            test.image.values, test.chip_id.values, False, trans=A.Compose([
-                getattr(A, trans)(**params) for trans, params in self.test_trans.items()
-            ])
-            if self.test_trans is not None else None
-        )
-        print('train:', len(self.ds_train))
-        if self.ds_val is not None:
-            print('val:', len(self.ds_val))
-        print('test:', len(self.ds_test))
 
-    def get_dataloader(self, ds, batch_size=None, shuffle=None):
-        return DataLoader(
-            ds,
-            batch_size=batch_size if batch_size is not None else self.batch_size,
-            shuffle=shuffle if shuffle is not None else True,
-            num_workers=self.num_workers,
-            pin_memory=self.pin_memory
-        ) if ds is not None else None
-
-    def train_dataloader(self, batch_size=None, shuffle=True):
-        return self.get_dataloader(self.ds_train, batch_size, shuffle)
-
-    def val_dataloader(self, batch_size=None, shuffle=False):
-        return self.get_dataloader(self.ds_val, batch_size, shuffle)
-
-    def test_dataloader(self, batch_size=None, shuffle=False):
-        return self.get_dataloader(self.ds_test, batch_size, shuffle)
+    
