@@ -44,7 +44,7 @@ UNet on S2 single image (not temporal) -> 0.86292 (loss) / 44.2356
 
 UNet on S2 single image (not temporal) mean-std linear output -> 176 (loss) / 44.3228
 Resnet18+trans 256 3 4 12 rgb -> 187 (loss) / 46.5375
-UNet on S1 single image (2 first bands) min-max sigmoid output -> 11266 (metric) / ?
+UNet on S1 single image (2 first bands) min-max sigmoid output -> 11266 (metric) / 43.8591
 
 Tips transformer:
 
