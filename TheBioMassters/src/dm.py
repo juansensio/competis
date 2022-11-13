@@ -1,14 +1,14 @@
 import pytorch_lightning as pl
 from pathlib import Path
 import pandas as pd
-from .ds import RGBDataset, S1Dataset, DFDataset, RGBTemporalDataset
+from .ds import RGBDataset, S1Dataset, DFDataset, RGBTemporalDataset, DFTemporalDataset
 from torch.utils.data import DataLoader
 import albumentations as A
 import numpy as np
 
 
 class BaseDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, sensor='S2', bands=(2,1,0)):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, sensor='S2', bands=(2, 1, 0)):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
@@ -96,7 +96,7 @@ class BaseDataModule(pl.LightningDataModule):
 
 
 class DFModule(pl.LightningDataModule):
-    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, s1_bands=(0,1), s2_bands=(2,1,0)):
+    def __init__(self, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, s1_bands=(0, 1), s2_bands=(2, 1, 0)):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
@@ -115,25 +115,28 @@ class DFModule(pl.LightningDataModule):
         val = None
         test = pd.read_csv(self.path / 'test.csv')
         # group by chip_id
-        train = train.groupby('chip_id').agg(list)[['filename', 'satellite', 'corresponding_agbm']]
+        train = train.groupby('chip_id').agg(
+            list)[['filename', 'satellite', 'corresponding_agbm']]
         test = test.groupby('chip_id').agg(list)[['filename', 'satellite']]
-        # generate columns 
+        # generate columns
         filename, corresponding_agbm = [], []
         for chip_id, row in train.iterrows():
             ix1 = row['satellite'].index('S1')
             ix2 = row['satellite'].index('S2')
             filename.append([
-                self.path / 'train_features' / row['filename'][ix1], 
+                self.path / 'train_features' / row['filename'][ix1],
                 self.path / 'train_features' / row['filename'][ix2]
             ])
-            corresponding_agbm.append(self.path / 'train_agbm' / row['corresponding_agbm'][0])
-        train = pd.DataFrame({'image': filename, 'label': corresponding_agbm}, index=train.index)
+            corresponding_agbm.append(
+                self.path / 'train_agbm' / row['corresponding_agbm'][0])
+        train = pd.DataFrame(
+            {'image': filename, 'label': corresponding_agbm}, index=train.index)
         filename = []
         for chip_id, row in test.iterrows():
             ix1 = row['satellite'].index('S1')
             ix2 = row['satellite'].index('S2')
             filename.append([
-                self.path / 'test_features' / row['filename'][ix1], 
+                self.path / 'test_features' / row['filename'][ix1],
                 self.path / 'test_features' / row['filename'][ix2]
             ])
         test = pd.DataFrame({'image': filename}, index=test.index)
@@ -185,6 +188,7 @@ class DFModule(pl.LightningDataModule):
 
     def test_dataloader(self, batch_size=None, shuffle=False):
         return self.get_dataloader(self.ds_test, batch_size, shuffle)
+
 
 class RGBTemporalDataModule(pl.LightningDataModule):
     def __init__(self, months=None, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
@@ -294,6 +298,124 @@ class RGBTemporalDataModule(pl.LightningDataModule):
         return self.get_dataloader(self.ds_test, batch_size, shuffle)
 
 
+class DFTemporalDataModule(pl.LightningDataModule):
+    def __init__(self, s1_bands=(0, 1), s2_bands=(2, 1, 0), months=None, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
+        super().__init__()
+        self.batch_size = batch_size
+        self.path = Path(path)
+        self.num_workers = num_workers
+        self.pin_memory = pin_memory
+        self.train_trans = train_trans
+        self.val_size = val_size
+        self.val_trans = val_trans
+        self.test_trans = test_trans
+        self.temporal = temporal
+        self.months = months or ['September', 'October', 'November', 'December', 'January',
+                                 'February', 'March', 'April', 'May', 'June', 'July', 'August']
+        self.s1_bands = s1_bands
+        self.s2_bands = s2_bands
 
+    def setup(self, stage=None):
+        # read csv files
+        train = pd.read_csv(self.path / 'train.csv')
+        val = None
+        test = pd.read_csv(self.path / 'test.csv')
+        # split satellites
+        train1 = train[train.satellite == 'S1']
+        test1 = test[test.satellite == 'S1']
+        train2 = train[train.satellite == 'S2']
+        test2 = test[test.satellite == 'S2']
+        # groupby chip_id
+        train1 = train1.groupby('chip_id').agg(
+            list)[['filename', 'month', 'corresponding_agbm']]
+        test1 = test1.groupby('chip_id').agg(
+            list)[['filename', 'month', 'corresponding_agbm']]
+        train2 = train2.groupby('chip_id').agg(
+            list)[['filename', 'month', 'corresponding_agbm']]
+        test2 = test2.groupby('chip_id').agg(
+            list)[['filename', 'month', 'corresponding_agbm']]
+        # inpute missing months
+        train1_filenames, test1_filenames = [], []
+        for chip_id, group in train1.iterrows():
+            train1_filenames.append([None]*len(self.months))
+            for i, m in enumerate(self.months):
+                if m in group.month:
+                    train1_filenames[-1][i] = self.path / \
+                        'train_features' / group.filename[group.month.index(m)]
+        for chip_id, group in test1.iterrows():
+            test1_filenames.append([None]*len(self.months))
+            for i, m in enumerate(self.months):
+                if m in group.month:
+                    test1_filenames[-1][i] = self.path / 'test_features' / group.filename[group.month.index(
+                        m)]
+        train2_filenames, test2_filenames = [], []
+        for chip_id, group in train2.iterrows():
+            train2_filenames.append([None]*len(self.months))
+            for i, m in enumerate(self.months):
+                if m in group.month:
+                    train2_filenames[-1][i] = self.path / \
+                        'train_features' / group.filename[group.month.index(m)]
+        for chip_id, group in test2.iterrows():
+            test2_filenames.append([None]*len(self.months))
+            for i, m in enumerate(self.months):
+                if m in group.month:
+                    test2_filenames[-1][i] = self.path / 'test_features' / group.filename[group.month.index(
+                        m)]
+        train_filenames = [[f1, f2] for f1, f2 in zip(
+            train1_filenames, train2_filenames)]
+        test_filenames = [[f1, f2]
+                          for f1, f2 in zip(test1_filenames, test2_filenames)]
+        train = pd.DataFrame(
+            {'image': train_filenames, 'label': train1.corresponding_agbm.apply(lambda x: self.path / 'train_agbm' / x[0])}, index=train1.index)
+        test = pd.DataFrame({'image': test_filenames}, index=test1.index)
+        # validation split
+        if self.val_size > 0:
+            ixs = np.random.choice(train.index.values,
+                                   int(self.val_size*len(train)), replace=False)
+            val = train[train.index.isin(ixs)]
+            train = train[~train.index.isin(ixs)]
+        # generate datastes
+        additional_targets = {'image_s2_0': 'image'}
+        for i in range(len(self.months)-1):
+            additional_targets[f'image_s1_{i}'] = 'image'
+            additional_targets[f'image_s2_{i+1}'] = 'image'
+        self.ds_train = DFTemporalDataset(
+            train.image.values, train.label.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.train_trans.items()
+            ], additional_targets=additional_targets)
+            if self.train_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands
+        )
+        self.ds_val = DFTemporalDataset(
+            val.image.values, val.label.values, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.val_trans.items()
+            ], additional_targets=additional_targets)
+            if self.val_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands
+        ) if val is not None else None
+        self.ds_test = DFTemporalDataset(
+            test.image.values, test.index.values, train=False, trans=A.Compose([
+                getattr(A, trans)(**params) for trans, params in self.test_trans.items()
+            ], additional_targets=additional_targets)
+            if self.test_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands
+        )
+        print('train:', len(self.ds_train))
+        if self.ds_val is not None:
+            print('val:', len(self.ds_val))
+        print('test:', len(self.ds_test))
 
-    
+    def get_dataloader(self, ds, batch_size=None, shuffle=None):
+        return DataLoader(
+            ds,
+            batch_size=batch_size if batch_size is not None else self.batch_size,
+            shuffle=shuffle if shuffle is not None else True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory
+        ) if ds is not None else None
+
+    def train_dataloader(self, batch_size=None, shuffle=True):
+        return self.get_dataloader(self.ds_train, batch_size, shuffle)
+
+    def val_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_val, batch_size, shuffle)
+
+    def test_dataloader(self, batch_size=None, shuffle=False):
+        return self.get_dataloader(self.ds_test, batch_size, shuffle)

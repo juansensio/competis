@@ -99,9 +99,6 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
         self.labels = labels
         self.trans = trans
         self.max = 12905.3
-        self.min = 0.
-        self.mean = 63.32611
-        self.std = 63.456604
         self.train = train
         self.num_months = num_months
 
@@ -120,8 +117,7 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
                 images.append(img)
         if self.train:
             label = imread(self.labels[ix])
-            label = (label - self.mean) / self.std
-            # label = (label - self.min) / (self.max - self.min)
+            label = label / self.max
             if self.trans is not None:
                 params = {'image': images[0], 'mask': label}
                 for i in range(len(images)-1):
@@ -136,3 +132,66 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
             trans = self.trans(**params)
             return np.stack([trans['image'].transpose(2, 0, 1)]+[trans[f'image{i}'].transpose(2, 0, 1) for i in range(len(images)-1)]).astype(np.float32), self.labels[ix]
         return np.stack([img.transpose(2, 0, 1) for img in images]).astype(np.float32), self.labels[ix]
+
+
+class DFTemporalDataset(torch.utils.data.Dataset):
+    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None, num_months=12):
+        self.images = images
+        self.labels = labels
+        self.trans = trans
+        self.max = 12905.3
+        self.train = train
+        self.num_months = num_months
+        self.s1_bands = s1_bands
+        self.s2_bands = s2_bands
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, ix):
+        # read all images in time series
+        s1s, s2s = [], []
+        s1_paths, s2_paths = self.images[ix]
+        for s1_path in s1_paths:
+            if s1_path is None:  # 0s if no image
+                s1s.append(np.zeros((256, 256, len(self.s1_bands))))
+            else:
+                s1 = imread(s1_path)[..., self.s1_bands]
+                s1 = np.clip(s1, -30, 0)*(-8.4) / 255.
+                s1s.append(s1)
+        for s2_path in s2_paths:
+            if s2_path is None:
+                s2s.append(np.zeros((256, 256, len(self.s2_bands))))
+            else:
+                s2 = imread(s2_path)[..., self.s2_bands]
+                s2 = np.clip(s2 / 4000, 0., 1.).astype(np.float32)
+                s2s.append(s2)
+        if self.train:
+            label = imread(self.labels[ix])
+            label = label / self.max
+            if self.trans is not None:
+                params = {'image': s1s[0], 'mask': label}
+                for i in range(len(s1s)-1):
+                    params[f'image_s1_{i}'] = s1s[i]
+                for i in range(len(s2s)):
+                    params[f'image_s2_{i}'] = s2s[i]
+                trans = self.trans(**params)
+                return np.stack(
+                    [trans['image'].transpose(2, 0, 1)] +
+                    [trans[f'image_s1_{i}'].transpose(
+                        2, 0, 1) for i in range(len(s1s)-1)]
+                ).astype(np.float32), np.stack([trans[f'image_s2_{i}'].transpose(2, 0, 1) for i in range(len(s2s))]).astype(np.float32), trans['mask']
+            return np.stack([img.transpose(2, 0, 1) for img in s1s]).astype(np.float32), np.stack([img.transpose(2, 0, 1) for img in s2s]).astype(np.float32), label
+        if self.trans is not None:
+            params = {'image': s1s[0], 'mask': label}
+            for i in range(len(s1s)-1):
+                params[f'image_s1_{i}'] = s1s[i]
+            for i in range(len(s2s)):
+                params[f'image_s2_{i}'] = s2s[i]
+            trans = self.trans(**params)
+            return np.stack(
+                [trans['image'].transpose(2, 0, 1)] +
+                [trans[f'image_s1_{i}'].transpose(
+                    2, 0, 1) for i in range(len(s1s)-1)]
+            ).astype(np.float32), np.stack([trans[f'image_s2_{i}'].transpose(2, 0, 1) for i in range(len(s2s))]).astype(np.float32), self.labels[ix]
+        return np.stack([img.transpose(2, 0, 1) for img in s1s]).astype(np.float32), np.stack([img.transpose(2, 0, 1) for img in s2s]).astype(np.float32), self.labels[ix]
