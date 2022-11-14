@@ -1,20 +1,18 @@
-from src.dm import RGBTemporalDataModule as DataModule
-from src.module import RGBTemporalModule as Module
+from src.dm import DFTemporalDataModule as DataModule
+from src.module import UnetTemporalDF as Module
 import pytorch_lightning as pl
 import sys
 import yaml
 from src.utils import deep_update
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 
 config = {
-    'backbone': 'resnet18',
-    'pretrained': True,
-    'num_latents': 256,  # N
-    'latent_dim': 256,  # D
-    'num_blocks': 3,  # L
-    'n_heads': 4,
-    'num_months': 12,
+    'encoder': 'resnet18',
+    'pretrained': 'imagenet',
+    'in_channels_s1': 2,
+    'in_channels_s2': 3,
+    'seq_len': 12,
     'optimizer': 'Adam',
     'optimizer_params': {
         'lr': 1e-3
@@ -30,10 +28,12 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 32,
+        'batch_size': 16,
         'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,
+        's1_bands': (0, 1),
+        's2_bands': (2, 1, 0),
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
@@ -48,23 +48,33 @@ def train(config, name):
     pl.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
     module = Module(config)
+    config['trainer']['callbacks'] = []
+    if config['trainer']['enable_checkpointing']:
+        config['trainer']['callbacks'] += [
+            ModelCheckpoint(
+                dirpath='./checkpoints',
+                filename=f'{name}-{{val_metric:.5f}}-{{epoch}}',
+                monitor='val_metric',
+                mode='min',
+                save_top_k=1
+            ),
+            ModelCheckpoint(
+                dirpath='./checkpoints',
+                filename=f'{name}-{{epoch}}',
+                monitor='epoch',
+                mode='max',
+                save_top_k=1
+            )
+        ]
     if config['trainer']['logger']:
         config['trainer']['logger'] = WandbLogger(
             project="TheBioMassters",
             name=name,
             config=config
         )
-    config['trainer']['callbacks'] = []
-    if config['trainer']['enable_checkpointing']:
         config['trainer']['callbacks'] += [
-            ModelCheckpoint(
-                dirpath='./checkpoints',
-                filename=f'{name}-{{val_loss:.5f}}-{{epoch}}',
-                monitor='val_loss',
-                mode='min',
-                save_top_k=1
-            )
-        ]
+            LearningRateMonitor(logging_interval='step')]
+
     trainer = pl.Trainer(**config['trainer'])
     trainer.fit(module, dm)
 
