@@ -53,7 +53,7 @@ UNet temporal DF (S1 2 first bands, S2 RGB) -> 8196 / 31.8992 (podía seguir apr
 UNet temporal DF (S1 2 first bands, S2 RGB) da -> runinng ...
 UNet temporal DF (S1 2 first bands, S2 RGB) lr scheduler -> runinng ...
 
-more da, lr scheduling, all bands, vegetation indexes, better encoders, more training, no val
+more da, lr scheduling, all bands, vegetation indexes, better encoders, more training, no val, ensamble
 fuse features with attention?
 
 Tips transformer:
