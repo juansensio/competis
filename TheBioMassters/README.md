@@ -51,7 +51,7 @@ UNet DF (S1 2 first bands, S2 RGB) -> 9729 / 38.3117
 UNet temporal S2 RGB -> 9551
 UNet temporal DF (S1 2 first bands, S2 RGB) -> 8196 / 31.8992 (podía seguir aprendiendo)
 
-more training, more bands, better encoders, more da, lr scheduling, ...
+more training, more bands, better encoders, more da, lr scheduling, vegetation indexes
 fuse features with attention?
 
 Tips transformer:
