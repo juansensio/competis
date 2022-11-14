@@ -49,7 +49,10 @@ UNet on S1 single image (2 first bands) min-max sigmoid output -> 11266 (metric)
 UNet on S2 single image (RGB) -> baseline
 UNet DF (S1 2 first bands, S2 RGB) -> 9729 / 38.3117
 UNet temporal S2 RGB -> 9551
-UNet temporal DF (S1 2 first bands, S2 RGB) -> 8196 / ? (podía seguir aprendiendo)
+UNet temporal DF (S1 2 first bands, S2 RGB) -> 8196 / 31.8992 (podía seguir aprendiendo)
+
+more training, more bands, better encoders, more da, lr scheduling, ...
+fuse features with attention?
 
 Tips transformer:
 
