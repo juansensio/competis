@@ -56,9 +56,9 @@ UNet temporal DF all bands -> 7932 / 31.0824 (no mejora por tener más bandas, s
 UNet DF (S1 2 first bands, S2 RGBNir+ndvi) -> no mejora
 UNet DF (S1 2 first bands, S2 RGBNirSwir+ndwi) -> no mejora
 UNet DF (S1 2 first bands, S2 RGB) clouds -> no mejora
-UNet DF (S1 2 first bands, S2 RGB) resnet34 -> next
+UNet DF (S1 2 first bands, S2 RGB) resnet34 -> no mejora
 
-better encoders, more training, no val, ensamble
+better encoders (r34, r50, se_resnext_50, en3), more training, no val, ensamble
 fuse features with attention?
 
 Tips transformer:

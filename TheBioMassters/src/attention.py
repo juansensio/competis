@@ -127,3 +127,25 @@ class ClassificationDecoder(torch.nn.Module):
             q=self.task_ids.repeat(b, 1, 1)
         )
         return logits.squeeze(1)
+
+class Decoder(torch.nn.Module):
+    def __init__(self, num_pixels, num_channels, latent_dim, n_heads=1, attn_pdrop=0., resid_pdrop=0.):
+        super().__init__()
+        self.query_vector = torch.nn.Parameter(torch.randn(1, num_pixels))
+        # self.query_vector = torch.ones(num_channels, num_pixels)
+        self.decoder = MultiHeadAttention(
+            kv_dim=latent_dim,
+            q_dim=num_pixels,
+            n_heads=n_heads,
+            attn_pdrop=attn_pdrop,
+            resid_pdrop=resid_pdrop
+        )
+        self.num_channels = num_channels
+
+    def forward(self, latents):
+        b = latents.size(0)
+        features = self.decoder(
+            kv=latents,
+            q=self.query_vector.repeat(b, self.num_channels, 1)
+        )
+        return features#.squeeze(1)

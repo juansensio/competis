@@ -66,6 +66,9 @@ class DFDataset(torch.utils.data.Dataset):
         self.labels = labels
         self.trans = trans
         self.max = 12905.3
+        # self.min = 0.
+        self.mean = 63.32611
+        self.std = 63.456604
         self.train = train
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
@@ -113,7 +116,8 @@ class DFDataset(torch.utils.data.Dataset):
             s2 = np.concatenate([s2, clouds[..., None]], axis=-1)
         if self.train:
             label = imread(self.labels[ix])
-            label = label / self.max
+            # label = label / self.max
+            label = (label - self.mean) / self.std
             if self.trans is not None:
                 trans = self.trans(image=s1, image2=s2, mask=label)
                 return trans['image'].transpose(2, 0, 1), trans['image2'].transpose(2, 0, 1), trans['mask']
