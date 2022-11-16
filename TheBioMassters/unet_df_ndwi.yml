@@ -1,0 +1,15 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+in_channels_s2: 7
+
+datamodule:
+  pin_memory: False
+  s2_bands:
+    - 2
+    - 1
+    - 0
+    - 7
+    - 9
+  use_ndwi: True

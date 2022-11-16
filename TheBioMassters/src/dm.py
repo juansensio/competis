@@ -96,7 +96,7 @@ class BaseDataModule(pl.LightningDataModule):
 
 
 class DFModule(pl.LightningDataModule):
-    def __init__(self, use_ndvi=False, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, s1_bands=(0, 1), s2_bands=(2, 1, 0)):
+    def __init__(self, use_ndvi=False, use_ndwi=False, use_clouds=False, batch_size=32, path='data', num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, s1_bands=(0, 1), s2_bands=(2, 1, 0)):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
@@ -109,6 +109,8 @@ class DFModule(pl.LightningDataModule):
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
         self.use_ndvi = use_ndvi
+        self.use_ndwi = use_ndwi
+        self.use_clouds = use_clouds
 
     def setup(self, stage=None):
         # read csv files
@@ -153,19 +155,19 @@ class DFModule(pl.LightningDataModule):
             train.image.values, train.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.train_trans.items()
             ], additional_targets=additional_targets)
-            if self.train_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi
+            if self.train_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi, use_ndwi=self.use_ndwi, use_clouds=self.use_clouds
         )
         self.ds_val = DFDataset(
             val.image.values, val.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.val_trans.items()
             ], additional_targets=additional_targets)
-            if self.val_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi
+            if self.val_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi, use_ndwi=self.use_ndwi, use_clouds=self.use_clouds
         ) if val is not None and val is not None else None
         self.ds_test = DFDataset(
             test.image.values, test.index.values, train=False, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.test_trans.items()
             ], additional_targets=additional_targets)
-            if self.test_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi
+            if self.test_trans is not None else None, s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi, use_ndwi=self.use_ndwi, use_clouds=self.use_clouds
         )
         print('train:', len(self.ds_train))
         if self.ds_val is not None:
