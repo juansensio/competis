@@ -61,7 +61,7 @@ class RGBDataset(BaseDataset):
 
 
 class DFDataset(torch.utils.data.Dataset):
-    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None):
+    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None, use_ndvi=False):
         self.images = images
         self.labels = labels
         self.trans = trans
@@ -69,6 +69,10 @@ class DFDataset(torch.utils.data.Dataset):
         self.train = train
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
+        self.use_ndvi = use_ndvi
+        if self.use_ndvi:
+            assert 2 in self.s2_bands, 'NDVI requires band 2'
+            assert 7 in self.s2_bands, 'NDVI requires band 7'
 
     def __len__(self):
         return len(self.images)
@@ -80,6 +84,14 @@ class DFDataset(torch.utils.data.Dataset):
         s2 = s2[..., self.s2_bands]
         s1 = np.clip(s1, -30, 0)*(-8.4) / 255.
         s2 = np.clip(s2 / 4000, 0., 1.).astype(np.float32)
+        if self.use_ndvi:
+            red_band = self.s2_bands.index(2)
+            nir_band = self.s2_bands.index(7)
+            red = s2[..., red_band]
+            nir = s2[..., nir_band]
+            ndvi = (nir - red) / (nir + red + 1e-8)
+            ndvi = (ndvi + 1.) / 2.
+            s2 = np.concatenate([s2, ndvi[..., None]], axis=-1)
         if self.train:
             label = imread(self.labels[ix])
             label = label / self.max

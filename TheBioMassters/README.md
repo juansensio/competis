@@ -53,8 +53,9 @@ UNet temporal DF (S1 2 first bands, S2 RGB) -> 8196 / 31.8992 (podía seguir apr
 UNet temporal DF (S1 2 first bands, S2 RGB) da -> not good
 UNet temporal DF (S1 2 first bands, S2 RGB) lr scheduler -> not better
 UNet temporal DF all bands -> 7932 / 31.0824 (no mejora por tener más bandas, solo por entrenar más rato)
+UNet DF (S1 2 first bands, S2 RGBNir+ndvi) -> running...
 
-vegetation indexes, better encoders, more training, no val, ensamble
+vegetation indexes (ndvi, ndwi, savi), better encoders, more training, no val, ensamble
 fuse features with attention?
 
 Tips transformer:
