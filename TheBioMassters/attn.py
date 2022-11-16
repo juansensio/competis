@@ -14,7 +14,7 @@ config = {
     'in_channels_s1': 2,
     'in_channels_s2': 3,
     'optimizer_params': {
-        'lr': 1e-3
+        'lr': 1e-5
     },
     'trainer': {
         'gpus': 1,
@@ -27,7 +27,7 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 64,
+        'batch_size': 32,
         'num_workers': 10,
         'pin_memory': True,
         's1_bands': (0, 1),
