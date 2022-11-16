@@ -1,0 +1,18 @@
+trainer:
+  logger: False
+  enable_checkpointing: False
+  overfit_batches: 1
+
+in_channels_s2: 5
+
+datamodule:
+  batch_size: 1
+  num_workers: 0
+  pin_memory: False
+  train_trans: null
+  s2_bands:
+    - 2
+    - 1
+    - 0
+    - 7
+  use_ndvi: True

@@ -1,0 +1,26 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+in_channels_s1: 4
+in_channels_s2: 11
+
+datamodule:
+  batch_size: 8
+  s1_bands:
+    - 0
+    - 1
+    - 2
+    - 3
+  s2_bands:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10

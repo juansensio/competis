@@ -1,7 +1,7 @@
 import pytorch_lightning as pl
 from pathlib import Path
 import pandas as pd
-from .ds import RGBDataset, S1Dataset, DFDataset, RGBTemporalDataset, DFTemporalDataset
+from .ds import RGBDataset, S1Dataset, DFDataset, RGBTemporalDataset, DFTemporalDataset, collate_fn
 from torch.utils.data import DataLoader
 import albumentations as A
 import numpy as np
@@ -299,7 +299,7 @@ class RGBTemporalDataModule(pl.LightningDataModule):
 
 
 class DFTemporalDataModule(pl.LightningDataModule):
-    def __init__(self, s1_bands=(0, 1), s2_bands=(2, 1, 0), months=None, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
+    def __init__(self, use_ndvi=False, s1_bands=(0, 1), s2_bands=(2, 1, 0), months=None, batch_size=32, path='data', temporal=True, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None):
         super().__init__()
         self.batch_size = batch_size
         self.path = Path(path)
@@ -314,6 +314,7 @@ class DFTemporalDataModule(pl.LightningDataModule):
                                  'February', 'March', 'April', 'May', 'June', 'July', 'August']
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
+        self.use_ndvi = use_ndvi
 
     def setup(self, stage=None):
         # read csv files
@@ -383,19 +384,19 @@ class DFTemporalDataModule(pl.LightningDataModule):
             train.image.values, train.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.train_trans.items()
             ], additional_targets=additional_targets)
-            if self.train_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands
+            if self.train_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi
         )
         self.ds_val = DFTemporalDataset(
             val.image.values, val.label.values, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.val_trans.items()
             ], additional_targets=additional_targets)
-            if self.val_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands
+            if self.val_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi
         ) if val is not None else None
         self.ds_test = DFTemporalDataset(
             test.image.values, test.index.values, train=False, trans=A.Compose([
                 getattr(A, trans)(**params) for trans, params in self.test_trans.items()
             ], additional_targets=additional_targets)
-            if self.test_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands
+            if self.test_trans is not None else None, num_months=len(self.months), s1_bands=self.s1_bands, s2_bands=self.s2_bands, use_ndvi=self.use_ndvi
         )
         print('train:', len(self.ds_train))
         if self.ds_val is not None:
@@ -408,7 +409,7 @@ class DFTemporalDataModule(pl.LightningDataModule):
             batch_size=batch_size if batch_size is not None else self.batch_size,
             shuffle=shuffle if shuffle is not None else True,
             num_workers=self.num_workers,
-            pin_memory=self.pin_memory
+            pin_memory=self.pin_memory,
         ) if ds is not None else None
 
     def train_dataloader(self, batch_size=None, shuffle=True):

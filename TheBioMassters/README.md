@@ -50,10 +50,11 @@ UNet on S2 single image (RGB) -> baseline
 UNet DF (S1 2 first bands, S2 RGB) -> 9729 / 38.3117
 UNet temporal S2 RGB -> 9551
 UNet temporal DF (S1 2 first bands, S2 RGB) -> 8196 / 31.8992 (podía seguir aprendiendo)
-UNet temporal DF (S1 2 first bands, S2 RGB) da -> runinng ...
-UNet temporal DF (S1 2 first bands, S2 RGB) lr scheduler -> runinng ...
+UNet temporal DF (S1 2 first bands, S2 RGB) da -> not good
+UNet temporal DF (S1 2 first bands, S2 RGB) lr scheduler -> not better
+UNet temporal DF all bands -> 7932 / 31.0824 (no mejora por tener más bandas, solo por entrenar más rato)
 
-more da, lr scheduling, all bands, vegetation indexes, better encoders, more training, no val, ensamble
+vegetation indexes, better encoders, more training, no val, ensamble
 fuse features with attention?
 
 Tips transformer:

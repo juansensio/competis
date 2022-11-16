@@ -135,7 +135,7 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
 
 
 class DFTemporalDataset(torch.utils.data.Dataset):
-    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None, num_months=12):
+    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None, num_months=12, use_ndvi=False):
         self.images = images
         self.labels = labels
         self.trans = trans
@@ -144,6 +144,10 @@ class DFTemporalDataset(torch.utils.data.Dataset):
         self.num_months = num_months
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
+        self.use_ndvi = use_ndvi
+        if self.use_ndvi:
+            assert 2 in self.s2_bands, 'NDVI requires band 2'
+            assert 7 in self.s2_bands, 'NDVI requires band 7'
 
     def __len__(self):
         return len(self.images)
@@ -161,10 +165,21 @@ class DFTemporalDataset(torch.utils.data.Dataset):
                 s1s.append(s1)
         for s2_path in s2_paths:
             if s2_path is None:
-                s2s.append(np.zeros((256, 256, len(self.s2_bands))))
+                channels = len(self.s2_bands)
+                if self.use_ndvi:
+                    channels += 1
+                s2s.append(np.zeros((256, 256, channels)))
             else:
                 s2 = imread(s2_path)[..., self.s2_bands]
                 s2 = np.clip(s2 / 4000, 0., 1.).astype(np.float32)
+                if self.use_ndvi:
+                    red_band = self.s2_bands.index(2)
+                    nir_band = self.s2_bands.index(7)
+                    red = s2[..., red_band]
+                    nir = s2[..., nir_band]
+                    ndvi = (nir - red) / (nir + red + 1e-8)
+                    ndvi = (ndvi + 1.) / 2.
+                    s2 = np.concatenate([s2, ndvi[..., None]], axis=-1)
                 s2s.append(s2)
         if self.train:
             label = imread(self.labels[ix])
@@ -195,3 +210,10 @@ class DFTemporalDataset(torch.utils.data.Dataset):
                     2, 0, 1) for i in range(len(s1s)-1)]
             ).astype(np.float32), np.stack([trans[f'image_s2_{i}'].transpose(2, 0, 1) for i in range(len(s2s))]).astype(np.float32), self.labels[ix]
         return np.stack([img.transpose(2, 0, 1) for img in s1s]).astype(np.float32), np.stack([img.transpose(2, 0, 1) for img in s2s]).astype(np.float32), self.labels[ix]
+
+def collate_fn(batch):
+    s1s, s2s, labels = zip(*batch)
+    s1s = np.stack(s1s)
+    s2s = np.stack(s2s)
+    labels = np.stack(labels)
+    return torch.from_numpy(s1s), torch.from_numpy(s2s), torch.from_numpy(labels)
