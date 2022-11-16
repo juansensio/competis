@@ -5,7 +5,6 @@ trainer:
 in_channels_s2: 5
 
 datamodule:
-  pin_memory: False
   s2_bands:
     - 2
     - 1

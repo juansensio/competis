@@ -108,7 +108,7 @@ class DFDataset(torch.utils.data.Dataset):
             s2 = np.concatenate([s2, ndwi[..., None]], axis=-1)
         if self.use_clouds:
             clouds = s2_0[..., 10]
-            clouds[clouds == 255] = 0
+            clouds[clouds == 255] = 100.
             clouds = clouds.astype(np.float32) / 100.
             s2 = np.concatenate([s2, clouds[..., None]], axis=-1)
         if self.train:
@@ -166,7 +166,7 @@ class RGBTemporalDataset(torch.utils.data.Dataset):
 
 
 class DFTemporalDataset(torch.utils.data.Dataset):
-    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None, num_months=12, use_ndvi=False):
+    def __init__(self, images, labels, s1_bands=(0, 1), s2_bands=(2, 1, 0), train=True, trans=None, num_months=12, use_ndvi=False, use_ndwi=False, use_clouds=False):
         self.images = images
         self.labels = labels
         self.trans = trans
@@ -179,6 +179,12 @@ class DFTemporalDataset(torch.utils.data.Dataset):
         if self.use_ndvi:
             assert 2 in self.s2_bands, 'NDVI requires band 2'
             assert 7 in self.s2_bands, 'NDVI requires band 7'
+        self.use_ndwi = use_ndwi
+        if self.use_ndwi: 
+            assert 7 in self.s2_bands, 'NDWI requires band 7'
+            assert 9 in self.s2_bands, 'NDWI requires band 9'
+        self.use_clouds = use_clouds
+        assert 10 not in self.s2_bands, 'Do not use band 10, use use_clouds=True instead'
 
     def __len__(self):
         return len(self.images)
@@ -199,9 +205,14 @@ class DFTemporalDataset(torch.utils.data.Dataset):
                 channels = len(self.s2_bands)
                 if self.use_ndvi:
                     channels += 1
+                if self.use_ndwi:
+                    channels += 1
+                if self.use_clouds:
+                    channels += 1
                 s2s.append(np.zeros((256, 256, channels)))
             else:
-                s2 = imread(s2_path)[..., self.s2_bands]
+                s2_0 = imread(s2_path)
+                s2 = s2_0[..., self.s2_bands]
                 s2 = np.clip(s2 / 4000, 0., 1.).astype(np.float32)
                 if self.use_ndvi:
                     red_band = self.s2_bands.index(2)
@@ -211,6 +222,19 @@ class DFTemporalDataset(torch.utils.data.Dataset):
                     ndvi = (nir - red) / (nir + red + 1e-8)
                     ndvi = (ndvi + 1.) / 2.
                     s2 = np.concatenate([s2, ndvi[..., None]], axis=-1)
+                if self.use_ndwi:
+                    swir_band = self.s2_bands.index(9)
+                    nir_band = self.s2_bands.index(7)
+                    swir = s2[..., swir_band]
+                    nir = s2[..., nir_band]
+                    ndwi = (nir - swir) / (nir + swir + 1e-8)
+                    ndwi = (ndwi + 1.) / 2.
+                    s2 = np.concatenate([s2, ndwi[..., None]], axis=-1)
+                if self.use_clouds:
+                    clouds = s2_0[..., 10]
+                    clouds[clouds == 255] = 100.
+                    clouds = clouds.astype(np.float32) / 100.
+                    s2 = np.concatenate([s2, clouds[..., None]], axis=-1)
                 s2s.append(s2)
         if self.train:
             label = imread(self.labels[ix])

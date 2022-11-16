@@ -2,10 +2,9 @@ trainer:
   logger: True
   enable_checkpointing: True
 
-in_channels_s2: 7
+in_channels_s2: 6
 
 datamodule:
-  pin_memory: False
   s2_bands:
     - 2
     - 1
