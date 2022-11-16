@@ -297,6 +297,95 @@ class RGBTemporalModule(BaseModule):
         elif isinstance(module,  torch.nn.LayerNorm):
             torch.nn.init.zeros_(module.bias)
             torch.nn.init.ones_(module.weight)
+from typing import Callable
+
+def get_feature_info(backbone):
+    if isinstance(backbone.feature_info, Callable):
+        # old accessor for timm versions <= 0.1.30, efficientnet and mobilenetv3 and related nets only
+        feature_info = [dict(num_chs=f['num_chs'], reduction=f['reduction'])
+                        for i, f in enumerate(backbone.feature_info())]
+    else:
+        # new feature info accessor, timm >= 0.2, all models supported
+        feature_info = backbone.feature_info.get_dicts(keys=['num_chs', 'reduction'])
+    return feature_info
+
+from .bifpn import BiFpn
+
+class UNetBiFPN(BaseModule):
+    def __init__(self, hparams=None):
+        super().__init__(hparams)
+        self.encoder1 = timm.create_model(
+            self.hparams.encoder, 
+            features_only=True, 
+            in_chans=self.hparams.in_channels_s1,
+            out_indices=(0, 1, 2, 3, 4),
+            pretrained=self.hparams.pretrained
+        )
+        self.encoder2 = timm.create_model(
+            self.hparams.encoder, 
+            features_only=True, 
+            in_chans=self.hparams.in_channels_s2,
+            out_indices=(0, 1, 2, 3, 4),
+            pretrained=self.hparams.pretrained
+        )
+        feature_info1 = get_feature_info(self.encoder1)
+        feature_info2 = get_feature_info(self.encoder2)
+        # default values for unet
+        decoder_use_batchnorm = True
+        decoder_channels =  (256, 128, 64, 32, 16)
+        decoder_attention_type = None
+        # double decoder channels for feature fusion
+        # assuming encoder1 and encoder2 have the same number of out_channels
+        self.decoder = UnetDecoder(
+            encoder_channels=[64*2*self.hparams.seq_len]*6,
+            decoder_channels=decoder_channels,
+            n_blocks=5,
+            use_batchnorm=decoder_use_batchnorm,
+            center=True if self.hparams.encoder.startswith("vgg") else False,
+            attention_type=decoder_attention_type,
+        )
+        activation = None
+        self.segmentation_head = SegmentationHead(
+            in_channels=decoder_channels[-1],
+            out_channels=1,
+            activation=activation,
+            kernel_size=3,
+        )
+        self.name = "u-{}".format(self.hparams.encoder)
+        self.initialize()
+        self.fpn1 = BiFpn(feature_info1)
+        self.fpn2 = BiFpn(feature_info2)
+
+    def initialize(self):
+        init.initialize_decoder(self.decoder)
+        init.initialize_head(self.segmentation_head)
+
+    def forward(self, xs1, xs2):
+        B, L, C, H, W = xs1.shape
+        xs1 = rearrange(xs1, 'b l c h w -> (b l) c h w')
+        features1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.fpn1(self.encoder1(xs1))]
+        xs2 = rearrange(xs2, 'b l c h w -> (b l) c h w')
+        features2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.fpn2(self.encoder2(xs2))]
+        features = [0]
+        for f1, f2 in zip(features1, features2):
+            features.append(torch.cat([f1, f2], dim=1))
+        decoder_output = self.decoder(*features)
+        outputs = self.segmentation_head(decoder_output)
+        return torch.sigmoid(outputs).squeeze(1)
+
+    def shared_step(self, batch):
+        s1, s2, labels = batch
+        y_hat = self(s1, s2)
+        loss = torch.mean(torch.sqrt(
+            torch.sum((y_hat - labels)**2, dim=(1, 2))))
+        metric = torch.mean(torch.sqrt(
+            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+        return loss, metric
+
+    def predict(self, x1, x2):
+        self.eval()
+        with torch.no_grad():
+            return self(x1, x2)
 
 from .attention import PerceiverEncoder, Decoder
 

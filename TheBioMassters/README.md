@@ -57,5 +57,6 @@ UNet DF (S1 2 first bands, S2 RGBNir+ndvi) -> no mejora
 UNet DF (S1 2 first bands, S2 RGBNirSwir+ndwi) -> no mejora
 UNet DF (S1 2 first bands, S2 RGB) clouds -> no mejora
 UNet DF (S1 2 first bands, S2 RGB) resnet34 -> no mejora
+UNet temporal DF (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds) -> running...
 
 better encoders (r34, r50, se_resnext_50, en3), more training, no val, ensamble
