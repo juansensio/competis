@@ -59,9 +59,3 @@ UNet DF (S1 2 first bands, S2 RGB) clouds -> no mejora
 UNet DF (S1 2 first bands, S2 RGB) resnet34 -> no mejora
 
 better encoders (r34, r50, se_resnext_50, en3), more training, no val, ensamble
-fuse features with attention?
-
-Tips transformer:
-
-- mean, std normalization
-- no sigmoid en output de modelos

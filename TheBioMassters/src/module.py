@@ -130,11 +130,11 @@ class UNetDF(BaseModule):
         y_hat = self(s1, s2)
         loss = torch.mean(torch.sqrt(
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
-        # metric = torch.mean(torch.sqrt(
-        #     torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
-        y_hat = y_hat * 63.456604 + 63.32611
-        labels = labels * 63.456604 + 63.32611
-        metric = torch.mean(torch.sqrt(torch.sum((y_hat - labels)**2, dim=(1, 2))))
+        metric = torch.mean(torch.sqrt(
+            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+        # y_hat = y_hat * 63.456604 + 63.32611
+        # labels = labels * 63.456604 + 63.32611
+        # metric = torch.mean(torch.sqrt(torch.sum((y_hat - labels)**2, dim=(1, 2))))
         return loss, metric
 
     def predict(self, x1, x2):
@@ -365,6 +365,7 @@ class UNetA(BaseModule):
         features = [0]
         for i, (f1, f2) in enumerate(zip(features1[1:], features2[1:])):
             f = torch.stack([f1, f2], dim=1)
+            # TODO: positional encodings 
             fa = rearrange(f, 'b l c h w -> b (l c) (h w)')
             # print(f.shape, fa.shape)
             kk = self.attn[i](fa)
