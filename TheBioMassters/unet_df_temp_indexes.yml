@@ -1,6 +1,7 @@
 trainer:
   logger: True
   enable_checkpointing: True
+  resume_from_checkpoint: checkpoints/unet_df_temp_indexes-epoch=153.ckpt
 
 in_channels_s2: 8
 
