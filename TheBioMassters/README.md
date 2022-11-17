@@ -57,7 +57,7 @@ UNet DF (S1 2 first bands, S2 RGBNir+ndvi) -> no mejora
 UNet DF (S1 2 first bands, S2 RGBNirSwir+ndwi) -> no mejora
 UNet DF (S1 2 first bands, S2 RGB) clouds -> no mejora
 UNet DF (S1 2 first bands, S2 RGB) resnet34 -> no mejora
-UNet temporal DF (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds) -> 7900 / 30.7758 / (tta 7)
+UNet temporal DF (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds) -> 7900 / 30.7758 / 37.8559 (tta 7)
 Bifpn (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds, 12 months) -> running...
 
 tta, better encoders (r34, r50, se_resnext_50, en3), more training, no val, ensamble
