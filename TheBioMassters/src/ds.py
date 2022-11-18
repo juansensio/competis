@@ -175,6 +175,8 @@ class DFTemporalDataset(torch.utils.data.Dataset):
         self.labels = labels
         self.trans = trans
         self.max = 12905.3
+        self.mean = 63.32611
+        self.std = 63.456604
         self.train = train
         self.num_months = num_months
         self.s1_bands = s1_bands
@@ -243,6 +245,7 @@ class DFTemporalDataset(torch.utils.data.Dataset):
         if self.train:
             label = imread(self.labels[ix])
             label = label / self.max
+            # label = (label - self.mean) / self.std
             if self.trans is not None:
                 params = {'image': s1s[0], 'mask': label}
                 for i in range(len(s1s)-1):

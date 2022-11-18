@@ -13,8 +13,9 @@ config = {
     'in_channels_s1': 2,
     'in_channels_s2': 3,
     'embed_dim': 256,
-    'n_heads': 1,
+    'n_heads': 4,
     'num_blocks': 0,
+    'seq_len': 12,
     'optimizer': 'Adam',
     'optimizer_params': {
         'lr': 1e-3

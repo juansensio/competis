@@ -5,11 +5,12 @@ import torch.nn as nn
 def decoder_block(in_channels, out_channels):
     return nn.Sequential(
         nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2),
-        nn.ReLU(inplace=True),
-        nn.BatchNorm2d(out_channels),
         nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+        nn.BatchNorm2d(out_channels),
         nn.ReLU(inplace=True),
-        nn.BatchNorm2d(out_channels)
+        nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+        nn.BatchNorm2d(out_channels),
+        nn.ReLU(inplace=True),
     )
 
 class PatchEmbedding(nn.Module):
@@ -55,9 +56,11 @@ class Transformer(BaseModule):
             PatchEmbedding(s, self.patch_size, self.encoder1.feature_info[i]['num_chs'], self.hparams.embed_dim)
             for i, s in enumerate(self.sizes)
         ])
+        self.fpos_embed = nn.Parameter(torch.randn(1,341, self.hparams.embed_dim)) # 341 = 256+64+16+4+1
         # output query
         self.query = nn.Parameter(torch.randn(1, 1, 256, 256))
         self.query_embedding = PatchEmbedding(256, 8, 1, self.hparams.embed_dim)
+        self.pos_embed = nn.Parameter(torch.randn(1, self.query_embedding.n_patches, self.hparams.embed_dim))
         # attention blocks
         self.first_attn = Block(
             kv_dim=self.hparams.embed_dim,
@@ -83,27 +86,24 @@ class Transformer(BaseModule):
             out_channels = decoder_channels[i]
             blocks.append(decoder_block(in_channels, out_channels))
         self.decoder = nn.ModuleList(blocks) 
-        self.head = nn.Conv2d(decoder_channels[-1], 1, kernel_size=1, stride=1)
-
-        # TODO: add positional encoding
+        self.head = nn.Conv2d(decoder_channels[-1], 1, kernel_size=3, padding=1)
 
     def forward(self, xs1, xs2):
         B, L, C, H, W = xs1.shape
-        xs1 = rearrange(xs1, 'b l c h w -> (b l) c h w')
-        x1 = self.encoder1(xs1)
-        xs2 = rearrange(xs2, 'b l c h w -> (b l) c h w')
-        x2 = self.encoder2(xs2)
+        x1 = self.encoder1(rearrange(xs1, 'b l c h w -> (b l) c h w'))
+        x2 = self.encoder2(rearrange(xs2, 'b l c h w -> (b l) c h w'))
         e1, e2 = [], []
         for i, (f1, f2) in enumerate(zip(x1, x2)):
-            f1e, f2e = self.fe[i](f1), self.fe[i](f2)
-            e1.append(f1e)
-            e2.append(f2e)
-        e1 = torch.cat(e1, dim=1)
-        e2 = torch.cat(e2, dim=1)
+            e1.append(self.fe[i](f1))
+            e2.append(self.fe[i](f2))
+        e1, e2 = torch.cat(e1, dim=1), torch.cat(e2, dim=1)
         e1 = rearrange(e1, '(b l) n e -> b (l n) e', b=B)
         e2 = rearrange(e2, '(b l) n e -> b (l n) e', b=B)
+        fpos_embed = self.fpos_embed.repeat(B, self.hparams.seq_len, 1) # repetir embed para cada imagen en la serie temporal
+        fe = torch.cat([e1 + fpos_embed, e2 + fpos_embed], dim=1)
         fe = torch.cat([e1, e2], dim=1)
-        x = self.first_attn(fe, self.query_embedding(self.query.repeat(B,1,1,1)))
+        query = self.query_embedding(self.query.repeat(B,1,1,1)) + self.pos_embed
+        x = self.first_attn(fe, query)
         for self_attn_layer in self.self_attention_blocks:
             x = self_attn_layer(x, x)
         x = rearrange(x, 'b n (h w) -> b n h w', h=int(self.hparams.embed_dim**0.5), w=int(self.hparams.embed_dim**0.5))
@@ -118,6 +118,10 @@ class Transformer(BaseModule):
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
         metric = torch.mean(torch.sqrt(
             torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+        # y_hat = y_hat * 63.456604 + 63.32611
+        # labels = labels * 63.456604 + 63.32611
+        # metric = torch.mean(torch.sqrt(
+        #     torch.sum((y_hat - labels)**2, dim=(1, 2))))
         return loss, metric
 
     def predict(self, x1, x2):
