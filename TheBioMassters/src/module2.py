@@ -31,6 +31,8 @@ class PatchEmbedding(nn.Module):
 from einops import rearrange
 import torch 
 from .attention import Block
+from .module import get_feature_info
+from .module import BiFpn
 
 class Transformer(BaseModule):
     def __init__(self, hparams=None):
@@ -40,24 +42,31 @@ class Transformer(BaseModule):
             self.hparams.encoder, 
             features_only=True, 
             in_chans=self.hparams.in_channels_s1,
-            pretrained=self.hparams.pretrained
+            pretrained=self.hparams.pretrained,
+            out_indices=(0, 1, 2, 3, 4)
         )
         # sentinel 2 encoder
         self.encoder2 = timm.create_model(
             self.hparams.encoder, 
             features_only=True, 
             in_chans=self.hparams.in_channels_s2,
-            pretrained=self.hparams.pretrained
+            pretrained=self.hparams.pretrained,
+            out_indices=(0, 1, 2, 3, 4)
         )
+        feature_info1 = get_feature_info(self.encoder1)
+        feature_info2 = get_feature_info(self.encoder2)
+        # bifpns
+        self.bifpn1 = BiFpn(feature_info1)
+        self.bifpn2 = BiFpn(feature_info2)
         # feature embedders
         self.patch_sizes = (16, 8, 4, 2, 1)
         self.sizes = (128, 64, 32, 16, 8)
         self.fe1 = nn.ModuleList([
-            PatchEmbedding(s, ps, self.encoder1.feature_info[i]['num_chs'], self.hparams.embed_dim)
+            PatchEmbedding(s, ps, 64, self.hparams.embed_dim)
             for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
         ])
         self.fe2 = nn.ModuleList([
-            PatchEmbedding(s, ps, self.encoder1.feature_info[i]['num_chs'], self.hparams.embed_dim)
+            PatchEmbedding(s, ps, 64, self.hparams.embed_dim)
             for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
         ])
         self.fpos_embed = nn.Parameter(torch.randn(1, 320, self.hparams.embed_dim)) 
@@ -83,7 +92,7 @@ class Transformer(BaseModule):
             ) for _ in range(self.hparams.num_blocks)
         ])
         # decoder and output head
-        decoder_channels=(64, 32, 16, 8) # depende del embedding dim ! (este sirve para 1024)
+        decoder_channels=(64, 32, 16, 8, 4) # depende del embedding dim ! (este sirve para 256)
         blocks = []
         for i in range(1, len(decoder_channels)):
             in_channels = decoder_channels[i - 1]
@@ -94,8 +103,8 @@ class Transformer(BaseModule):
 
     def forward(self, xs1, xs2):
         B, L, C, H, W = xs1.shape
-        x1 = self.encoder1(rearrange(xs1, 'b l c h w -> (b l) c h w'))
-        x2 = self.encoder2(rearrange(xs2, 'b l c h w -> (b l) c h w'))
+        x1 = self.bifpn1(self.encoder1(rearrange(xs1, 'b l c h w -> (b l) c h w')))
+        x2 = self.bifpn2(self.encoder2(rearrange(xs2, 'b l c h w -> (b l) c h w')))
         e1, e2 = [], []
         for i, (f1, f2) in enumerate(zip(x1, x2)):
             e1.append(self.fe1[i](f1))
