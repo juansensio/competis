@@ -50,16 +50,20 @@ class Transformer(BaseModule):
             pretrained=self.hparams.pretrained
         )
         # feature embedders
-        self.patch_size = 8
+        self.patch_sizes = (16, 8, 4, 2, 1)
         self.sizes = (128, 64, 32, 16, 8)
-        self.fe = nn.ModuleList([
-            PatchEmbedding(s, self.patch_size, self.encoder1.feature_info[i]['num_chs'], self.hparams.embed_dim)
-            for i, s in enumerate(self.sizes)
+        self.fe1 = nn.ModuleList([
+            PatchEmbedding(s, ps, self.encoder1.feature_info[i]['num_chs'], self.hparams.embed_dim)
+            for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
         ])
-        self.fpos_embed = nn.Parameter(torch.randn(1,341, self.hparams.embed_dim)) # 341 = 256+64+16+4+1
+        self.fe2 = nn.ModuleList([
+            PatchEmbedding(s, ps, self.encoder1.feature_info[i]['num_chs'], self.hparams.embed_dim)
+            for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
+        ])
+        self.fpos_embed = nn.Parameter(torch.randn(1, 320, self.hparams.embed_dim)) 
         # output query
         self.query = nn.Parameter(torch.randn(1, 1, 256, 256))
-        self.query_embedding = PatchEmbedding(256, 8, 1, self.hparams.embed_dim)
+        self.query_embedding = PatchEmbedding(256, 32, 1, self.hparams.embed_dim) # 32 here is 1 in the lower level
         self.pos_embed = nn.Parameter(torch.randn(1, self.query_embedding.n_patches, self.hparams.embed_dim))
         # attention blocks
         self.first_attn = Block(
@@ -79,7 +83,7 @@ class Transformer(BaseModule):
             ) for _ in range(self.hparams.num_blocks)
         ])
         # decoder and output head
-        decoder_channels=(1024, 512, 256, 128, 64) # depende del embedding dim ! (este sirve para 256)
+        decoder_channels=(64, 32, 16, 8) # depende del embedding dim ! (este sirve para 1024)
         blocks = []
         for i in range(1, len(decoder_channels)):
             in_channels = decoder_channels[i - 1]
@@ -94,8 +98,8 @@ class Transformer(BaseModule):
         x2 = self.encoder2(rearrange(xs2, 'b l c h w -> (b l) c h w'))
         e1, e2 = [], []
         for i, (f1, f2) in enumerate(zip(x1, x2)):
-            e1.append(self.fe[i](f1))
-            e2.append(self.fe[i](f2))
+            e1.append(self.fe1[i](f1))
+            e2.append(self.fe2[i](f2))
         e1, e2 = torch.cat(e1, dim=1), torch.cat(e2, dim=1)
         e1 = rearrange(e1, '(b l) n e -> b (l n) e', b=B)
         e2 = rearrange(e2, '(b l) n e -> b (l n) e', b=B)
