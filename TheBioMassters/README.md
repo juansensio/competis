@@ -55,6 +55,7 @@ UNet temporal DF (S1 2 first bands, S2 RGB) lr scheduler -> not better
 UNet temporal DF all bands -> 7932 / 31.0824 (no mejora por tener más bandas, solo por entrenar más rato)
 UNet temporal DF (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds) -> 7900 / 30.7758 / 30.3506 (tta 4) / 37.8559 (tta 7) / 39.9774 (tta 6)
 Bifpn (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds, 12 months) -> 7912 (not bad, pero muy ineficiente)
+UNet temporal DF (S1 2 first bands, S2 RGBNirSwir+ndvi+ndwi+clouds) r34 -> running ...
 
 tta rots mejora, tta rots+flips+transpose no mejora, tta+flips tampoco
 better encoders (r34, r50, se_resnext_50, en3), more training, no val, ensamble

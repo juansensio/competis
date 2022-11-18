@@ -100,9 +100,9 @@ class PerceiverEncoder(torch.nn.Module):
             q=self.latents.repeat(B, 1, 1),
             mask=mask
         )
-        for _ in range(self.num_blocks):
-            for self_attn_layer in self.self_attention_blocks:
-                x = self_attn_layer(x, x)
+        # for _ in range(self.num_blocks): 4 BUG ???
+        for self_attn_layer in self.self_attention_blocks:
+            x = self_attn_layer(x, x)
         return x
 
 # https://github.com/esceptico/perceiver-io/blob/master/src/perceiver/decoders.py
