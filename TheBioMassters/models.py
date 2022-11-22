@@ -1,5 +1,6 @@
 from src.dm import DFTemporalDataModule as DataModule
-from src.module import UnetTemporalDF as Module
+# from src.module import UnetTemporalDF as Module
+import src.module as modules
 import pytorch_lightning as pl
 import sys
 import yaml
@@ -8,6 +9,7 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 
 config = {
+    'module': 'UnetTemporalDF',
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
     'in_channels_s1': 2,
@@ -25,9 +27,10 @@ config = {
         'overfit_batches': 0,
         'deterministic': True,
         'precision': 16,
+        'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 32,
+        'batch_size': 16,
         'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,
@@ -40,7 +43,7 @@ config = {
 def train(config, name):
     pl.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
-    module = Module(config)
+    module = getattr(modules, config['module'])(config)
     config['trainer']['callbacks'] = []
     if config['trainer']['logger']:
         config['trainer']['logger'] = WandbLogger(
