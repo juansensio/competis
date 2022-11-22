@@ -3,6 +3,24 @@
 
 import math
 import torch
+import torch.nn as nn
+
+
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size, patch_size, in_chans, embed_dim):
+        super().__init__()
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.n_patches = (img_size // patch_size) ** 2
+        self.patch_size = patch_size
+        self.proj = nn.Conv2d(in_chans, embed_dim,
+                              kernel_size=patch_size, stride=patch_size)
+
+    def forward(self, x):
+        x = self.proj(x)  # (B, E, P, P)
+        x = x.flatten(2)  # (B, E, N)
+        x = x.transpose(1, 2)  # (B, N, E)
+        return x
 
 
 class MultiHeadAttention(torch.nn.Module):
@@ -128,10 +146,12 @@ class ClassificationDecoder(torch.nn.Module):
         )
         return logits.squeeze(1)
 
+
 class Decoder(torch.nn.Module):
     def __init__(self, num_pixels, num_channels, latent_dim, n_heads=1, attn_pdrop=0., resid_pdrop=0.):
         super().__init__()
-        self.query_vector = torch.nn.Parameter(torch.randn(num_channels, num_pixels))
+        self.query_vector = torch.nn.Parameter(
+            torch.randn(num_channels, num_pixels))
         # self.query_vector = torch.ones(num_channels, num_pixels)
         self.decoder = MultiHeadAttention(
             kv_dim=latent_dim,
@@ -148,4 +168,4 @@ class Decoder(torch.nn.Module):
             kv=latents,
             q=self.query_vector.repeat(b, 1, 1)
         )
-        return features#.squeeze(1)
+        return features  # .squeeze(1)

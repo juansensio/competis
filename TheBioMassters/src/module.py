@@ -1,11 +1,10 @@
-from .module2 import PatchEmbedding
+from .attention import Block, PatchEmbedding
 from .bifpn import BiFpn
 from typing import Callable
 import pytorch_lightning as pl
 import torch.nn.functional as F
 import torch
 import timm
-from .attention import PerceiverEncoder
 from einops import rearrange
 import segmentation_models_pytorch as smp
 from .unet_decoder import UnetDecoder
@@ -267,52 +266,6 @@ class UnetTemporalDF(BaseModule):
             return self(x1, x2)
 
 
-class RGBTemporalModule(BaseModule):
-    def __init__(self, hparams=None):
-        super().__init__(hparams)
-        self.backbone = timm.create_model(
-            self.hparams.backbone,
-            pretrained=self.hparams.pretrained,
-            num_classes=0,
-            in_chans=3,
-        )
-        self.encoder = PerceiverEncoder(
-            num_latents=self.hparams.num_latents,
-            latent_dim=self.hparams.latent_dim,
-            input_dim=self.backbone.num_features,
-            num_blocks=self.hparams.num_blocks,  # L
-            n_heads=self.hparams.n_heads,
-        )
-        self.pos_embed = torch.nn.Parameter(
-            torch.zeros(1, self.hparams.num_months, self.backbone.num_features))
-        # self.apply(self._init_weights)
-        # freeze backbone
-        # for param in self.backbone.parameters():
-        #     param.requires_grad = False
-
-    def forward(self, xs):
-        B, L, C, H, W = xs.shape
-        xs = rearrange(xs, 'b l c h w -> (b l) c h w')
-        # with torch.no_grad():
-        features = self.backbone(xs)
-        features = rearrange(features, '(b l) f -> b l f', b=B)
-        features2 = features + self.pos_embed
-        fused_features = self.encoder(features2)
-        # return torch.sigmoid(fused_features)
-        return fused_features
-
-    def _init_weights(self, module):
-        if isinstance(module, torch.nn.Linear):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
-            if module.bias is not None:
-                torch.nn.init.zeros_(module.bias)
-        elif isinstance(module, torch.nn.Embedding):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
-        elif isinstance(module,  torch.nn.LayerNorm):
-            torch.nn.init.zeros_(module.bias)
-            torch.nn.init.ones_(module.weight)
-
-
 def get_feature_info(backbone):
     if isinstance(backbone.feature_info, Callable):
         # old accessor for timm versions <= 0.1.30, efficientnet and mobilenetv3 and related nets only
@@ -445,14 +398,24 @@ class UNetA(BaseModule):
         self.initialize()
         self.patch_sizes = (16, 8, 4, 2, 1)
         self.sizes = (128, 64, 32, 16, 8)
+        channels = self.encoder1.out_channels[1:]
         self.fe1 = torch.nn.ModuleList([
-            PatchEmbedding(s, ps, 64, self.hparams.embed_dim)
-            for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
+            PatchEmbedding(s, ps, cs, self.hparams.embed_dim)
+            for i, (s, ps, cs) in enumerate(zip(self.sizes, self.patch_sizes, channels))
         ])
         self.fe2 = torch.nn.ModuleList([
-            PatchEmbedding(s, ps, 64, self.hparams.embed_dim)
-            for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
+            PatchEmbedding(s, ps, cs, self.hparams.embed_dim)
+            for i, (s, ps, cs) in enumerate(zip(self.sizes, self.patch_sizes, channels))
         ])
+        self.attn = torch.nn.ModuleList([
+            Block(
+                kv_dim=self.hparams.embed_dim,
+                q_dim=self.hparams.embed_dim,
+                n_heads=self.hparams.n_heads,
+                # attn_pdrop=attn_pdrop,
+                # resid_pdrop=resid_pdrop
+            )
+            for i in range(5)])
 
     def initialize(self):
         init.initialize_decoder(self.decoder)
@@ -463,12 +426,14 @@ class UNetA(BaseModule):
         f1 = self.encoder1(rearrange(x1, 'b l c h w -> (b l) c h w'))
         f2 = self.encoder2(rearrange(x2, 'b l c h w -> (b l) c h w'))
         e1, e2 = [], []
+        f = [0]
         for i, (x1, x2) in enumerate(zip(f1[1:], f2[1:])):
-            e1.append(self.fe1[i](x1))
-            e2.append(self.fe2[i](x2))
-        e1, e2 = torch.cat(e1, dim=1), torch.cat(e2, dim=1)
-        e1 = rearrange(e1, '(b l) n e -> b (l n) e', b=B)
-        e2 = rearrange(e2, '(b l) n e -> b (l n) e', b=B)
+            x1 = rearrange(self.fe1[i](x1), '(b l) n e -> b (l n) e', b=B)
+            x2 = rearrange(self.fe2[i](x2), '(b l) n e -> b (l n) e', b=B)
+            fe = torch.cat([x1, x2], dim=1)
+            x = self.attn[i](fe, fe)
+            print(x.shape)
+            f.append(x)
         decoder_output = self.decoder(*f)
         outputs = self.segmentation_head(decoder_output)
         return torch.sigmoid(outputs).squeeze(1)

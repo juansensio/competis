@@ -1,6 +1,6 @@
 from src.dm import DFTemporalDataModule as DataModule
 # from src.module import UnetTemporalDF as Module
-import src.module as modules
+import src.module2 as modules
 import pytorch_lightning as pl
 import sys
 import yaml
