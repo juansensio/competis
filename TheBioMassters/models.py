@@ -21,7 +21,7 @@ config = {
     },
     'trainer': {
         'gpus': 1,
-        'max_epochs': 30,
+        'max_epochs': 60,
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
@@ -30,7 +30,7 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 16,
+        'batch_size': 32,
         'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,

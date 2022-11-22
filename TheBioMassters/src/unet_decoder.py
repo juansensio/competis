@@ -45,6 +45,48 @@ class DecoderBlock(nn.Module):
         return x
 
 
+class DecoderBlock2(nn.Module):
+    def __init__(
+        self,
+        in_channels,
+        skip_channels,
+        out_channels,
+        use_batchnorm=True,
+        attention_type=None,
+    ):
+        super().__init__()
+        self.convt = nn.ConvTranspose2d(
+            in_channels, out_channels, kernel_size=2, stride=2)
+        self.conv1 = md.Conv2dReLU(
+            out_channels + skip_channels,
+            out_channels,
+            kernel_size=3,
+            padding=1,
+            use_batchnorm=use_batchnorm,
+        )
+        self.attention1 = md.Attention(
+            attention_type, in_channels=out_channels + skip_channels)
+        self.conv2 = md.Conv2dReLU(
+            out_channels,
+            out_channels,
+            kernel_size=3,
+            padding=1,
+            use_batchnorm=use_batchnorm,
+        )
+        self.attention2 = md.Attention(
+            attention_type, in_channels=out_channels)
+
+    def forward(self, x, skip=None):
+        x = self.convt(x)
+        if skip is not None:
+            x = torch.cat([x, skip], dim=1)
+            x = self.attention1(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.attention2(x)
+        return x
+
+
 class CenterBlock(nn.Sequential):
     def __init__(self, in_channels, out_channels, use_batchnorm=True):
         conv1 = md.Conv2dReLU(

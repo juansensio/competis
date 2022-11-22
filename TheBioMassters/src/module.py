@@ -1,3 +1,6 @@
+from .module2 import PatchEmbedding
+from .bifpn import BiFpn
+from typing import Callable
 import pytorch_lightning as pl
 import torch.nn.functional as F
 import torch
@@ -9,6 +12,7 @@ from .unet_decoder import UnetDecoder
 from segmentation_models_pytorch.encoders import get_encoder
 from segmentation_models_pytorch.base import SegmentationHead
 from segmentation_models_pytorch.base import initialization as init
+
 
 class BaseModule(pl.LightningModule):
     def __init__(self, hparams=None):
@@ -27,11 +31,11 @@ class BaseModule(pl.LightningModule):
         images, labels = batch
         y_hat = self(images)
         loss = torch.mean(torch.sqrt(
-            torch.sum((y_hat - labels)**2, dim=(1, 2))))        
+            torch.sum((y_hat - labels)**2, dim=(1, 2))))
         # loss = F.l1_loss(y_hat, labels)
         # loss = F.mse_loss(y_hat, labels)
         metric = torch.mean(torch.sqrt(
-            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+            torch.sum((y_hat * 12905.3 - labels * 12905.3)**2, dim=(1, 2))))
         return loss, metric
 
     def training_step(self, batch, batch_idx):
@@ -57,6 +61,7 @@ class BaseModule(pl.LightningModule):
             return [optimizer], schedulers
         return optimizer
 
+
 class UNet(BaseModule):
     def __init__(self, hparams=None):
         super().__init__(hparams)
@@ -70,6 +75,7 @@ class UNet(BaseModule):
     def forward(self, x):
         return torch.sigmoid(self.unet(x)).squeeze(1)
         # return self.unet(x).squeeze(1)
+
 
 class UNetDF(BaseModule):
     def __init__(self, hparams=None):
@@ -131,7 +137,7 @@ class UNetDF(BaseModule):
         loss = torch.mean(torch.sqrt(
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
         metric = torch.mean(torch.sqrt(
-            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+            torch.sum((y_hat * 12905.3 - labels * 12905.3)**2, dim=(1, 2))))
         # y_hat = y_hat * 63.456604 + 63.32611
         # labels = labels * 63.456604 + 63.32611
         # metric = torch.mean(torch.sqrt(torch.sum((y_hat - labels)**2, dim=(1, 2))))
@@ -141,6 +147,7 @@ class UNetDF(BaseModule):
         self.eval()
         with torch.no_grad():
             return self(x1, x2)
+
 
 class UnetTemporal(BaseModule):
     def __init__(self, hparams=None):
@@ -156,7 +163,8 @@ class UnetTemporal(BaseModule):
         decoder_channels = (256, 128, 64, 32, 16)
         decoder_attention_type = None
         self.decoder = UnetDecoder(
-            encoder_channels=[self.hparams.seq_len*c for c in self.encoder.out_channels],
+            encoder_channels=[self.hparams.seq_len *
+                              c for c in self.encoder.out_channels],
             decoder_channels=decoder_channels,
             n_blocks=encoder_depth,
             use_batchnorm=decoder_use_batchnorm,
@@ -180,10 +188,12 @@ class UnetTemporal(BaseModule):
     def forward(self, xs):
         B, L, C, H, W = xs.shape
         xs = rearrange(xs, 'b l c h w -> (b l) c h w')
-        features = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.encoder(xs)]
+        features = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                    for f in self.encoder(xs)]
         decoder_output = self.decoder(*features)
         outputs = self.segmentation_head(decoder_output)
         return torch.sigmoid(outputs).squeeze(1)
+
 
 class UnetTemporalDF(BaseModule):
     def __init__(self, hparams=None):
@@ -205,7 +215,8 @@ class UnetTemporalDF(BaseModule):
         decoder_channels = (256, 128, 64, 32, 16)
         decoder_attention_type = None
         self.decoder = UnetDecoder(
-            encoder_channels=[self.hparams.seq_len*c*2 for c in self.encoder1.out_channels],
+            encoder_channels=[self.hparams.seq_len*c *
+                              2 for c in self.encoder1.out_channels],
             decoder_channels=decoder_channels,
             n_blocks=encoder_depth,
             use_batchnorm=decoder_use_batchnorm,
@@ -229,9 +240,11 @@ class UnetTemporalDF(BaseModule):
     def forward(self, xs1, xs2):
         B, L, C, H, W = xs1.shape
         xs1 = rearrange(xs1, 'b l c h w -> (b l) c h w')
-        features1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.encoder1(xs1)]
+        features1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                     for f in self.encoder1(xs1)]
         xs2 = rearrange(xs2, 'b l c h w -> (b l) c h w')
-        features2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.encoder2(xs2)]
+        features2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                     for f in self.encoder2(xs2)]
         features = []
         for f1, f2 in zip(features1, features2):
             features.append(torch.cat([f1, f2], dim=1))
@@ -245,13 +258,14 @@ class UnetTemporalDF(BaseModule):
         loss = torch.mean(torch.sqrt(
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
         metric = torch.mean(torch.sqrt(
-            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+            torch.sum((y_hat * 12905.3 - labels * 12905.3)**2, dim=(1, 2))))
         return loss, metric
 
     def predict(self, x1, x2):
         self.eval()
         with torch.no_grad():
             return self(x1, x2)
+
 
 class RGBTemporalModule(BaseModule):
     def __init__(self, hparams=None):
@@ -297,7 +311,7 @@ class RGBTemporalModule(BaseModule):
         elif isinstance(module,  torch.nn.LayerNorm):
             torch.nn.init.zeros_(module.bias)
             torch.nn.init.ones_(module.weight)
-from typing import Callable
+
 
 def get_feature_info(backbone):
     if isinstance(backbone.feature_info, Callable):
@@ -306,24 +320,24 @@ def get_feature_info(backbone):
                         for i, f in enumerate(backbone.feature_info())]
     else:
         # new feature info accessor, timm >= 0.2, all models supported
-        feature_info = backbone.feature_info.get_dicts(keys=['num_chs', 'reduction'])
+        feature_info = backbone.feature_info.get_dicts(
+            keys=['num_chs', 'reduction'])
     return feature_info
 
-from .bifpn import BiFpn
 
 class UNetBiFPN(BaseModule):
     def __init__(self, hparams=None):
         super().__init__(hparams)
         self.encoder1 = timm.create_model(
-            self.hparams.encoder, 
-            features_only=True, 
+            self.hparams.encoder,
+            features_only=True,
             in_chans=self.hparams.in_channels_s1,
             out_indices=(0, 1, 2, 3, 4),
             pretrained=self.hparams.pretrained
         )
         self.encoder2 = timm.create_model(
-            self.hparams.encoder, 
-            features_only=True, 
+            self.hparams.encoder,
+            features_only=True,
             in_chans=self.hparams.in_channels_s2,
             out_indices=(0, 1, 2, 3, 4),
             pretrained=self.hparams.pretrained
@@ -332,7 +346,7 @@ class UNetBiFPN(BaseModule):
         feature_info2 = get_feature_info(self.encoder2)
         # default values for unet
         decoder_use_batchnorm = True
-        decoder_channels =  (256, 128, 64, 32, 16)
+        decoder_channels = (256, 128, 64, 32, 16)
         decoder_attention_type = None
         # double decoder channels for feature fusion
         # assuming encoder1 and encoder2 have the same number of out_channels
@@ -363,9 +377,11 @@ class UNetBiFPN(BaseModule):
     def forward(self, xs1, xs2):
         B, L, C, H, W = xs1.shape
         xs1 = rearrange(xs1, 'b l c h w -> (b l) c h w')
-        features1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.fpn1(self.encoder1(xs1))]
+        features1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                     for f in self.fpn1(self.encoder1(xs1))]
         xs2 = rearrange(xs2, 'b l c h w -> (b l) c h w')
-        features2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L) for f in self.fpn2(self.encoder2(xs2))]
+        features2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                     for f in self.fpn2(self.encoder2(xs2))]
         features = [0]
         for f1, f2 in zip(features1, features2):
             features.append(torch.cat([f1, f2], dim=1))
@@ -379,7 +395,7 @@ class UNetBiFPN(BaseModule):
         loss = torch.mean(torch.sqrt(
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
         metric = torch.mean(torch.sqrt(
-            torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
+            torch.sum((y_hat * 12905.3 - labels * 12905.3)**2, dim=(1, 2))))
         return loss, metric
 
     def predict(self, x1, x2):
@@ -387,7 +403,6 @@ class UNetBiFPN(BaseModule):
         with torch.no_grad():
             return self(x1, x2)
 
-from .attention import PerceiverEncoder, Decoder
 
 class UNetA(BaseModule):
     def __init__(self, hparams=None):
@@ -407,7 +422,7 @@ class UNetA(BaseModule):
         )
         # default values for unet
         decoder_use_batchnorm = True
-        decoder_channels =  (256, 128, 64, 32, 16)
+        decoder_channels = (256, 128, 64, 32, 16)
         decoder_attention_type = None
         # double decoder channels for feature fusion
         # assuming encoder1 and encoder2 have the same number of out_channels
@@ -428,57 +443,43 @@ class UNetA(BaseModule):
         )
         self.name = "u-{}".format(self.hparams.encoder)
         self.initialize()
-        self.attn = torch.nn.ModuleList([
-            PerceiverEncoder(256, 256, 16384, 1),
-            PerceiverEncoder(256, 256, 4096, 1),
-            PerceiverEncoder(256, 256, 1024, 1),
-            PerceiverEncoder(256, 256, 256, 1),
-            PerceiverEncoder(256, 256, 64, 1)
+        self.patch_sizes = (16, 8, 4, 2, 1)
+        self.sizes = (128, 64, 32, 16, 8)
+        self.fe1 = torch.nn.ModuleList([
+            PatchEmbedding(s, ps, 64, self.hparams.embed_dim)
+            for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
         ])
-        self.attn_decoder = torch.nn.ModuleList([
-            Decoder(16384, 64, 256),
-            Decoder(4096, 64, 256),
-            Decoder(1024, 128, 256),
-            Decoder(256, 256, 256),
-            Decoder(64, 512, 256)            
+        self.fe2 = torch.nn.ModuleList([
+            PatchEmbedding(s, ps, 64, self.hparams.embed_dim)
+            for i, (s, ps) in enumerate(zip(self.sizes, self.patch_sizes))
         ])
-        self.dims = [128, 64, 32, 16, 8]
 
     def initialize(self):
         init.initialize_decoder(self.decoder)
         init.initialize_head(self.segmentation_head)
 
     def forward(self, x1, x2):
-        features1 = self.encoder1(x1)
-        features2 = self.encoder2(x2)
-        features = [0]
-        for i, (f1, f2) in enumerate(zip(features1[1:], features2[1:])):
-            f = torch.stack([f1, f2], dim=1)
-            # TODO: positional encodings 
-            fa = rearrange(f, 'b l c h w -> b (l c) (h w)')
-            # print(f.shape, fa.shape)
-            kk = self.attn[i](fa)
-            # print(kk.shape)
-            kk = self.attn_decoder[i](kk)
-            # print(kk.shape)
-            kk = rearrange(kk, 'b c (h w) -> b c h w', h=self.dims[i])
-            # print(kk.shape)
-            features.append(kk)
-        decoder_output = self.decoder(*features)
+        B, L, C, H, W = x1.shape
+        f1 = self.encoder1(rearrange(x1, 'b l c h w -> (b l) c h w'))
+        f2 = self.encoder2(rearrange(x2, 'b l c h w -> (b l) c h w'))
+        e1, e2 = [], []
+        for i, (x1, x2) in enumerate(zip(f1[1:], f2[1:])):
+            e1.append(self.fe1[i](x1))
+            e2.append(self.fe2[i](x2))
+        e1, e2 = torch.cat(e1, dim=1), torch.cat(e2, dim=1)
+        e1 = rearrange(e1, '(b l) n e -> b (l n) e', b=B)
+        e2 = rearrange(e2, '(b l) n e -> b (l n) e', b=B)
+        decoder_output = self.decoder(*f)
         outputs = self.segmentation_head(decoder_output)
-        # return torch.sigmoid(outputs).squeeze(1)
-        return outputs.squeeze(1)
+        return torch.sigmoid(outputs).squeeze(1)
 
     def shared_step(self, batch):
         s1, s2, labels = batch
         y_hat = self(s1, s2)
         loss = torch.mean(torch.sqrt(
             torch.sum((y_hat - labels)**2, dim=(1, 2))))
-        # metric = torch.mean(torch.sqrt(
-        #     torch.sum((y_hat* 12905.3 - labels* 12905.3)**2, dim=(1, 2))))
-        y_hat = y_hat * 63.456604 + 63.32611
-        labels = labels * 63.456604 + 63.32611
-        metric = torch.mean(torch.sqrt(torch.sum((y_hat - labels)**2, dim=(1, 2))))
+        metric = torch.mean(torch.sqrt(
+            torch.sum((y_hat * 12905.3 - labels * 12905.3)**2, dim=(1, 2))))
         return loss, metric
 
     def predict(self, x1, x2):

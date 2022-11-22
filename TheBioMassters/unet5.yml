@@ -1,5 +1,13 @@
 trainer:
   logger: True
-  limit_train_batches: 10
+  limit_train_batches: 30
   limit_val_batches: 10
   log_every_n_steps: 5
+
+datamodule:
+  months:
+    - April
+    - May
+    - June
+
+seq_len: 3
