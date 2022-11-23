@@ -1,5 +1,6 @@
 datamodule:
-  batch_size: 1
+  batch_size: 4
+  val_size: 0
   num_workers: 0
   pin_memory: False
 

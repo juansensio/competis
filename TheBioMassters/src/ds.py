@@ -12,6 +12,7 @@ class Dataset(torch.utils.data.Dataset):
         self.months = months
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
+        self.chip_ids = chip_ids
 
     def __len__(self):
         return len(self.images)
@@ -57,5 +58,7 @@ def collate_fn(batch):
         s2s = None
     else:
         s2s = torch.from_numpy(np.stack(s2s))
-    labels = torch.from_numpy(np.stack(labels))
-    return s1s, s2s, labels
+    if isinstance(labels[0], str):
+        return s1s, s2s, labels
+    return s1s, s2s, torch.from_numpy(np.stack(labels))
+    

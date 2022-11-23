@@ -26,6 +26,7 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
+        'months': ['April'],
         'batch_size': 64,
         'num_workers': 10,
         'pin_memory': True,
@@ -64,7 +65,7 @@ def train(config, name):
             name=name,
             config=config
         )
-        if config['scheduler']:
+        if 'scheduler' in config and config['scheduler']:
             config['trainer']['callbacks'] += [
                 LearningRateMonitor(logging_interval='step')]
     trainer = pl.Trainer(**config['trainer'])
