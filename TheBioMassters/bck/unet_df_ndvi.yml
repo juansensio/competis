@@ -1,0 +1,13 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+in_channels_s2: 5
+
+datamodule:
+  s2_bands:
+    - 2
+    - 1
+    - 0
+    - 7
+  use_ndvi: True

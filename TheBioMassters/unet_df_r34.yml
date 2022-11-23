@@ -1,5 +1,0 @@
-trainer:
-  logger: True
-  enable_checkpointing: True
-
-encoder: resnet34

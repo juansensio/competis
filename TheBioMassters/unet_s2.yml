@@ -1,5 +1,0 @@
-trainer:
-  logger: True
-  enable_checkpointing: True
-  gpus:
-    - 1
