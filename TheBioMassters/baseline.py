@@ -17,7 +17,7 @@ config = {
     },
     'trainer': {
         'gpus': 1,
-        'max_epochs': 100,
+        'max_epochs': 500,
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
