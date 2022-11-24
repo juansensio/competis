@@ -1,0 +1,11 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+datamodule:
+  s1_bands:
+    - 0
+    - 1
+  s2_bands: null
+
+in_channels: 2
