@@ -14,17 +14,14 @@ class UNet(BaseModule):
 
     def forward(self, x, y=None):
         s1s, s2s = x
+        x = torch.tensor([], device=self.device, dtype=torch.float32)
+        if s2s is not None:
+            x = torch.cat((x, s2s), dim=2)
         if s1s is not None:
-            if y is not None:
-                for trans in self.transforms:
-                    s1s, y = trans(s1s, y)
-            x = self.unet(s1s.squeeze(1))
-            # return s1s, y
-        else:
-            if y is not None:
-                for trans in self.transforms:
-                    s2s, y = trans(s2s, y)
-            x = self.unet(s2s.squeeze(1))
-            # return s2s, y
+            x = torch.cat((x, s1s), dim=2)
+        if y is not None:
+            for trans in self.transforms:
+                x, y = trans(x, y)
+        x = self.unet(x.squeeze(1)) # una sola fecha
         return torch.sigmoid(x).squeeze(1), y
 
