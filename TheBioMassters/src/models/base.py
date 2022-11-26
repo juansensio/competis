@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 import torch
 from ..transforms import RandomHorizontalFlip, RandomVerticalFlip, RandomTranspose, RandomRotate90
 
+
 class BaseModule(pl.LightningModule):
     def __init__(self, hparams=None):
         super().__init__()
@@ -12,6 +13,8 @@ class BaseModule(pl.LightningModule):
             RandomTranspose(self.hparams.p),
             RandomRotate90(self.hparams.p)
         ])
+        for params in self.transforms.parameters():
+            params.requires_grad = False
 
     def forward(self, x, y=None):
         raise NotImplementedError
