@@ -60,5 +60,5 @@ def collate_fn(batch):
         s2s = torch.from_numpy(np.stack(s2s))
     if isinstance(labels[0], str):
         return s1s, s2s, labels
-    return s1s, s2s, torch.from_numpy(np.stack(labels))
+    return (s1s, s2s), torch.from_numpy(np.stack(labels))
     

@@ -12,9 +12,19 @@ class UNet(BaseModule):
             classes=1,
         )
 
-    def forward(self, s1s, s2s):
+    def forward(self, x, y=None):
+        s1s, s2s = x
         if s1s is not None:
+            if y is not None:
+                for trans in self.transforms:
+                    s1s, y = trans(s1s, y)
             x = self.unet(s1s.squeeze(1))
+            # return s1s, y
         else:
+            if y is not None:
+                for trans in self.transforms:
+                    s2s, y = trans(s2s, y)
             x = self.unet(s2s.squeeze(1))
-        return torch.sigmoid(x).squeeze(1)
+            # return s2s, y
+        return torch.sigmoid(x).squeeze(1), y
+

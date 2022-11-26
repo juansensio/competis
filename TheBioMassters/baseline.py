@@ -12,6 +12,7 @@ config = {
     'pretrained': 'imagenet',
     'in_channels': 3,
     'optimizer': 'Adam',
+    'p': 0.5,
     'optimizer_params': {
         'lr': 1e-3
     },

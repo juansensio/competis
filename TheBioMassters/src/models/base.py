@@ -1,38 +1,45 @@
 import pytorch_lightning as pl
 import torch
+from ..transforms import RandomHorizontalFlip, RandomVerticalFlip, RandomTranspose, RandomRotate90
 
 class BaseModule(pl.LightningModule):
     def __init__(self, hparams=None):
         super().__init__()
         self.save_hyperparameters(hparams)
+        self.transforms = torch.nn.ModuleList([
+            RandomHorizontalFlip(self.hparams.p),
+            RandomVerticalFlip(self.hparams.p),
+            RandomTranspose(self.hparams.p),
+            RandomRotate90(self.hparams.p)
+        ])
 
-    def forward(self, s1s, s2s):
+    def forward(self, x, y=None):
         raise NotImplementedError
 
-    def predict(self, s1s, s2s):
+    def predict(self, x):
         self.eval()
         with torch.no_grad():
-            return self(s1s, s2s)
+            return self(x)[0]
 
-    def shared_step(self, batch):
-        s1s, s2s, labels = batch
-        y_hat = self(s1s, s2s)
+    def compute_loss_metrics(self, y_hat, y):
         loss = torch.mean(torch.sqrt(
-            torch.mean((y_hat - labels)**2, dim=(1, 2))))
-        # loss = F.l1_loss(y_hat, labels)
-        # loss = F.mse_loss(y_hat, labels)
+            torch.mean((y_hat - y)**2, dim=(1, 2))))
         metric = torch.mean(torch.sqrt(
-            torch.mean((y_hat * 12905.3 - labels * 12905.3)**2, dim=(1, 2))))
+            torch.mean((y_hat * 12905.3 - y * 12905.3)**2, dim=(1, 2))))
         return loss, metric
 
     def training_step(self, batch, batch_idx):
-        loss, metric = self.shared_step(batch)
+        x, y = batch
+        y_hat, y = self(x, y)
+        loss, metric = self.compute_loss_metrics(y_hat, y)
         self.log('loss', loss)
         self.log('metric', metric, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss, metric = self.shared_step(batch)
+        x, y = batch
+        y_hat, _ = self(x)
+        loss, metric = self.compute_loss_metrics(y_hat, y)
         self.log('val_loss', loss, prog_bar=True)
         self.log('val_metric', metric, prog_bar=True)
 
