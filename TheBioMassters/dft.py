@@ -1,5 +1,5 @@
 from src.dm import DataModule
-from src.models.unet_df_temp import UNetDFT as Module
+from src.models.unet2 import UNet2 as Module
 import pytorch_lightning as pl
 import sys
 import yaml
@@ -10,11 +10,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
-    'in_channels_s1': 2,
-    'in_channels_s2': 3,
     'optimizer': 'Adam',
     'p': 0.5,
-    'seq_len': 12,
     'optimizer_params': {
         'lr': 1e-3
     },
@@ -30,7 +27,7 @@ config = {
     },
     'datamodule': {
         'batch_size': 16,
-        'num_workers': 10,
+        'num_workers': 20,
         'pin_memory': True,
         'val_size': 0.2,
         's1_bands': (0, 1),
@@ -42,6 +39,9 @@ config = {
 def train(config, name):
     pl.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
+    config['in_channels_s1'] = len(config['datamodule']['s1_bands'])
+    config['in_channels_s2'] = len(config['datamodule']['s2_bands'])
+    config['seq_len'] = len(dm.months)
     module = Module(config)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:

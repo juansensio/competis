@@ -1,6 +1,8 @@
 import segmentation_models_pytorch as smp
 from .base import BaseModule
 import torch
+from einops import rearrange
+
 
 class UNet(BaseModule):
     def __init__(self, hparams=None):
@@ -22,6 +24,6 @@ class UNet(BaseModule):
         if y is not None:
             for trans in self.transforms:
                 x, y = trans(x, y)
-        x = self.unet(x.squeeze(1)) # una sola fecha
+        x = rearrange(x, 'b l c h w -> b (l c) h w')
+        x = self.unet(x)
         return torch.sigmoid(x).squeeze(1), y
-
