@@ -38,19 +38,19 @@ The format for the submission is a .tar, .tgz, or .zip file containing predicted
 
 Get familiar with the data, metric and submission process.
 
-UNet on S2 RGB single image (April) -> running ...
+UNet on S2 RGB single image (April) -> 41.517
+UNet on S1 VVVH single image (April) -> 45.232
 
 ### Models
 
-...
+UNet S1 VVVH + S2 RGB ingle image (April) da -> 37.865
+UNet S1 VVVH + S2 RGB (full time series) da concat output -> 34.353
+UNet S1 VVVH + S2 RGB (full time series) da concat features -> 31.982 / 32.1235 (31.8992 bck, viejo da mejor?)
 
 TODO:
 
-- data augmentation
-- data fusion
-- time series
 - vegetation indices
 - tta
-- play with attention
-- ensambling
-- full training (better encoders, lr scheduler, no val)
+- ensambling (cv)
+- attention ?
+- full training (better encoders, lr scheduler, no val, different seeds)

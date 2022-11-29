@@ -1,5 +1,5 @@
 from src.dm import DataModule
-from src.models.unet2 import UNet2 as Module
+from src.models.unet_df import UNetDF as Module
 import pytorch_lightning as pl
 import sys
 import yaml
@@ -32,6 +32,9 @@ config = {
         'val_size': 0.2,
         's1_bands': (0, 1),
         's2_bands': (2, 1, 0),
+        'use_ndvi': False,
+        'use_ndwi': False,
+        'use_clouds': False,
     },
 }
 
@@ -41,6 +44,9 @@ def train(config, name):
     dm = DataModule(**config['datamodule'])
     config['in_channels_s1'] = len(config['datamodule']['s1_bands'])
     config['in_channels_s2'] = len(config['datamodule']['s2_bands'])
+    if config['datamodule']['use_ndvi']: config['in_channels_s2'] += 1
+    if config['datamodule']['use_ndwi']: config['in_channels_s2'] += 1
+    if config['datamodule']['use_clouds']: config['in_channels_s2'] += 1
     config['seq_len'] = len(dm.months)
     module = Module(config)
     config['trainer']['callbacks'] = []

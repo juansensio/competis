@@ -15,7 +15,7 @@ class UNet(BaseModule):
         )
 
     def forward(self, x, y=None):
-        s1s, s2s = x
+        s1s, s2s = x 
         x = torch.tensor([], device=self.device, dtype=torch.float32)
         if s2s is not None:
             x = torch.cat((x, s2s), dim=2)

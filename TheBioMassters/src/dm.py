@@ -9,7 +9,7 @@ from .ds import Dataset, collate_fn
 # import numpy as np
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, s1_bands=(0, 1), s2_bands=(2, 1, 0), months=None, batch_size=32, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, random_state=42):
+    def __init__(self, use_ndvi=False, use_ndwi=False, use_clouds=False, s1_bands=(0, 1), s2_bands=(2, 1, 0), months=None, batch_size=32, num_workers=0, pin_memory=False, train_trans=None, val_size=0, val_trans=None, test_trans=None, random_state=42):
         super().__init__()
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -23,6 +23,9 @@ class DataModule(pl.LightningDataModule):
         self.s1_bands = s1_bands
         self.s2_bands = s2_bands
         self.random_state = random_state
+        self.use_ndvi = use_ndvi
+        self.use_ndwi = use_ndwi
+        self.use_clouds = use_clouds
 
     def setup(self, stage=None):
         # read json files
@@ -33,11 +36,11 @@ class DataModule(pl.LightningDataModule):
         if self.val_size > 0:
             train, val = train_test_split(train, test_size=self.val_size, random_state=self.random_state)
         # generate datastes
-        self.ds_train = Dataset(train.filename.values, self.s1_bands, self.s2_bands, self.months, train.label.values)
+        self.ds_train = Dataset(train.filename.values, self.s1_bands, self.s2_bands, self.months, train.label.values, use_ndvi=self.use_ndvi, use_ndwi=self.use_ndwi, use_clouds=self.use_clouds)
         self.ds_val = None 
         if val is not None:
-            self.ds_val = Dataset(val.filename.values, self.s1_bands, self.s2_bands, self.months, val.label.values)
-        self.ds_test = Dataset(test.filename.values, self.s1_bands, self.s2_bands, self.months, chip_ids=test.index.values)
+            self.ds_val = Dataset(val.filename.values, self.s1_bands, self.s2_bands, self.months, val.label.values, use_ndvi=self.use_ndvi, use_ndwi=self.use_ndwi, use_clouds=self.use_clouds)
+        self.ds_test = Dataset(test.filename.values, self.s1_bands, self.s2_bands, self.months, chip_ids=test.index.values, use_ndvi=self.use_ndvi, use_ndwi=self.use_ndwi, use_clouds=self.use_clouds)
         print('train:', len(self.ds_train))
         if self.ds_val is not None:
             print('val:', len(self.ds_val))

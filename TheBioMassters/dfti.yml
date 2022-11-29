@@ -1,0 +1,8 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+datamodule:
+  use_ndvi: True
+  use_ndwi: True
+  use_clouds: True
