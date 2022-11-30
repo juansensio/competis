@@ -28,7 +28,7 @@ config = {
     },
     'datamodule': {
         'batch_size': 8,
-        'num_workers': 20,
+        'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,
         's1_bands': (0, 1),
