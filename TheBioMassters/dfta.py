@@ -11,8 +11,8 @@ config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
     'optimizer': 'Adam',
-    'n_embed': 64,
-    'n_heads': 1,
+    'n_embed': 512,
+    'n_heads': 4,
     'optimizer_params': {
         'lr': 1e-3
     },
@@ -28,7 +28,7 @@ config = {
     },
     'datamodule': {
         'batch_size': 8,
-        'num_workers': 10,
+        'num_workers': 20,
         'pin_memory': True,
         'val_size': 0.2,
         's1_bands': (0, 1),
