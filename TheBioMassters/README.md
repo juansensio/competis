@@ -52,5 +52,5 @@ TODO:
 
 - ensambling (cv)
 - tta
-- attention ?
+- attention ? no me mejora...
 - full training (better encoders, lr scheduler, no val, different seeds)
