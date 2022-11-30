@@ -80,7 +80,7 @@ class Dataset(torch.utils.data.Dataset):
     def apply_transforms(self, s1s, s2s, label=None):
         if self.trans is not None:
             params = {
-                    'image': s1s[0] if s1s[0] is not None else s2s[0], 
+                    'image': s1s[0] if len(s1s) > 0 else s2s[0], 
                     'mask': label
             }
             for i in range(len(s1s)):
