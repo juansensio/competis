@@ -11,7 +11,6 @@ config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
     'optimizer': 'Adam',
-    'p': 0.5,
     'optimizer_params': {
         'lr': 1e-3
     },
