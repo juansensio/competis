@@ -33,9 +33,9 @@ config = {
         'val_size': 0.2,
         's1_bands': (0, 1),
         's2_bands': (2, 1, 0),
-        'use_ndvi': False,
-        'use_ndwi': False,
-        'use_clouds': False,
+        'use_ndvi': True,
+        'use_ndwi': True,
+        'use_clouds': True,
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
