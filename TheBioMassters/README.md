@@ -50,8 +50,7 @@ UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da concat features -> 
 
 TODO:
 
-- vegetation indices
-- tta
 - ensambling (cv)
+- tta
 - attention ?
 - full training (better encoders, lr scheduler, no val, different seeds)
