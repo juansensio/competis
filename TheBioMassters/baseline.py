@@ -10,9 +10,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
-    'in_channels': 3,
     'optimizer': 'Adam',
-    'p': 0.5,
     'optimizer_params': {
         'lr': 1e-3
     },
@@ -34,6 +32,12 @@ config = {
         'val_size': 0.2,
         's1_bands': None,
         's2_bands': (2, 1, 0),
+        'train_trans': {
+            'HorizontalFlip': {'p': 0.5},
+            'VerticalFlip': {'p': 0.5},
+            'RandomRotate90': {'p': 0.5},
+            'Transpose': {'p': 0.5}
+        }
     },
 }
 
@@ -41,6 +45,12 @@ config = {
 def train(config, name):
     pl.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
+    in_channels_s1 = len(
+        config['datamodule']['s1_bands']) if config['datamodule']['s1_bands'] is not None else 0
+    in_channels_s2 = len(
+        config['datamodule']['s2_bands']) if config['datamodule']['s2_bands'] is not None else 0
+    config['in_channels'] = in_channels_s1 + in_channels_s2
+    config['seq_len'] = len(dm.months)
     module = Module(config)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
@@ -71,6 +81,7 @@ def train(config, name):
                 LearningRateMonitor(logging_interval='step')]
     trainer = pl.Trainer(**config['trainer'])
     trainer.fit(module, dm)
+
 
 if __name__ == '__main__':
     name = None

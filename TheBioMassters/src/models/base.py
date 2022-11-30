@@ -1,20 +1,20 @@
 import pytorch_lightning as pl
 import torch
-from ..transforms import RandomHorizontalFlip, RandomVerticalFlip, RandomTranspose, RandomRotate90
+# from ..transforms import RandomHorizontalFlip, RandomVerticalFlip, RandomTranspose, RandomRotate90
 
 
 class BaseModule(pl.LightningModule):
     def __init__(self, hparams=None):
         super().__init__()
         self.save_hyperparameters(hparams)
-        self.transforms = torch.nn.ModuleList([
-            RandomHorizontalFlip(self.hparams.p),
-            RandomVerticalFlip(self.hparams.p),
-            RandomTranspose(self.hparams.p),
-            RandomRotate90(self.hparams.p)
-        ])
-        for params in self.transforms.parameters():
-            params.requires_grad = False
+        # self.transforms = torch.nn.ModuleList([
+        #     RandomHorizontalFlip(self.hparams.p),
+        #     RandomVerticalFlip(self.hparams.p),
+        #     RandomTranspose(self.hparams.p),
+        #     RandomRotate90(self.hparams.p)
+        # ])
+        # for params in self.transforms.parameters():
+        #     params.requires_grad = False
 
     def forward(self, x, y=None):
         raise NotImplementedError
@@ -22,27 +22,31 @@ class BaseModule(pl.LightningModule):
     def predict(self, x):
         self.eval()
         with torch.no_grad():
-            return self(x)[0]
+            return self(x)
 
-    def compute_loss_metrics(self, y_hat, y):
-        loss = torch.mean(torch.sqrt(
-            torch.mean((y_hat - y)**2, dim=(1, 2))))
-        metric = torch.mean(torch.sqrt(
-            torch.mean((y_hat * 12905.3 - y * 12905.3)**2, dim=(1, 2))))
+    def compute_loss(self, y_hat, y):
+        loss = torch.mean(torch.sqrt(torch.mean((y_hat - y)**2, dim=(1, 2))))
+        return loss
+
+    def compute_metrics(self, y_hat, y):
+        metric = self.compute_loss(y_hat * 12905.3, y * 12905.3)
+        return metric
+
+    def shared_step(self, batch):
+        x, y = batch
+        y_hat = self(x)
+        loss = self.compute_loss(y_hat, y)
+        metric = self.compute_metrics(y_hat, y)
         return loss, metric
 
     def training_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat, y = self(x, y)
-        loss, metric = self.compute_loss_metrics(y_hat, y)
+        loss, metric = self.shared_step(batch)
         self.log('loss', loss)
         self.log('metric', metric, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat, _ = self(x)
-        loss, metric = self.compute_loss_metrics(y_hat, y)
+        loss, metric = self.shared_step(batch)
         self.log('val_loss', loss, prog_bar=True)
         self.log('val_metric', metric, prog_bar=True)
 

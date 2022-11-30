@@ -26,7 +26,7 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 16,
+        'batch_size': 4,
         'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,
@@ -35,6 +35,12 @@ config = {
         'use_ndvi': False,
         'use_ndwi': False,
         'use_clouds': False,
+        'train_trans': {
+            'HorizontalFlip': {'p': 0.5},
+            'VerticalFlip': {'p': 0.5},
+            'RandomRotate90': {'p': 0.5},
+            'Transpose': {'p': 0.5}
+        }
     },
 }
 
@@ -44,9 +50,12 @@ def train(config, name):
     dm = DataModule(**config['datamodule'])
     config['in_channels_s1'] = len(config['datamodule']['s1_bands'])
     config['in_channels_s2'] = len(config['datamodule']['s2_bands'])
-    if config['datamodule']['use_ndvi']: config['in_channels_s2'] += 1
-    if config['datamodule']['use_ndwi']: config['in_channels_s2'] += 1
-    if config['datamodule']['use_clouds']: config['in_channels_s2'] += 1
+    if config['datamodule']['use_ndvi']:
+        config['in_channels_s2'] += 1
+    if config['datamodule']['use_ndwi']:
+        config['in_channels_s2'] += 1
+    if config['datamodule']['use_clouds']:
+        config['in_channels_s2'] += 1
     config['seq_len'] = len(dm.months)
     module = Module(config)
     config['trainer']['callbacks'] = []

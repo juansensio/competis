@@ -46,6 +46,7 @@ UNet on S1 VVVH single image (April) -> 45.232
 UNet S1 VVVH + S2 RGB ingle image (April) da -> 37.865
 UNet S1 VVVH + S2 RGB (full time series) da concat output -> 34.353
 UNet S1 VVVH + S2 RGB (full time series) da concat features -> 31.982 / 32.1235 (31.8992 bck, viejo da mejor?)
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da concat features -> 31.197
 
 TODO:
 
