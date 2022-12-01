@@ -1,8 +1,20 @@
 trainer:
   logger: True
   enable_checkpointing: True
+  max_epochs: 200
 
 datamodule:
   use_ndvi: True
   use_ndwi: True
   use_clouds: True
+
+load_from_checkpoint: checkpoints/dfti_da2-val_metric=30.37115-epoch=227.ckpt
+
+optimizer_params:
+  lr: 0.0001
+
+scheduler:
+  MultiStepLR:
+    milestones:
+      - 100
+    gamma: 0.1

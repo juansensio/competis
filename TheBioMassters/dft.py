@@ -6,6 +6,7 @@ import yaml
 from src.utils import deep_update
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
+import torch
 
 config = {
     'encoder': 'resnet18',
@@ -14,6 +15,7 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
+    'load_from_checkpoint': None,
     'trainer': {
         'gpus': 1,
         'max_epochs': 500,
@@ -57,6 +59,9 @@ def train(config, name):
         config['in_channels_s2'] += 1
     config['seq_len'] = len(dm.months)
     module = Module(config)
+    if config['load_from_checkpoint'] is not None:
+        state_dict = torch.load(config['load_from_checkpoint'])['state_dict']
+        module.load_state_dict(state_dict)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
         config['trainer']['callbacks'] += [
