@@ -48,11 +48,10 @@ UNet S1 VVVH + S2 RGB (full time series) da concat output -> 34.353
 UNet S1 VVVH + S2 RGB (full time series) da concat features -> 31.982 / 32.1235 (31.8992 bck, viejo da mejor?)
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da concat features -> 31.197
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features -> 30.384 / 30.488 (definitivamente da viejo peor)
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features no val scheduler ms -> 28 / 30.2151
 
 TODO:
 
-- lr scheduler (step epoch 250)
-- no val
 - tta
 - ensambling (cv)
 - attention ? no me mejora...

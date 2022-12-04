@@ -1,0 +1,17 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+  max_epochs: 400
+
+datamodule:
+  use_ndvi: True
+  use_ndwi: True
+  use_clouds: True
+  val_size: 0
+
+scheduler:
+  MultiStepLR:
+    milestones:
+      - 250
+      - 350
+    gamma: 0.1
