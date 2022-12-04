@@ -1,21 +1,22 @@
 from src.dm import DataModule
-from src.models.unet_attn import UNetA as Module
+from src.models.unet_ltae import UNetLTAE as Module
 import pytorch_lightning as pl
 import sys
 import yaml
 from src.utils import deep_update
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
+import torch
 
 config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
     'optimizer': 'Adam',
-    'n_embed': 512,
-    'n_heads': 4,
+    'n_head': 16,
     'optimizer_params': {
         'lr': 1e-3
     },
+    'load_from_checkpoint': None,
     'trainer': {
         'gpus': 1,
         'max_epochs': 500,
@@ -27,15 +28,15 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 8,
+        'batch_size': 4,
         'num_workers': 10,
         'pin_memory': True,
         'val_size': 0.2,
         's1_bands': (0, 1),
         's2_bands': (2, 1, 0),
-        'use_ndvi': True,
-        'use_ndwi': True,
-        'use_clouds': True,
+        'use_ndvi': False,
+        'use_ndwi': False,
+        'use_clouds': False,
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
@@ -59,6 +60,9 @@ def train(config, name):
         config['in_channels_s2'] += 1
     config['seq_len'] = len(dm.months)
     module = Module(config)
+    if config['load_from_checkpoint'] is not None:
+        state_dict = torch.load(config['load_from_checkpoint'])['state_dict']
+        module.load_state_dict(state_dict)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
         config['trainer']['callbacks'] += [

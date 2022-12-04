@@ -1,0 +1,8 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+datamodule:
+  batch_size: 64
+  months:
+    - April
