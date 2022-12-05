@@ -2,6 +2,7 @@ import torch
 from skimage.io import imread
 import numpy as np
 
+
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, images, s1_bands, s2_bands, months, labels=None, chip_ids=None, use_ndvi=False, use_ndwi=False, use_clouds=False, trans=None):
         self.images = images
@@ -40,11 +41,14 @@ class Dataset(torch.utils.data.Dataset):
                 if path is None:
                     s2 = np.zeros((256, 256, len(self.s2_bands)))
                     if self.use_ndvi:
-                        s2 = np.concatenate([s2, np.zeros((256, 256, 1))], axis=-1)
+                        s2 = np.concatenate(
+                            [s2, np.zeros((256, 256, 1))], axis=-1)
                     if self.use_ndwi:
-                        s2 = np.concatenate([s2, np.zeros((256, 256, 1))], axis=-1)
+                        s2 = np.concatenate(
+                            [s2, np.zeros((256, 256, 1))], axis=-1)
                     if self.use_clouds:
-                        s2 = np.concatenate([s2, np.zeros((256, 256, 1))], axis=-1)
+                        s2 = np.concatenate(
+                            [s2, np.zeros((256, 256, 1))], axis=-1)
                     s2s.append(s2)
                 else:
                     s20 = imread(path)
@@ -80,19 +84,23 @@ class Dataset(torch.utils.data.Dataset):
     def apply_transforms(self, s1s, s2s, label=None):
         if self.trans is not None:
             params = {
-                    'image': s1s[0] if len(s1s) > 0 else s2s[0], 
-                    'mask': label
+                'image': s1s[0] if len(s1s) > 0 else s2s[0],
+                'mask': label
             }
             for i in range(len(s1s)):
                 params[f'image_s1_{i}'] = s1s[i]
             for i in range(len(s2s)):
                 params[f'image_s2_{i}'] = s2s[i]
             trans = self.trans(**params)
-            s1s = np.stack([trans[f'image_s1_{i}'].transpose(2, 0, 1) for i in range(len(s1s))]).astype(np.float32) if len(s1s) > 0 else None
-            s2s = np.stack([trans[f'image_s2_{i}'].transpose(2, 0, 1) for i in range(len(s2s))]).astype(np.float32) if len(s2s) > 0 else None
+            s1s = np.stack([trans[f'image_s1_{i}'].transpose(2, 0, 1) for i in range(
+                len(s1s))]).astype(np.float32) if len(s1s) > 0 else None
+            s2s = np.stack([trans[f'image_s2_{i}'].transpose(2, 0, 1) for i in range(
+                len(s2s))]).astype(np.float32) if len(s2s) > 0 else None
             return s1s, s2s, trans['mask']
-        s1s = np.stack([img.transpose(2, 0, 1) for img in s1s]).astype(np.float32) if len(s1s) > 0 else None
-        s2s = np.stack([img.transpose(2, 0, 1) for img in s2s]).astype(np.float32) if len(s2s) > 0 else None
+        s1s = np.stack([img.transpose(2, 0, 1) for img in s1s]).astype(
+            np.float32) if len(s1s) > 0 else None
+        s2s = np.stack([img.transpose(2, 0, 1) for img in s2s]).astype(
+            np.float32) if len(s2s) > 0 else None
         return s1s, s2s, label
 
 
@@ -101,4 +109,3 @@ def collate_fn(batch):
     s1s = torch.from_numpy(np.stack(s1s)) if s1s[0] is not None else None
     s2s = torch.from_numpy(np.stack(s2s)) if s2s[0] is not None else None
     return (s1s, s2s), labels if isinstance(labels[0], str) else torch.from_numpy(np.stack(labels))
-    
