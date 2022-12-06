@@ -4,48 +4,6 @@ import numpy as np
 from einops import rearrange
 
 
-class Dataset2(torch.utils.data.Dataset):
-    def __init__(self, chip_ids, test=False, trans=None):
-        self.chip_ids = chip_ids
-        self.test = test
-        self.trans = trans
-
-    def __len__(self):
-        return len(self.chip_ids)
-
-    def __getitem__(self, ix):
-        chip_id = self.chip_ids[ix]
-        # H, W, C, L
-        # TODO: rearrange C and L for albumentations
-        s1s = np.load(
-            f'data/train_features_npy/{chip_id}_S1.npy')
-        s2s = np.load(
-            f'data/train_features_npy/{chip_id}_S2.npy')
-        if not self.test:
-            label = np.load(f'data/train_agbm_npy/{chip_id}.npy')
-            s1s, s2s, label = self.apply_transforms(s1s, s2s, label)
-            s1s = rearrange(s1s, 'h w c l -> l h w c')
-            s2s = rearrange(s2s, 'h w c l -> l h w c')
-            return s1s, s2s, label
-        s1s = rearrange(s1s, 'h w c l -> l h w c')
-        s2s = rearrange(s2s, 'h w c l -> l h w c')
-        return s1s, s2s, chip_id
-
-    def apply_transforms(self, s1s, s2s, label):
-        if self.trans is not None:
-            H, W, C1, L = s1s.shape
-            H, W, C2, L = s2s.shape
-            s1s = rearrange(s1s, 'h w c l -> h w (c l)')
-            s2s = rearrange(s2s, 'h w c l -> h w (c l)')
-            params = {'image': s1s, 'image2': s2s, 'mask': label}
-            trans = self.trans(**params)
-            s1s, s2s, label = trans['image'], trans['image2'], trans['mask']
-            s1s = rearrange(s1s, 'h w (c l) -> h w c l', c=C1, l=L)
-            s2s = rearrange(s2s, 'h w (c l) -> h w c l', c=C2, l=L)
-            return s1s, s2s, label
-        return s1s, s2s, label
-
-
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, images, s1_bands, s2_bands, months, labels=None, chip_ids=None, use_ndvi=False, use_ndwi=False, use_clouds=False, trans=None):
         self.images = images
@@ -152,3 +110,45 @@ def collate_fn(batch):
     s1s = torch.from_numpy(np.stack(s1s)) if s1s[0] is not None else None
     s2s = torch.from_numpy(np.stack(s2s)) if s2s[0] is not None else None
     return (s1s, s2s), labels if isinstance(labels[0], str) else torch.from_numpy(np.stack(labels))
+
+
+class Dataset2(torch.utils.data.Dataset):
+    def __init__(self, chip_ids, test=False, trans=None):
+        self.chip_ids = chip_ids
+        self.test = test
+        self.trans = trans
+
+    def __len__(self):
+        return len(self.chip_ids)
+
+    def __getitem__(self, ix):
+        chip_id = self.chip_ids[ix]
+        # H, W, C, L
+        # TODO: rearrange C and L for albumentations
+        s1s = np.load(
+            f'data/train_features_npy/{chip_id}_S1.npy')
+        s2s = np.load(
+            f'data/train_features_npy/{chip_id}_S2.npy')
+        if not self.test:
+            label = np.load(f'data/train_agbm_npy/{chip_id}.npy')
+            s1s, s2s, label = self.apply_transforms(s1s, s2s, label)
+            s1s = rearrange(s1s, 'h w c l -> l h w c')
+            s2s = rearrange(s2s, 'h w c l -> l h w c')
+            return s1s, s2s, label
+        s1s = rearrange(s1s, 'h w c l -> l h w c')
+        s2s = rearrange(s2s, 'h w c l -> l h w c')
+        return s1s, s2s, chip_id
+
+    def apply_transforms(self, s1s, s2s, label):
+        if self.trans is not None:
+            H, W, C1, L = s1s.shape
+            H, W, C2, L = s2s.shape
+            s1s = rearrange(s1s, 'h w c l -> h w (c l)')
+            s2s = rearrange(s2s, 'h w c l -> h w (c l)')
+            params = {'image': s1s, 'image2': s2s, 'mask': label}
+            trans = self.trans(**params)
+            s1s, s2s, label = trans['image'], trans['image2'], trans['mask']
+            s1s = rearrange(s1s, 'h w (c l) -> h w c l', c=C1, l=L)
+            s2s = rearrange(s2s, 'h w (c l) -> h w c l', c=C2, l=L)
+            return s1s, s2s, label
+        return s1s, s2s, label
