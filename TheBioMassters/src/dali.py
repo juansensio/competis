@@ -24,9 +24,11 @@ class ExternalInputIterator(object):
                 f'data/train_features_npy/{chip_id}_S1.npy')
             x2 = cp.load(
                 f'data/train_features_npy/{chip_id}_S2.npy')
+            label = cp.load(f'data/train_agbm_npy/{chip_id}.npy')
+            label = label[..., None]
             batch1.append(x1)
             batch2.append(x2)
-            labels.append(cp.load(f'data/train_agbm_npy/{chip_id}.npy'))
+            labels.append(label)
             self.i = (self.i + 1) % self.n
         return (batch1, batch2, labels)
 
@@ -36,7 +38,7 @@ class ExternalInputIterator(object):
     next = __next__
 
 
-def Dataloader(chip_ids, batch_size, num_threads=10):
+def Dataloader(chip_ids, batch_size, num_threads=10, trans=False, seed=42):
     eii = ExternalInputIterator(
         chip_ids,
         batch_size=batch_size
@@ -46,6 +48,19 @@ def Dataloader(chip_ids, batch_size, num_threads=10):
     with pipe:
         x1, x2, labels = fn.external_source(
             source=eii, num_outputs=3, device="gpu", dtype=types.FLOAT)
+        if trans:
+            x1 = fn.flip(x1, horizontal=fn.random.coin_flip(
+                seed=seed), vertical=fn.random.coin_flip(seed=seed))
+            x2 = fn.flip(x2, horizontal=fn.random.coin_flip(
+                seed=seed), vertical=fn.random.coin_flip(seed=seed))
+            labels = fn.flip(labels, horizontal=fn.random.coin_flip(
+                seed=seed), vertical=fn.random.coin_flip(seed=seed))
+            x1 = fn.rotate(
+                x1, angle=90*fn.random.uniform(values=[0, 1, 2, 3], seed=seed))
+            x2 = fn.rotate(
+                x2, angle=90*fn.random.uniform(values=[0, 1, 2, 3], seed=seed))
+            labels = fn.rotate(
+                labels, angle=90*fn.random.uniform(values=[0, 1, 2, 3], seed=seed))
         pipe.set_outputs(x1, x2, labels)
     pipe.build()
     return DALIGenericIterator([pipe], ['x1', 'x2', 'labels'])

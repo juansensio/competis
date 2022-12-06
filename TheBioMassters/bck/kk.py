@@ -1,15 +1,15 @@
 from src.module import UNetA
-import torch 
+import torch
 
 hparams = {
-	'encoder': 'resnet18',
-	'pretrained': "imagenet",
-	'in_channels_s1': 2,
-	'in_channels_s2': 3,
-	'optimizer': 'Adam',
-	'optimizer_params': {
-		'lr': 1e-3
-	},
+    'encoder': 'resnet18',
+    'pretrained': "imagenet",
+    'in_channels_s1': 2,
+    'in_channels_s2': 3,
+    'optimizer': 'Adam',
+    'optimizer_params': {
+        'lr': 1e-3
+    },
 }
 
 module = UNetA(hparams)

@@ -52,9 +52,9 @@ class UNetDF2(torch.nn.Module):
         init.initialize_head(self.segmentation_head)
 
     def forward(self, x1, x2):
-        B, _, _, _, L = x1.shape
-        x1 = rearrange(x1, 'b h w c l -> (b l) c h w')
-        x2 = rearrange(x2, 'b h w c l -> (b l) c h w')
+        B, L, H, W, C = x1.shape
+        x1 = rearrange(x1, 'b l h w c -> (b l) c h w')
+        x2 = rearrange(x2, 'b l h w c -> (b l) c h w')
         f1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
               for f in self.encoder1(x1)]
         f2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
