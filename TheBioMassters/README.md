@@ -49,10 +49,13 @@ UNet S1 VVVH + S2 RGB (full time series) da concat features -> 31.982 / 32.1235 
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da concat features -> 31.197
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features -> 30.384 / 30.488 (definitivamente da viejo peor)
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features no val scheduler ms -> 28 / 30.2151
+UNet S1 + S2 (full time series, all bands, indices) da2 ltae scheduler ms -> 29.6 (de momento lo mejor, podría seguir aprendiendo)
+UNet S1 + S2 (full time series, all bands, indices) da2 concat features scheduler ms -> running...
+
+probar oncycle lr con muchas epochs (500) y max lr un poco más alto (0->5e-3->5e-5, por ejemplo) con lo que mejor de entre ltae y concat features all bands (empezando a partir del mejor checkpoint)
 
 TODO:
 
 - tta
 - ensambling (cv)
-- attention ? no me mejora...
-- other tips (better encoders, lr scheduler, no val, different seeds)
+- other tips (better encoders, different seeds)

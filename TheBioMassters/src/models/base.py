@@ -1,20 +1,11 @@
 import pytorch_lightning as pl
 import torch
-# from ..transforms import RandomHorizontalFlip, RandomVerticalFlip, RandomTranspose, RandomRotate90
 
 
 class BaseModule(pl.LightningModule):
     def __init__(self, hparams=None):
         super().__init__()
         self.save_hyperparameters(hparams)
-        # self.transforms = torch.nn.ModuleList([
-        #     RandomHorizontalFlip(self.hparams.p),
-        #     RandomVerticalFlip(self.hparams.p),
-        #     RandomTranspose(self.hparams.p),
-        #     RandomRotate90(self.hparams.p)
-        # ])
-        # for params in self.transforms.parameters():
-        #     params.requires_grad = False
 
     def forward(self, x, y=None):
         raise NotImplementedError
@@ -61,3 +52,23 @@ class BaseModule(pl.LightningModule):
             ]
             return [optimizer], schedulers
         return optimizer
+
+
+class BaseModule2(BaseModule):
+    def __init__(self, hparams=None):
+        super().__init__(hparams)
+
+    def forward(self, s1s, s2s):
+        raise NotImplementedError
+
+    def predict(self, s1s, s2s):
+        self.eval()
+        with torch.no_grad():
+            return self(s1s, s2s)
+
+    def shared_step(self, batch):
+        x1, x2, y = batch
+        y_hat = self(x1, x2)
+        loss = self.compute_loss(y_hat, y)
+        metric = self.compute_metrics(y_hat, y)
+        return loss, metric

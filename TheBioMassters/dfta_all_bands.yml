@@ -2,6 +2,7 @@ trainer:
   logger: True
   enable_checkpointing: True
   max_epochs: 400
+  resume_from_checkpoint: checkpoints/dfta_all_bands-epoch=157.ckpt
 
 datamodule:
   use_ndvi: True

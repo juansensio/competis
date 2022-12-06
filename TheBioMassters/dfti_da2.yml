@@ -8,7 +8,7 @@ datamodule:
   use_ndwi: True
   use_clouds: True
 
-load_from_checkpoint: checkpoints/dfti_da2-val_metric=30.37115-epoch=227.ckpt
+load_from_checkpoint: checkpoints/dfti_all_bands-epoch=36.ckpt
 
 optimizer_params:
   lr: 0.0001
