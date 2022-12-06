@@ -50,11 +50,11 @@ def Dataloader(chip_ids, batch_size, num_threads=10, trans=False, seed=42):
             source=eii, num_outputs=3, device="gpu", dtype=types.FLOAT)
         if trans:
             x1 = fn.flip(x1, horizontal=fn.random.coin_flip(
-                seed=seed), vertical=fn.random.coin_flip(seed=seed))
+                seed=seed), vertical=fn.random.coin_flip(seed=seed+42))
             x2 = fn.flip(x2, horizontal=fn.random.coin_flip(
-                seed=seed), vertical=fn.random.coin_flip(seed=seed))
+                seed=seed), vertical=fn.random.coin_flip(seed=seed+42))
             labels = fn.flip(labels, horizontal=fn.random.coin_flip(
-                seed=seed), vertical=fn.random.coin_flip(seed=seed))
+                seed=seed), vertical=fn.random.coin_flip(seed=seed+42))
             x1 = fn.rotate(
                 x1, angle=90*fn.random.uniform(values=[0, 1, 2, 3], seed=seed))
             x2 = fn.rotate(
