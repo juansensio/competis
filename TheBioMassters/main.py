@@ -10,7 +10,7 @@ import wandb
 print(torch.__version__, torch.cuda.is_available())
 
 BATCH_SIZE = 16
-EPOCHS = 10
+EPOCHS = 500
 VAL_SIZE = 0.2
 SEED = 42
 USE_AMP = True

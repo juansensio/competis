@@ -1,3 +1,9 @@
 trainer:
   logger: False
   enable_checkpointing: False
+
+datamodule:
+  s1_bands:
+    - 0
+    - 1
+    - 2

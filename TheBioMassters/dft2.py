@@ -38,7 +38,7 @@ config = {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
             'RandomRotate90': {'p': 0.5},
-            'Transpose': {'p': 0.5}
+            # 'Transpose': {'p': 0.5}
         }
     },
 }
