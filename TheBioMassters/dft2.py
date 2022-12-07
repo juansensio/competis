@@ -11,8 +11,8 @@ import torch
 config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
-    'in_channels_s1': 3,
-    'in_channels_s2': 3,
+    'in_channels_s1': 2,
+    'in_channels_s2': 6,
     'seq_len': 12,
     'optimizer': 'Adam',
     'optimizer_params': {
@@ -30,15 +30,15 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 4,
-        'num_workers': 10,
+        'batch_size': 8,
+        'num_workers': 20,
         'pin_memory': True,
         'val_size': 0.2,
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
             'RandomRotate90': {'p': 0.5},
-            # 'Transpose': {'p': 0.5}
+            'Transpose': {'p': 0.5}
         }
     },
 }

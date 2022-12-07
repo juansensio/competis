@@ -117,18 +117,17 @@ class Dataset2(torch.utils.data.Dataset):
         self.chip_ids = chip_ids
         self.test = test
         self.trans = trans
+        self.path = 'data/train_features_npy' if not test else 'data/test_features_npy'
 
     def __len__(self):
         return len(self.chip_ids)
 
     def __getitem__(self, ix):
         chip_id = self.chip_ids[ix]
-        # H, W, C, L
-        # TODO: rearrange C and L for albumentations
         s1s = np.load(
-            f'data/train_features_npy/{chip_id}_S1.npy')
+            f'{self.path}/{chip_id}_S1.npy')
         s2s = np.load(
-            f'data/train_features_npy/{chip_id}_S2.npy')
+            f'{self.path}/{chip_id}_S2.npy')
         if not self.test:
             label = np.load(f'data/train_agbm_npy/{chip_id}.npy')
             s1s, s2s, label = self.apply_transforms(s1s, s2s, label)

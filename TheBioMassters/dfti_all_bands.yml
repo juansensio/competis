@@ -1,8 +1,7 @@
 trainer:
-  logger: True
-  enable_checkpointing: True
+  logger: False
+  enable_checkpointing: False
   max_epochs: 400
-  resume_from_checkpoint: checkpoints/dfti_all_bands-epoch=39.ckpt
 
 datamodule:
   use_ndvi: True

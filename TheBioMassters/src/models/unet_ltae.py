@@ -1,7 +1,7 @@
 from segmentation_models_pytorch.encoders import get_encoder
 from segmentation_models_pytorch.base import SegmentationHead
 from segmentation_models_pytorch.base import initialization as init
-from .base import BaseModule
+from .base import BaseModule2
 from .unet_decoder import UnetDecoder
 import torch
 from einops import rearrange
@@ -9,7 +9,7 @@ from .ltae import LTAE
 import torch.nn.functional as F
 
 
-class UNetLTAE(BaseModule):
+class UNetLTAE(BaseModule2):
     def __init__(self, hparams=None):
         super().__init__(hparams)
         encoder_depth = 5
@@ -62,16 +62,15 @@ class UNetLTAE(BaseModule):
         init.initialize_decoder(self.decoder)
         init.initialize_head(self.segmentation_head)
 
-    def forward(self, x):
-        s1s, s2s = x
-        B, L, _, _, _ = s1s.shape
+    def forward(self, x1, x2):
+        B, L, _, _, _ = x1.shape
         # apply encoder to all images
-        s1s = rearrange(s1s, 'b l c h w -> (b l) c h w')
-        s2s = rearrange(s2s, 'b l c h w -> (b l) c h w')
+        x1 = rearrange(x1, 'b l h w c -> (b l) c h w')
+        x2 = rearrange(x2, 'b l h w c -> (b l) c h w')
         f1s = [rearrange(f, '(b l) c h w -> b l c h w', b=B, l=L)
-               for f in self.encoder1(s1s)]
+               for f in self.encoder1(x1)]
         f2s = [rearrange(f, '(b l) c h w -> b l c h w', b=B, l=L)
-               for f in self.encoder2(s2s)]
+               for f in self.encoder2(x2)]
         # apply attn to last feature maps
         f = torch.cat([f1s[-1], f2s[-1]], dim=1)
         f = rearrange(f, 'b t c h w -> (b h w) t c')
