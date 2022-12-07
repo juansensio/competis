@@ -51,13 +51,7 @@ UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features ->
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features no val scheduler ms -> 28 / 30.2151
 UNet S1 + S2 (full time series, all bands, indices) da2 ltae scheduler ms -> 29.6 (de momento lo mejor, podría seguir aprendiendo)
 UNet S1 + S2 (full time series, all bands, indices) da2 concat features scheduler ms -> muy lento
-UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 concat features scheduler oc -> running...
-
-OPT:
-
-- all bands -> 6mpe
-- s1 2 bands, s2 rgb + indices + clouds -> 5mpe
-- s1 2 bands, s2 rgb + indices + clouds OPT -> 3mpe
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc -> running...
 
 TODO:
 

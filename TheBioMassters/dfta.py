@@ -31,8 +31,8 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 4,
-        'num_workers': 10,
+        'batch_size': 8,
+        'num_workers': 20,
         'pin_memory': True,
         'val_size': 0.2,
         'train_trans': {
