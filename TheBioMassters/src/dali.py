@@ -3,33 +3,41 @@ from nvidia.dali.pipeline import Pipeline
 import nvidia.dali.fn as fn
 import nvidia.dali.types as types
 from nvidia.dali.plugin.pytorch import DALIGenericIterator
+from random import shuffle
 
 
 class ExternalInputIterator(object):
-    def __init__(self, chip_ids, batch_size):
+    def __init__(self, chip_ids, batch_size, shuffle):
         self.batch_size = batch_size
         self.chip_ids = chip_ids
         self.sensors = ['S1', 'S2']
+        self.shuffle = shuffle
+        self.data_set_len = len(chip_ids)
+        self.n = len(self.chip_ids)
 
     def __iter__(self):
         self.i = 0
-        self.n = len(self.chip_ids)
+        if self.shuffle:
+            shuffle(self.chip_ids)
         return self
 
     def __next__(self):
+        if self.i >= self.n:
+            self.__iter__()
+            raise StopIteration
         batch1, batch2, labels = [], [], []
         for _ in range(self.batch_size):
-            chip_id = self.chip_ids[self.i]
+            chip_id = self.chip_ids[self.i % self.n]
             x1 = cp.load(
                 f'data/train_features_npy/{chip_id}_S1.npy')
             x2 = cp.load(
                 f'data/train_features_npy/{chip_id}_S2.npy')
-            label = cp.load(f'data/train_agbm_npy/{chip_id}.npy')
-            label = label[..., None]
             batch1.append(x1)
             batch2.append(x2)
+            label = cp.load(f'data/train_agbm_npy/{chip_id}.npy')
+            label = label[..., None]
             labels.append(label)
-            self.i = (self.i + 1) % self.n
+            self.i += 1
         return (batch1, batch2, labels)
 
     def __len__(self):
@@ -38,10 +46,11 @@ class ExternalInputIterator(object):
     next = __next__
 
 
-def Dataloader(chip_ids, batch_size, num_threads=10, trans=False, seed=42):
+def Dataloader(chip_ids, batch_size, shuffle=False, num_threads=10, trans=False, seed=42):
     eii = ExternalInputIterator(
         chip_ids,
-        batch_size=batch_size
+        batch_size=batch_size,
+        shuffle=shuffle,
     )
     pipe = Pipeline(batch_size=batch_size,
                     num_threads=num_threads, device_id=0)

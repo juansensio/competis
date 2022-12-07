@@ -7,25 +7,28 @@ from src.models.unet_df2 import UNetDF2
 import numpy as np
 import wandb
 
-print(torch.__version__, torch.cuda.is_available())
+# print(torch.__version__, torch.cuda.is_available())
 
 BATCH_SIZE = 16
 EPOCHS = 500
+USE_AMP = True
 VAL_SIZE = 0.2
 SEED = 42
-USE_AMP = True
-LOG_FREQ = 10
-NAME = '3COPT'
-
+CHECKPOINTING = True
+LOG_FREQ = 30
+NAME = 'dfti_opt'
+LOAD = False
 
 train = pd.read_csv('data/train_chip_ids.csv')
-train, val = train_test_split(
-    train, test_size=VAL_SIZE, random_state=SEED)
+train, val = train_test_split(train, test_size=VAL_SIZE, random_state=SEED)
 dl = {
-    'train': Dataloader(train.chip_id.values, BATCH_SIZE, trans=True, seed=SEED),
+    'train': Dataloader(train.chip_id.values, BATCH_SIZE, trans=True, seed=SEED, shuffle=True),
     'val': Dataloader(val.chip_id.values, BATCH_SIZE)
 }
-model = UNetDF2().cuda()
+model = UNetDF2()
+if LOAD:
+    model.load_state_dict(torch.load(LOAD))
+model.cuda()
 # model = torch.compile(model, backend="inductor").cuda() # peta pero el ejemplo kk funciona, probablemente haya que toquetear el modelo
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 scaler = torch.cuda.amp.GradScaler(enabled=USE_AMP)
@@ -33,6 +36,7 @@ if LOG_FREQ > 0:
     wandb.init(project="TheBioMassters-yt", name=NAME)
     wandb.watch(model, log_freq=LOG_FREQ)
 mb = master_bar(range(1, EPOCHS+1))
+best_metric = 1e10
 for epoch in mb:
     model.train()
     losses, metric = [], []
@@ -54,7 +58,7 @@ for epoch in mb:
         metric.append(metrics.item())
         if LOG_FREQ > 0 and batch_idx % LOG_FREQ == 0:
             wandb.log({'loss': loss, 'metric': metrics, 'epoch': epoch})
-        mb.child.comment = f'loss: {np.mean(losses):.4f}, metric: {np.mean(metric):.4f}'
+        mb.child.comment = f'loss: {loss.item():.4f}, metric: {metrics.item():.4f}'
     model.eval()
     val_loss, val_metric = [], []
     for data in progress_bar(dl['val'], total=len(val)//BATCH_SIZE, parent=mb):
@@ -70,7 +74,15 @@ for epoch in mb:
         val_loss.append(loss.item())
         val_metric.append(metrics.item())
         mb.child.comment = f'val_loss: {np.mean(val_loss):.4f}, val_metric: {np.mean(val_metric):.4f}'
+    val_metric = np.mean(val_metric)
     if LOG_FREQ > 0:
-        wandb.log(
-            {'val_loss': np.mean(val_loss), 'val_metric': np.mean(val_metric), 'epoch': epoch})
-    mb.write(f'Epoch {epoch}/{EPOCHS} loss: {np.mean(losses):.4f} metric: {np.mean(metric):.4f} val_loss: {np.mean(val_loss):.4f} val_metric: {np.mean(val_metric):.4f}')
+        wandb.log({'val_loss': np.mean(val_loss),
+                  'val_metric': val_metric, 'epoch': epoch})
+    if CHECKPOINTING:
+        torch.save(model.state_dict(),
+                   f'checkpoints/{NAME}-epoch={epoch}.ckpt')
+        if val_metric < best_metric:
+            best_metric = val_metric
+            torch.save(model.state_dict(
+            ), f'checkpoints/{NAME}-val_metric={val_metric:.4f}-epoch={epoch}.ckpt')
+    mb.write(f'Epoch {epoch}/{EPOCHS} loss: {np.mean(losses):.4f} metric: {np.mean(metric):.4f} val_loss: {np.mean(val_loss):.4f} val_metric: {val_metric:.4f}')

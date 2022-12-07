@@ -12,13 +12,13 @@ class UNetDF2(torch.nn.Module):
         encoder_depth = 5
         self.encoder1 = get_encoder(
             encoder,
-            in_channels=3,
+            in_channels=2,
             depth=encoder_depth,
             weights=pretrained,
         )
         self.encoder2 = get_encoder(
             encoder,
-            in_channels=3,
+            in_channels=6,
             depth=encoder_depth,
             weights=pretrained,
         )
@@ -55,12 +55,12 @@ class UNetDF2(torch.nn.Module):
         B, L, H, W, C = x1.shape
         x1 = rearrange(x1, 'b l h w c -> (b l) c h w')
         x2 = rearrange(x2, 'b l h w c -> (b l) c h w')
-        f1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
-              for f in self.encoder1(x1)]
-        f2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
-              for f in self.encoder2(x2)]
-        f = [torch.cat([f1, f2], dim=1)
-             for f1, f2 in zip(f1, f2)]
-        decoder_output = self.decoder(*f)
+        features1 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                     for f in self.encoder1(x1)]
+        features2 = [rearrange(f, '(b l) c h w -> b (l c) h w', b=B, l=L)
+                     for f in self.encoder2(x2)]
+        features = [torch.cat([f1, f2], dim=1)
+                    for f1, f2 in zip(features1, features2)]
+        decoder_output = self.decoder(*features)
         outputs = self.segmentation_head(decoder_output)
         return torch.sigmoid(outputs).squeeze(1)
