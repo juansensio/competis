@@ -13,3 +13,6 @@ scheduler:
     pct_start: 0.01
     final_div_factor: 10
     verbose: True
+
+datamodule:
+  val_size: 0

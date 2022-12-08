@@ -54,14 +54,17 @@ def train(config, name):
         module.load_state_dict(state_dict)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
+        if config['datamodule']['val_size'] > 0:
+            config['trainer']['callbacks'] += [
+                ModelCheckpoint(
+                    dirpath='./checkpoints',
+                    filename=f'{name}-{{val_metric:.5f}}-{{epoch}}',
+                    monitor='val_metric',
+                    mode='min',
+                    save_top_k=1
+                )
+            ]
         config['trainer']['callbacks'] += [
-            ModelCheckpoint(
-                dirpath='./checkpoints',
-                filename=f'{name}-{{val_metric:.5f}}-{{epoch}}',
-                monitor='val_metric',
-                mode='min',
-                save_top_k=1
-            ),
             ModelCheckpoint(
                 dirpath='./checkpoints',
                 filename=f'{name}-{{epoch}}',
