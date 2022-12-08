@@ -52,14 +52,8 @@ UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features no
 UNet S1 + S2 (full time series, all bands, indices) da2 ltae scheduler ms -> 29.6
 UNet S1 + S2 (full time series, all bands, indices) da2 concat features scheduler ms -> muy lento
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc -> 29.48 (28.879 tta) / 29.6418 29.079 (tta) (best)
-modelo anterior repetito train a partir del mejor checkpoint -> running...
+modelo anterior repito train a partir del mejor checkpoint -> running...
 
-puedo mejorar ligeramente con tta y no val
-repetir para concat features
+puedo mejorar ligeramente sin val
+repetir para concat features (primero con val, luego sin val a partir del mejor checkpoint)
 ensamblado final ltae+concat features (con tta)
-
-TODO:
-
-- tta
-- ensambling (cv)
-- other tips (better encoders, different seeds)
