@@ -13,3 +13,5 @@ scheduler:
     pct_start: 0.01
     final_div_factor: 10
     verbose: True
+
+load_from_checkpoint: checkpoints/dfta_oc-val_metric=29.47327-epoch=368.ckpt
