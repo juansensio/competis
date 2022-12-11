@@ -35,6 +35,7 @@ config = {
         'num_workers': 20,
         'pin_memory': True,
         'val_size': 0.2,
+        'subset': 0,
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},

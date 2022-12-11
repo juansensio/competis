@@ -38,8 +38,8 @@ class BaseModule(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         loss, metric = self.shared_step(batch)
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_metric', metric, prog_bar=True)
+        self.log('val_loss', loss, prog_bar=True, sync_dist=True)
+        self.log('val_metric', metric, prog_bar=True, sync_dist=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(

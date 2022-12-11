@@ -88,9 +88,10 @@ class DataModule(pl.LightningDataModule):
 
 
 class DataModule2(DataModule):
-    def __init__(self, batch_size=32, num_workers=0, pin_memory=False, train_trans=None, val_size=0, random_state=42):
+    def __init__(self, batch_size=32, num_workers=0, pin_memory=False, train_trans=None, val_size=0, random_state=42, subset=0):
         super().__init__(batch_size=batch_size, num_workers=num_workers, pin_memory=pin_memory,
                          train_trans=train_trans, val_size=val_size, random_state=random_state)
+        self.subset = subset
 
     def setup(self, stage=None):
         # read csv files
@@ -101,6 +102,10 @@ class DataModule2(DataModule):
         if self.val_size > 0:
             train, val = train_test_split(
                 train, test_size=self.val_size, random_state=self.random_state)
+        # subset
+        if self.subset > 0:
+            train = train.sample(int(self.subset*len(train)),
+                                 random_state=self.random_state)
         # generate datastes
         self.ds_train = Dataset2(
             train.chip_id.values,
@@ -125,4 +130,5 @@ class DataModule2(DataModule):
             shuffle=shuffle if shuffle is not None else True,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            persistent_workers=True,
         ) if ds is not None else None

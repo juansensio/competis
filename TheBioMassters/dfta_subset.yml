@@ -1,0 +1,8 @@
+trainer:
+  logger: False
+  enable_checkpointing: False
+  max_epochs: 50
+  limit_val_batches: 10
+
+datamodule:
+  subset: 0.1

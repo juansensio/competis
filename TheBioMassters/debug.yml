@@ -8,5 +8,3 @@ datamodule:
 trainer:
   max_epochs: 500
   overfit_batches: 1
-
-encoder: timm-resnest50d

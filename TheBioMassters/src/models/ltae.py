@@ -53,8 +53,8 @@ class LTAE(nn.Module):
 
         sin_tab = get_sinusoid_encoding_table(
             positions, self.d_model // n_head, T=T)
-        self.position_enc = nn.Embedding.from_pretrained(torch.cat([sin_tab for _ in range(n_head)], dim=1),
-                                                         freeze=True)
+        self.position_enc = nn.Embedding.from_pretrained(
+            torch.cat([sin_tab for _ in range(n_head)], dim=1), freeze=True)
 
         self.inlayernorm = nn.LayerNorm(self.in_channels)
 
@@ -188,34 +188,8 @@ def get_sinusoid_encoding_table(positions, d_hid, T=1000):
     sinusoid_table[:, 0::2] = np.sin(sinusoid_table[:, 0::2])  # dim 2i
     sinusoid_table[:, 1::2] = np.cos(sinusoid_table[:, 1::2])  # dim 2i+1
 
-    if torch.cuda.is_available():
-        return torch.FloatTensor(sinusoid_table).cuda()
-    else:
-        return torch.FloatTensor(sinusoid_table)
-
-
-def get_sinusoid_encoding_table_var(positions, d_hid, clip=4, offset=3, T=1000):
-    ''' Sinusoid position encoding table
-    positions: int or list of integer, if int range(positions)'''
-
-    if isinstance(positions, int):
-        positions = list(range(positions))
-
-    x = np.array(positions)
-
-    def cal_angle(position, hid_idx):
-        return position / np.power(T, 2 * (hid_idx + offset // 2) / d_hid)
-
-    def get_posi_angle_vec(position):
-        return [cal_angle(position, hid_j) for hid_j in range(d_hid)]
-
-    sinusoid_table = np.array([get_posi_angle_vec(pos_i)
-                              for pos_i in positions])
-
-    sinusoid_table = np.sin(sinusoid_table)  # dim 2i
-    sinusoid_table[:, clip:] = torch.zeros(sinusoid_table[:, clip:].shape)
-
-    if torch.cuda.is_available():
-        return torch.FloatTensor(sinusoid_table).cuda()
-    else:
-        return torch.FloatTensor(sinusoid_table)
+    # if torch.cuda.is_available():
+    #     return torch.FloatTensor(sinusoid_table).cuda()
+    # else:
+    #     return torch.FloatTensor(sinusoid_table)
+    return torch.FloatTensor(sinusoid_table)  # .to(device)

@@ -1,7 +1,9 @@
 trainer:
-  logger: False
-  enable_checkpointing: False
+  logger: True
+  enable_checkpointing: True
   max_epochs: 500
+  gpus: 2
+  accelerator: dp
 
 optimizer_params:
   lr: 0.001

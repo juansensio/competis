@@ -55,9 +55,14 @@ UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc -> 29.48 (28.879 tt
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc no val -> 27.6 (tta) / 29.3775 (tta) no mejora
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 concat features scheduler oc -> 29.0516 (tta)
 ensamble ltae+concat features (con tta) -> 28.645 (tta) / 28.8447 (tta) (best)
-UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc se_resnext30_32x4d -> running ...
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc se_resnext30_32x4d -> running ... 15mpe
 
 añadir mejores backbones a ensamblado (parece que no hay overfitting con r18)
 
 - se_resnext50_32x4d
 - efficientnet-b3
+
+no val best metric or loss ?
+
+post-analysis
+podría haber seleccionado el mejor modelo / bandas con un subest (10%, 50epochs, no da, no lrsch) rápido ?
