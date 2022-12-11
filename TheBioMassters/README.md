@@ -52,9 +52,12 @@ UNet S1 VVVH + S2 RGB NDVI NDWI Clouds (full time series) da2 concat features no
 UNet S1 + S2 (full time series, all bands, indices) da2 ltae scheduler ms -> 29.6
 UNet S1 + S2 (full time series, all bands, indices) da2 concat features scheduler ms -> muy lento
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc -> 29.48 (28.879 tta) / 29.6418 29.079 (tta) (best)
-UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc no val -> 27.6 (tta) / 28.8 (tta)
-UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 concat features scheduler oc -> running ...
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc no val -> 27.6 (tta) / 29.3775 (tta) no mejora
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 concat features scheduler oc -> 29.0516 (tta)
+ensamble ltae+concat features (con tta) -> 28.645 (tta) / 28.8447 (tta) (best)
+UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc se_resnext30_32x4d -> running ...
 
-repetir para concat features (primero con val, luego sin val)
-ensamblado final ltae+concat features (con tta)
 añadir mejores backbones a ensamblado (parece que no hay overfitting con r18)
+
+- se_resnext50_32x4d
+- efficientnet-b3
