@@ -3,7 +3,8 @@ trainer:
   enable_checkpointing: True
   max_epochs: 500
   gpus: 2
-  accelerator: dp
+  strategy: dp
+  load_from_checkpoint: checkpoints/dftar50-epoch=71.ckpt
 
 optimizer_params:
   lr: 0.001
