@@ -4,7 +4,7 @@ trainer:
   max_epochs: 500
   gpus: 2
   strategy: dp
-  load_from_checkpoint: checkpoints/dftar50-epoch=71.ckpt
+  resume_from_checkpoint: checkpoints/dftar50-epoch=275.ckpt
 
 optimizer_params:
   lr: 0.001
