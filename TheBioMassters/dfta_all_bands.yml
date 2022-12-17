@@ -1,33 +1,14 @@
 trainer:
-  logger: True
-  enable_checkpointing: True
-  max_epochs: 400
-  resume_from_checkpoint: checkpoints/dfta_all_bands-epoch=157.ckpt
+  logger: False
+  enable_checkpointing: False
 
-datamodule:
-  use_ndvi: True
-  use_ndwi: True
-  use_clouds: True
-  s1_bands:
-    - 0
-    - 1
-    - 2
-    - 3
-  s2_bands:
-    - 2
-    - 1
-    - 0
-    - 3
-    - 4
-    - 5
-    - 6
-    - 7
-    - 8
-    - 9
+optimizer_params:
+  lr: 0.001
 
 scheduler:
-  MultiStepLR:
-    milestones:
-      - 250
-      - 350
-    gamma: 0.1
+  OneCycleLR:
+    max_lr: 0.001
+    total_steps: 500
+    pct_start: 0.01
+    final_div_factor: 10
+    verbose: True
