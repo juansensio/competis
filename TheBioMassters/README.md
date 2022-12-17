@@ -56,6 +56,6 @@ UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc no val -> 27.6 (tta
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 concat features scheduler oc -> 29.0516 (tta)
 ensamble ltae+concat features -> 28.645 (tta) / 28.8447 (tta) (best)
 UNet S1 VVVH + S2 RGB NDVI NDWI Clouds da2 ltae scheduler oc se_resnext30_32x4d -> 29.425
-ensamble ltae+concat+ltae r50 -> 28.655 (tta)
+ensamble ltae+concat+ltae r50 -> 28.655 (tta) no mejora
 
 late all bands ?
