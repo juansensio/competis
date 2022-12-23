@@ -130,5 +130,5 @@ class DataModule2(DataModule):
             shuffle=shuffle if shuffle is not None else True,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            persistent_workers=True,
+            # persistent_workers=True,
         ) if ds is not None else None

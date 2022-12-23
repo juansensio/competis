@@ -1,5 +1,5 @@
-from src.dm import DataModule
-from src.models.unet_ltae import UNetLTAE1 as Module
+from src.dm import DataModule2 as DataModule
+from src.models.unet_ltae import UNetLTAE as Module
 import pytorch_lightning as pl
 import sys
 import yaml
@@ -11,8 +11,8 @@ import torch
 config = {
     'encoder': 'resnet18',
     'pretrained': 'imagenet',
-    # 'in_channels_s1': 2,
-    # 'in_channels_s2': 6,
+    'in_channels_s1': 2,
+    'in_channels_s2': 6,
     'seq_len': 12,
     'optimizer': 'Adam',
     'n_head': 16,
@@ -32,15 +32,15 @@ config = {
     },
     'datamodule': {
         'batch_size': 4,
-        's1_bands': (0, 1, 2, 3),
-        's2_bands': (2, 1, 0, 3, 4, 5, 6, 7, 8, 9),
-        'use_ndvi': True,
-        'use_ndwi': True,
-        'use_clouds': True,
+        # 's1_bands': (0, 1, 2, 3),
+        # 's2_bands': (2, 1, 0, 3, 4, 5, 6, 7, 8, 9),
+        # 'use_ndvi': True,
+        # 'use_ndwi': True,
+        # 'use_clouds': True,
         'num_workers': 20,
         'pin_memory': True,
         'val_size': 0.2,
-        # 'subset': 0,
+        'subset': 0,
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
@@ -54,15 +54,15 @@ config = {
 def train(config, name):
     pl.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
-    config['in_channels_s1'] = len(config['datamodule']['s1_bands'])
-    config['in_channels_s2'] = len(config['datamodule']['s2_bands'])
-    if config['datamodule']['use_ndvi']:
-        config['in_channels_s2'] += 1
-    if config['datamodule']['use_ndwi']:
-        config['in_channels_s2'] += 1
-    if config['datamodule']['use_clouds']:
-        config['in_channels_s2'] += 1
-    config['seq_len'] = len(dm.months)
+    # config['in_channels_s1'] = len(config['datamodule']['s1_bands'])
+    # config['in_channels_s2'] = len(config['datamodule']['s2_bands'])
+    # if config['datamodule']['use_ndvi']:
+    #     config['in_channels_s2'] += 1
+    # if config['datamodule']['use_ndwi']:
+    #     config['in_channels_s2'] += 1
+    # if config['datamodule']['use_clouds']:
+    #     config['in_channels_s2'] += 1
+    # config['seq_len'] = len(dm.months)
     module = Module(config)
     if config['load_from_checkpoint'] is not None:
         state_dict = torch.load(config['load_from_checkpoint'])['state_dict']
