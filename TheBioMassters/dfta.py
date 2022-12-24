@@ -31,7 +31,7 @@ config = {
         'log_every_n_steps': 30
     },
     'datamodule': {
-        'batch_size': 4,
+        'batch_size': 8,
         # 's1_bands': (0, 1, 2, 3),
         # 's2_bands': (2, 1, 0, 3, 4, 5, 6, 7, 8, 9),
         # 'use_ndvi': True,
