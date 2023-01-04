@@ -72,3 +72,7 @@ class BaseModule2(BaseModule):
         loss = self.compute_loss(y_hat, y)
         metric = self.compute_metrics(y_hat, y)
         return loss, metric
+
+    # def compute_loss2(self, y_hat, y):
+    #     loss = torch.sum(torch.log(torch.cosh(y_hat - y)))
+    #     return loss

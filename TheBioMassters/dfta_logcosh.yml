@@ -1,0 +1,11 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+scheduler:
+  OneCycleLR:
+    max_lr: 0.001
+    total_steps: 500
+    pct_start: 0.01
+    final_div_factor: 10
+    verbose: True

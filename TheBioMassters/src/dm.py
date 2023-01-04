@@ -88,7 +88,7 @@ class DataModule(pl.LightningDataModule):
 
 
 class DataModule2(DataModule):
-    def __init__(self, batch_size=32, num_workers=0, pin_memory=False, train_trans=None, val_size=0, random_state=42, subset=0):
+    def __init__(self, batch_size=8, num_workers=0, pin_memory=False, train_trans=None, val_size=0, random_state=42, subset=0):
         super().__init__(batch_size=batch_size, num_workers=num_workers, pin_memory=pin_memory,
                          train_trans=train_trans, val_size=val_size, random_state=random_state)
         self.subset = subset
