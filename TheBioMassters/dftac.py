@@ -7,9 +7,12 @@ from src.utils import deep_update
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 import torch
+import timm 
+
+print(torch.__version__, timm.__version__)
 
 config = {
-    'encoder': 'convnext_pico.d1_in1k',
+    'encoder': 'convnext_atto.d2_in1k',
     'pretrained': True,
     'in_channels_s1': 2,
     'in_channels_s2': 6,
