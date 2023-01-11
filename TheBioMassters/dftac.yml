@@ -2,14 +2,3 @@ trainer:
   logger: True
   enable_checkpointing: True
   max_epochs: 500
-
-optimizer_params:
-  lr: 0.001
-
-scheduler:
-  OneCycleLR:
-    max_lr: 0.001
-    total_steps: 500
-    pct_start: 0.01
-    final_div_factor: 10
-    verbose: True
