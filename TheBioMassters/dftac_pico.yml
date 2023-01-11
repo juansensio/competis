@@ -1,0 +1,6 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+  max_epochs: 500
+
+encoder: convnext_pico.d1_in1k
