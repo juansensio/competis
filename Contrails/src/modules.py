@@ -22,6 +22,9 @@ class Unet(L.LightningModule):
         self.loss = smp.losses.DiceLoss(mode="binary")
         self.metric = torchmetrics.Dice()
 
+    def forward(self, x):
+        return self.model(x)
+
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self.model(x)
