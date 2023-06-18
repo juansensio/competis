@@ -1,5 +1,5 @@
 from src.dm import DataModule
-from src.modules import Unet
+from src.module import Module
 import lightning as L
 import sys
 import yaml
@@ -14,6 +14,7 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
+    'ckpt_path': None, # resume
     'trainer': {
         'accelerator': 'cuda',
         'devices': 1,
@@ -21,11 +22,11 @@ config = {
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
-        'deterministic': True,
+        'deterministic': False, # problema con una op del modelo
         'precision': '16-mixed',
     },
     'datamodule': {
-        'batch_size': 64,
+        'batch_size': 128,
         'num_workers': 20,
         'pin_memory': True,
         # 'train_trans': {
@@ -41,7 +42,7 @@ config = {
 def train(config, name):
     L.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
-    module = Unet(config)
+    module = Module(config)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
         config['trainer']['callbacks'] += [
@@ -72,7 +73,7 @@ def train(config, name):
     trainer = L.Trainer(**config['trainer'])
     torch.set_float32_matmul_precision('medium')
     # module = torch.compile(module)
-    trainer.fit(module, dm)
+    trainer.fit(module, dm, ckpt_path=config['ckpt_path'])
 
 
 if __name__ == '__main__':

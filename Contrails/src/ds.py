@@ -1,5 +1,6 @@
 import torch 
 import numpy as np
+import torch.nn.functional as F
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, images, masks=None, trans=None):
@@ -17,6 +18,6 @@ class Dataset(torch.utils.data.Dataset):
             if self.trans is not None:
                 trans = self.trans(image=image, mask=mask)
                 image, mask = trans['image'], trans['mask']
-            return torch.from_numpy(image).permute(2,0,1), torch.from_numpy(mask).permute(2,0,1)
+            return torch.from_numpy(image).permute(2,0,1), torch.from_numpy(mask).squeeze(-1)
         image = self.trans(image=image)['image']
         return torch.from_numpy(image)

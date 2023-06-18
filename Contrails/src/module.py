@@ -1,9 +1,10 @@
 import lightning as L
-import segmentation_models_pytorch as smp
 import torchmetrics 
 import torch 
+from .models.unet import Unet
+import segmentation_models_pytorch as smp
 
-class Unet(L.LightningModule):
+class Module(L.LightningModule):
     def __init__(self, hparams={}):
         super().__init__()
         if not 'encoder' in hparams:
@@ -13,12 +14,7 @@ class Unet(L.LightningModule):
         if not 'optimizer_params' in hparams:
             hparams['optimizer_params'] = {}
         self.save_hyperparameters(hparams)
-        self.model = smp.Unet(
-            encoder_name=self.hparams.encoder,        
-            encoder_weights="imagenet",     
-            in_channels=9,                  
-            classes=1,                      
-        )
+        self.model = Unet(hparams['encoder'])
         self.loss = smp.losses.DiceLoss(mode="binary")
         self.metric = torchmetrics.Dice()
 
