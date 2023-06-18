@@ -1,5 +1,5 @@
 trainer:
-  logger: False
-  enable_checkpointing: False
+  logger: True
+  enable_checkpointing: True
   
 ckpt_path: 'checkpoints/baseline-val_metric=0.49604-epoch=50.ckpt'

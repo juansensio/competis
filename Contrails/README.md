@@ -2,7 +2,6 @@ baseline r18 t5 e15 -> 0.43907 / 0.427 (test para probar, parece que la metrica 
 
 PROBAR:
 
-- max bs
 - data augmentation
 - loss function (logcosh)
 - tta

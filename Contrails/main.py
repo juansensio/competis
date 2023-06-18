@@ -26,7 +26,7 @@ config = {
         'precision': '16-mixed',
     },
     'datamodule': {
-        'batch_size': 128,
+        'batch_size': 64,
         'num_workers': 20,
         'pin_memory': True,
         # 'train_trans': {
