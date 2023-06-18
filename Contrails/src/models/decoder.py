@@ -75,7 +75,7 @@ class DecoderBlock(nn.Module):
             padding=0,
         )
         self.conv1 = Conv2dReLU(
-            skip_channels + skip_channels,
+            skip_channels + out_channels,
             out_channels,
             kernel_size=3,
             padding=1,
@@ -106,7 +106,7 @@ class Decoder(nn.Module):
     ):
         super().__init__()
         in_channels = channels[:-1]
-        skip_channels = in_channels[1:] + in_channels[-1:]
+        skip_channels = in_channels[1:] + channels[-1:]
         blocks = [
             DecoderBlock(in_ch, skip_ch, skip_ch, use_batchnorm)
             for in_ch, skip_ch in zip(in_channels, skip_channels)
@@ -116,8 +116,9 @@ class Decoder(nn.Module):
 
     def forward(self, features):
         features = features[::-1]
+        x = features[0]
         for i, decoder_block in enumerate(self.blocks):
-            x = decoder_block(features[i], features[i+1] if i+1 < len(features) else None)
+            x = decoder_block(x, features[i+1] if i+1 < len(features) else None)
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=True)
         x = self.out_conv(x)
         return x

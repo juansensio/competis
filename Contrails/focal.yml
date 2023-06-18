@@ -3,4 +3,4 @@ trainer:
   enable_checkpointing: True
   max_epochs: 200
 
-ckpt_path: checkpoints/da-epoch=99.ckpt
+loss: focal

@@ -14,7 +14,9 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
+    'loss': 'dice',
     'ckpt_path': None, # resume
+    'load_from_checkpoint': None, # load from checkpoint
     'trainer': {
         'accelerator': 'cuda',
         'devices': 1,
@@ -42,7 +44,10 @@ config = {
 def train(config, name):
     L.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
-    module = Module(config)
+    if config['load_from_checkpoint']:
+        module = Module.load_from_checkpoint(config['load_from_checkpoint'])
+    else:
+        module = Module(config)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
         config['trainer']['callbacks'] += [
