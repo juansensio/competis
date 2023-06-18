@@ -26,15 +26,15 @@ config = {
         'precision': '16-mixed',
     },
     'datamodule': {
-        'batch_size': 64,
+        'batch_size': 256,
         'num_workers': 20,
         'pin_memory': True,
-        # 'train_trans': {
-        #     'HorizontalFlip': {'p': 0.5},
-        #     'VerticalFlip': {'p': 0.5},
-        #     'RandomRotate90': {'p': 0.5},
-        #     'Transpose': {'p': 0.5}
-        # }
+        'train_trans': {
+            'HorizontalFlip': {'p': 0.5},
+            'VerticalFlip': {'p': 0.5},
+            'RandomRotate90': {'p': 0.5},
+            'Transpose': {'p': 0.5}
+        }
     },
 }
 

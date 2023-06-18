@@ -3,6 +3,7 @@ from pathlib import Path
 import os 
 from torch.utils.data import DataLoader
 from .ds import Dataset
+import albumentations as A
 
 class DataModule(L.LightningDataModule):
     def __init__(
@@ -24,11 +25,14 @@ class DataModule(L.LightningDataModule):
         self.num_workers = num_workers
         self.pin_memory = pin_memory
 
+
     def get_dataset(self, split, trans):
         records = os.listdir(self.path / split)
         images = [self.path / split / record / self.image_name for record in records]
         masks = [self.path / split / record / 'human_pixel_masks.npy' for record in records]
-        return Dataset(images, masks, trans)
+        return Dataset(images, masks, trans=A.Compose([
+                getattr(A, t)(**params) for t, params in trans.items()
+            ]) if trans is not None else None)
 
     def setup(self, stage=None):
         self.train_ds = self.get_dataset('train', self.train_trans)
