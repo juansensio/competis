@@ -5,3 +5,4 @@ trainer:
 datamodule:
   train_trans: {}
 
+ckpt_path: checkpoints/baseline-epoch=28.ckpt

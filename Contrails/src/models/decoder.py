@@ -69,7 +69,7 @@ class DecoderBlock(nn.Module):
         super().__init__()
         self.convT = nn.ConvTranspose2d(
             in_channels,
-            skip_channels,
+            out_channels,
             kernel_size=2,
             stride=2,
             padding=0,
@@ -101,15 +101,18 @@ class Decoder(nn.Module):
     def __init__(
         self,
         channels,
+        t=1,
         out_channels=1,
         use_batchnorm=True,
     ):
         super().__init__()
         in_channels = channels[:-1]
+        in_channels[0] = in_channels[0]*t
         skip_channels = in_channels[1:] + channels[-1:]
+        out = in_channels[1:] + channels[-1:]
         blocks = [
-            DecoderBlock(in_ch, skip_ch, skip_ch, use_batchnorm)
-            for in_ch, skip_ch in zip(in_channels, skip_channels)
+            DecoderBlock(in_ch, skip_ch*t, out_ch, use_batchnorm)
+            for in_ch, skip_ch, out_ch in zip(in_channels, skip_channels, out)
         ]
         self.blocks = nn.ModuleList(blocks)
         self.out_conv = nn.Conv2d(skip_channels[-1], out_channels, kernel_size=1)

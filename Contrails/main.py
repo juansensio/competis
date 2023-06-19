@@ -1,5 +1,5 @@
-from src.dm import DataModule
-from src.module import Module
+from src.dm import DataModuleTemp as DataModule
+from src.module import ModuleTemp as Module
 import lightning as L
 import sys
 import yaml
@@ -14,6 +14,7 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
+    't': 3,
     'loss': 'dice',
     'ckpt_path': None, # resume
     'load_from_checkpoint': None, # load from checkpoint
@@ -28,7 +29,7 @@ config = {
         'precision': '16-mixed',
     },
     'datamodule': {
-        'batch_size': 256,
+        'batch_size': 64,
         'num_workers': 20,
         'pin_memory': True,
         'train_trans': {
