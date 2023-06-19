@@ -2,6 +2,7 @@ baseline r18 t5 e15 -> 0.43907 / 0.427 (test para probar, parece que la metrica 
 la baseline tenia un bug en el decoder de la unet, repetir
 baseline r18 t5 e100 -> 0.47794
 unet r18 t5 da flips e200 -> 0.54259
+unet r18 t456 da flips e100 -> running ...
 
 RESULTADOS:
 

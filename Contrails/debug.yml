@@ -4,5 +4,5 @@ datamodule:
   pin_memory: False
 
 trainer:
-  max_epochs: 100
+  max_epochs: 300
   overfit_batches: 1
