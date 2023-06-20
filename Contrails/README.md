@@ -8,7 +8,7 @@ unet r18 fc t5 da flips e100 -> 0.567
 unet r18 all_bands t5 da flips e100 min_max -> mal
 unet r18 all_bands t5 da flips e100 mean_std -> 0.54979
 unet r18 fc t456 da flips e100 -> running...
-unet r18 fc t456 da flips e100 lrsch -> next
+unet r18 fc t456 da flips e200 lrsch -> next
 unet r18 fc t456 da flips e200 lrsch AdamW -> next
 unet r18 fc t456 da flips e200 lrsch AdamW resnet34 -> next
 unet r18 fc t456 da flips e200 lrsch AdamW resnest26d -> next
@@ -24,12 +24,12 @@ PROBAR:
 
 - lr scheduler
 - optimizer (AdamW)
+- encoders (resnest26d, resnext50_32d, efficientnet, ...) https://huggingface.co/docs/timm/results
 - loss smooth 1
 - time series
 	- pre, during, post (t456)
 	- all
 - data augmentation (además de flips: cutout, cutmix, mixup, ...)
-- encoders (resnest26d, resnext50_32d, efficientnet, ...) https://huggingface.co/docs/timm/results
 - decoders (fpn, deeplabv3, ...)
 - threshold optimization
 - tta
