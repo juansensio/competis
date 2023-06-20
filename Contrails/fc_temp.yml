@@ -1,8 +1,10 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  
+
 datamodule:
-  train_trans: {}
+  false_color: True
   t: 
+    - 3
     - 4
+    - 5

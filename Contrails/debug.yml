@@ -3,7 +3,11 @@ datamodule:
   num_workers: 0
   pin_memory: False
   train_trans: {}
+  t: 
+    - 4
 
 trainer:
-  max_epochs: 200
+  max_epochs: 400
   overfit_batches: 1
+
+loss: mydice

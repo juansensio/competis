@@ -44,9 +44,9 @@ class Dataset(torch.utils.data.Dataset):
         data = []
         for band in self.bands:
             band_data = np.load(f'{self.path}/{self.mode}/{self.records[ix]}/band_{band:02d}.npy')[..., self.t]
-            if self.norm_mode == 1:
+            if self.norm_mode == 'mean_std':
                 band_data = (band_data - self.stats.loc[band]['mean']) / self.stats.loc[band]['std']
-            else:
+            elif self.norm_mode == 'min_max':
                 band_data = (band_data - self.stats.loc[band]['min']) / (self.stats.loc[band]['max'] - self.stats.loc[band]['min'])
             data.append(band_data)
         return np.stack(data, axis=-1) # H, W, T, C
