@@ -3,7 +3,6 @@ datamodule:
   num_workers: 0
   pin_memory: False
   train_trans: {}
-  norm_mode:  min_max
 
 trainer:
   max_epochs: 200

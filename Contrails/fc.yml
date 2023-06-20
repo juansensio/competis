@@ -1,7 +1,8 @@
 trainer:
-  logger: True
-  enable_checkpointing: True
-  max_epochs: 200
+  logger: False
+  enable_checkpointing: False
 
 datamodule:
-  image_name: falce_color_t5.npy
+  false_color: True
+  t: 
+    - 4

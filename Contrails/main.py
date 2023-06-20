@@ -29,7 +29,7 @@ config = {
         'precision': '16-mixed',
     },
     'datamodule': {
-        'batch_size': 32,
+        'batch_size': 64,
         'num_workers': 10,
         'pin_memory': True,
         'bands': list(range(8,17)),
