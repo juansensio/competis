@@ -3,4 +3,4 @@ trainer:
   enable_checkpointing: True
   max_epochs: 300
   
-ckpt_path: temp-epoch=65.ckpt
+ckpt_path: checkpoints/temp-epoch=65.ckpt
