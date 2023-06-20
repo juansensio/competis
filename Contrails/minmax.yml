@@ -1,7 +1,9 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  max_epochs: 200
+  max_epochs: 100
 
 datamodule:
-  image_name: all_bands_mm_t5.npy
+  norm_mode: min_max
+  t: 
+    - 4

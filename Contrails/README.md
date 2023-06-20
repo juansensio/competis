@@ -3,11 +3,16 @@ la baseline tenia un bug en el decoder de la unet, repetir
 baseline r18 t5 e100 -> 0.47794
 unet r18 t5 da flips e200 -> 0.54259
 unet r18 t456 da flips e200 -> 0.57122
+REFACTOR
+unet r18 fc t5 da flips e100 -> 0.567
+unet r18 all_bands t5 da flips e100 min_max -> running ...
+unet r18 fc t456 da flips e200 -> next
 
 RESULTADOS:
 
 - añadir da mejora
 - usar t456 mejora
+- false color > all bands (mean_std)
 
 PROBAR:
 
