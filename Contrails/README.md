@@ -10,6 +10,7 @@ unet r18 all_bands t5 da flips e100 mean_std -> 0.54979
 unet r18 fc t456 da flips e100 -> running...
 unet r18 fc t456 da flips e100 lrsch -> next
 unet r18 fc t456 da flips e200 lrsch AdamW -> next
+unet r18 fc t456 da flips e200 lrsch AdamW resnet34 -> next
 unet r18 fc t456 da flips e200 lrsch AdamW resnest26d -> next
 
 RESULTADOS:

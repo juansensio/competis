@@ -2,8 +2,6 @@ trainer:
   logger: True
   enable_checkpointing: True
   max_epochs: 200
-  limit_train_batches: 10
-  limit_val_batches: 10
 
 datamodule:
   false_color: True
