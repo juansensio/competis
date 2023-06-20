@@ -1,15 +1,18 @@
 import lightning as L
 from pathlib import Path
-import os 
 from torch.utils.data import DataLoader
-from .ds import Dataset, DatasetTemp
+from .ds import Dataset
 import albumentations as A
 
 class DataModule(L.LightningDataModule):
     def __init__(
             self, 
             path='/fastdata/contrails', 
-            image_name="all_bands_t5.npy", 
+            stats_path='stats.csv',
+            bands=list(range(8,17)), 
+            t=tuple(range(8)), 
+            norm_mode='mean_std', 
+            false_color=False, 
             batch_size=16, 
             train_trans=None, 
             val_trans=None,
@@ -19,19 +22,27 @@ class DataModule(L.LightningDataModule):
         super().__init__()
         self.path = Path(path)
         self.batch_size = batch_size
-        self.image_name = image_name
         self.train_trans = train_trans 
         self.val_trans = val_trans
         self.num_workers = num_workers
         self.pin_memory = pin_memory
-        self.Dataset = Dataset
+        self.stats_path = stats_path
+        self.bands = bands
+        self.t = t
+        self.norm_mode = norm_mode
+        self.false_color = false_color
 
 
     def get_dataset(self, split, trans):
-        records = os.listdir(self.path / split)
-        images = [self.path / split / record / self.image_name for record in records]
-        masks = [self.path / split / record / 'human_pixel_masks.npy' for record in records]
-        return self.Dataset(images, masks, trans=A.Compose([
+        return Dataset(
+            split, 
+            path=self.path, 
+            stats_path=self.stats_path,
+            bands=self.bands,
+            t=self.t,
+            norm_mode=self.norm_mode,
+            false_color=self.false_color,
+            trans=A.Compose([
                 getattr(A, t)(**params) for t, params in trans.items()
             ]) if trans is not None else None)
 
@@ -55,25 +66,3 @@ class DataModule(L.LightningDataModule):
             num_workers=self.num_workers, 
             pin_memory=self.pin_memory
         )
-
-class DataModuleTemp(DataModule):
-    def __init__(
-            self, 
-            path='/fastdata/contrails', 
-            image_name="all_bands_t456.npy", 
-            batch_size=16, 
-            train_trans=None, 
-            val_trans=None,
-            num_workers=20,
-            pin_memory=True
-        ):
-        super().__init__(
-            path,
-            image_name,
-            batch_size,
-            train_trans,
-            val_trans,
-            num_workers,
-            pin_memory
-        )
-        self.Dataset = DatasetTemp

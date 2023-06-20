@@ -3,4 +3,5 @@ trainer:
   enable_checkpointing: True
   max_epochs: 200
 
-loss: focal
+datamodule:
+  image_name: all_bands_mm_t5.npy

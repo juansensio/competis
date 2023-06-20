@@ -3,4 +3,5 @@ trainer:
   enable_checkpointing: True
   max_epochs: 200
 
-loss: logcoshdice
+datamodule:
+  image_name: falce_color_t5.npy

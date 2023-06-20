@@ -1,5 +1,5 @@
-from src.dm import DataModuleTemp as DataModule
-from src.module import ModuleTemp as Module
+from src.dm import DataModule
+from src.module import Module
 import lightning as L
 import sys
 import yaml
@@ -10,11 +10,11 @@ import torch
 
 config = {
     'encoder': 'resnet18',
+    'pretrained': True,
     'optimizer': 'Adam',
     'optimizer_params': {
         'lr': 1e-3
     },
-    't': 3,
     'loss': 'dice',
     'ckpt_path': None, # resume
     'load_from_checkpoint': None, # load from checkpoint
@@ -32,6 +32,11 @@ config = {
         'batch_size': 32,
         'num_workers': 10,
         'pin_memory': True,
+        'bands': list(range(8,17)),
+        't': tuple(range(8)),
+        'norm_mode': 'mean_std',
+        'false_color': False,
+        'stats_path': 'stats.csv',
         'train_trans': {
             'HorizontalFlip': {'p': 0.5},
             'VerticalFlip': {'p': 0.5},
@@ -45,6 +50,9 @@ config = {
 def train(config, name):
     L.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
+    if config['datamodule']['false_color']: config['in_chans'] = 3
+    else: config['in_chans'] = len(config['datamodule']['bands'])
+    config['t'] = len(config['datamodule']['t'])
     if config['load_from_checkpoint']:
         module = Module.load_from_checkpoint(config['load_from_checkpoint'])
     else:

@@ -1,15 +1,23 @@
 import lightning as L
 import torchmetrics 
 import torch 
-from .models.unet import Unet, UnetTemp
+from .models.unet import Unet
 import segmentation_models_pytorch as smp
 from .utils import log_cosh_dice
 
 class Module(L.LightningModule):
-	def __init__(self, hparams={'encoder': 'resnet18', 'loss': 'dice', 'optimizer': 'Adam', 'optimizer_params': {}}):
+	def __init__(self, hparams={
+		't': 1, 
+		'encoder': 'resnet18', 
+		'pretrained': True,
+		'in_chans': 3,
+		'loss': 'dice', 
+		'optimizer': 'Adam', 
+		'optimizer_params': {}
+	}):
 		super().__init__()
 		self.save_hyperparameters(hparams)
-		self.setup_model()
+		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t)
 		if hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
 		elif hparams['loss'] == 'focal':
@@ -19,9 +27,6 @@ class Module(L.LightningModule):
 		else:
 			raise ValueError(f'Loss {hparams["loss"]} not implemented')
 		self.metric = torchmetrics.Dice()
-
-	def setup_model(self):
-		self.model = Unet(self.hparams.encoder)
 
 	def forward(self, x):
 		return self.model(x)
@@ -54,10 +59,3 @@ class Module(L.LightningModule):
 			]
 			return [optimizer], schedulers
 		return optimizer
-
-class ModuleTemp(Module):
-	def __init__(self, hparams={'t': 3, 'encoder': 'resnet18', 'loss': 'dice', 'optimizer': 'Adam', 'optimizer_params': {}}):
-		super().__init__(hparams)
-
-	def setup_model(self):
-		self.model = UnetTemp(self.hparams.encoder)

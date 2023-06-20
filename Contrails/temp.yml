@@ -3,4 +3,5 @@ trainer:
   enable_checkpointing: True
   max_epochs: 300
   
-ckpt_path: checkpoints/temp-epoch=65.ckpt
+datamodule_class: DataModuleTemp
+module_class: ModuleTemp
