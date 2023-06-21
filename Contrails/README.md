@@ -7,10 +7,10 @@ REFACTOR
 unet r18 fc t5 da flips e100 -> 0.567
 unet r18 all_bands t5 da flips e100 min_max -> mal
 unet r18 all_bands t5 da flips e100 mean_std -> 0.54979
-unet r18 fc t456 da flips e100 -> running...
-unet r18 fc t456 da flips e200 lrsch -> next
-unet r18 fc t456 da flips e200 lrsch AdamW -> next
-unet r18 fc t456 da flips e200 lrsch AdamW resnet34 -> next
+unet r18 fc t456 da flips e100 -> 0.58363
+unet r18 fc t456 da flips e200 lrsch -> 0.58386
+unet r18 fc t456 da flips e200 lrsch AdamW -> 0.57889
+unet r18 fc t456 da flips e200 lrsch AdamW resnet34 -> running...
 unet r18 fc t456 da flips e200 lrsch AdamW resnest26d -> next
 
 RESULTADOS:
@@ -18,7 +18,9 @@ RESULTADOS:
 - añadir da mejora
 - usar t456 mejora
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
-- dice loss > logcoshdice, focal (van muy lento)
+- dice loss > logcoshdice, focal (van muy lento, probar al final cuando tenga buenos modelos?)
+- Adam > AdamW
+- lr scheduler no mejora casi nada (usar muy al final)
 
 PROBAR:
 
