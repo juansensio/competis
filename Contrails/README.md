@@ -18,7 +18,7 @@ RESULTADOS:
 
 - añadir da (flips) mejora
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
-- t456 > all t > t5
+- t456 > t158 > all t > t5
 - dice loss > logcoshdice, focal (van muy lento, probar al final cuando tenga buenos modelos?)
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
