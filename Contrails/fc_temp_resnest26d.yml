@@ -13,4 +13,10 @@ encoder: resnest26d
 optimizer_params:
   lr: 0.0003
 
-ckpt_path: checkpoints/fc_temp_resnest26d-epoch=22.ckpt
+scheduler:
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 100
+    pct_start: 0.03
+    final_div_factor: 100 
+    verbose: True

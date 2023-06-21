@@ -12,13 +12,14 @@ unet r18 fc t456 da flips e200 lrsch -> 0.58386
 unet r18 fc t456 da flips e200 lrsch AdamW -> 0.57889
 unet resnet34 fc t456 da flips e100  -> 0.59515 / 0.604 / 0.605 (BEST, podría seguir aprendiendo)
 unet resnest26d fc t456 da flips e100 lr3e-4 (peta con lr1e-3) -> 0.60265 (ha petado, usar lr scheduler)
-unet resnet34 fc all t da flips e100 -> running ...
+unet resnest26d fc t456 da flips e100 lrsch -> running...
+
 
 RESULTADOS:
 
 - añadir da (flips) mejora
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
-- t456 > t158 > all t > t5
+- t456 ~ t12345 > t158 > all t ~ t5678 > t5
 - dice loss > logcoshdice, focal (van muy lento, probar al final cuando tenga buenos modelos?)
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
@@ -27,12 +28,6 @@ RESULTADOS:
 
 PROBAR:
 
-- time series
-	- pre, during, post (t456)
-	- first, during, last (t158)
-	- all
-	- pre (t12345)
-	- post (t5678)
 - label smoothing
 - encoders (resnest26d, resnext50_32d, efficientnet, convnextv2, ...) https://huggingface.co/docs/timm/results
 - data augmentation (además de flips: cutout, cutmix, mixup, ...)
