@@ -20,7 +20,7 @@ config = {
     'load_from_checkpoint': None, # load from checkpoint
     'trainer': {
         'accelerator': 'cuda',
-        'devices': 1,
+        'devices': 1, # con devices 2 el pl me da error al guardar los checkpoints :(
         'max_epochs': 100,
         'logger': None,
         'enable_checkpointing': False,
@@ -59,18 +59,15 @@ def train(config, name):
         module = Module(config)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
+        # esto falla en multi-gpu
         config['trainer']['callbacks'] += [
             ModelCheckpoint(
                 dirpath='./checkpoints',
                 filename=f'{name}-{{val_metric:.5f}}-{{epoch}}',
                 monitor='val_metric',
                 mode='max',
-            )
-        ]
-        if config['trainer']['devices'] == 1:
-            config['trainer']['callbacks'] += [
-                # esto falla en multi-gpu
-                ModelCheckpoint( # save last epoch
+            ),
+            ModelCheckpoint( # save last epoch
                     dirpath='./checkpoints',
                     filename=f'{name}-{{epoch}}',
             )

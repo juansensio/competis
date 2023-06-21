@@ -3,6 +3,7 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from .ds import Dataset
 import albumentations as A
+import pandas as pd
 
 class DataModule(L.LightningDataModule):
     def __init__(
@@ -17,7 +18,8 @@ class DataModule(L.LightningDataModule):
             train_trans=None, 
             val_trans=None,
             num_workers=20,
-            pin_memory=True
+            pin_memory=True,
+            fold=None
         ):
         super().__init__()
         self.path = Path(path)
@@ -31,9 +33,10 @@ class DataModule(L.LightningDataModule):
         self.t = t
         self.norm_mode = norm_mode
         self.false_color = false_color
+        self.fold = fold
 
 
-    def get_dataset(self, split, trans):
+    def get_dataset(self, split, trans, records=None):
         return Dataset(
             split, 
             path=self.path, 
@@ -42,13 +45,18 @@ class DataModule(L.LightningDataModule):
             t=self.t,
             norm_mode=self.norm_mode,
             false_color=self.false_color,
+            records=records,
             trans=A.Compose([
                 getattr(A, t)(**params) for t, params in trans.items()
             ]) if trans is not None else None)
 
     def setup(self, stage=None):
-        self.train_ds = self.get_dataset('train', self.train_trans)
-        self.val_ds = self.get_dataset('validation', self.val_trans)
+        train_records, val_records = None, None
+        if self.fold is not None:
+            train_records = pd.read_csv(self.path / f'fold_{self.fold}.csv')['0'].values
+            val_records = pd.read_csv(self.path / f'fold_{self.fold}_val.csv')['0'].values
+        self.train_ds = self.get_dataset('train', self.train_trans, train_records)
+        self.val_ds = self.get_dataset('validation' if self.fold is None else 'train', self.val_trans, val_records)
 
     def train_dataloader(self, shuffle=True):
         return DataLoader(

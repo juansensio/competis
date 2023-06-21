@@ -11,6 +11,7 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(
             self, 
             mode="train",
+            records=None,
             path='/fastdata/contrails',
             stats_path='stats.csv', # min, max, mean, std for each band
             bands=list(range(8,17)), 
@@ -28,7 +29,7 @@ class Dataset(torch.utils.data.Dataset):
         for t_ in t:
             assert t_ in range(8), f'Invalid time index {t_}'
         self.mode = mode
-        self.records = os.listdir(f'{path}/{mode}')
+        self.records = os.listdir(f'{path}/{mode}') if records is None else records
         self.path = path
         self.bands = bands
         self.trans = trans

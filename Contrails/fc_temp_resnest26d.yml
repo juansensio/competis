@@ -1,7 +1,6 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  devices: 2
 
 datamodule:
   false_color: True
