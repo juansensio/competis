@@ -22,6 +22,7 @@ RESULTADOS:
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar muy al final)
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
+- encoders: resnest26d > resnet34 > resnet18
 
 PROBAR:
 

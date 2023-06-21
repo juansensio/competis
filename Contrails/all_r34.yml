@@ -1,10 +1,8 @@
 trainer:
-  logger: False
-  enable_checkpointing: False
+  logger: True
+  enable_checkpointing: True
 
 datamodule:
   false_color: True
 
 encoder: resnet34
-optimizer_params:
-  lr: 0.0003
