@@ -65,14 +65,14 @@ def train(config, name):
                 filename=f'{name}-{{val_metric:.5f}}-{{epoch}}',
                 monitor='val_metric',
                 mode='max',
-                save_top_k=1
-            ),
-            ModelCheckpoint(
-                dirpath='./checkpoints',
-                filename=f'{name}-{{epoch}}',
-                monitor='epoch',
-                mode='max',
-                save_top_k=1
+            )
+        ]
+        if config['trainer']['devices'] == 1:
+            config['trainer']['callbacks'] += [
+                # esto falla en multi-gpu
+                ModelCheckpoint( # save last epoch
+                    dirpath='./checkpoints',
+                    filename=f'{name}-{{epoch}}',
             )
         ]
     if config['trainer']['logger']:
