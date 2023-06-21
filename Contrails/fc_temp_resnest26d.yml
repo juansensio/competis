@@ -1,6 +1,7 @@
 trainer:
   logger: True
   enable_checkpointing: True
+  devices: 2
 
 datamodule:
   false_color: True
@@ -10,3 +11,7 @@ datamodule:
     - 5
 
 encoder: resnest26d
+optimizer_params:
+  lr: 0.0003
+
+ckpt_path: checkpoints/fc_temp_resnest26d-epoch=22.ckpt

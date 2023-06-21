@@ -3,7 +3,6 @@ import torchmetrics
 import torch 
 from .models.unet import Unet
 import segmentation_models_pytorch as smp
-from .utils import log_cosh_dice, my_dice
 
 class Module(L.LightningModule):
 	def __init__(self, hparams={
@@ -20,12 +19,8 @@ class Module(L.LightningModule):
 		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t)
 		if hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
-		elif hparams['loss'] == 'mydice':
-			self.loss = my_dice
 		elif hparams['loss'] == 'focal':
 			self.loss = smp.losses.FocalLoss(mode="binary")
-		elif hparams['loss'] == 'logcoshdice':
-			self.loss = log_cosh_dice  
 		else:
 			raise ValueError(f'Loss {hparams["loss"]} not implemented')
 		self.metric = torchmetrics.Dice()
@@ -38,7 +33,7 @@ class Module(L.LightningModule):
 		y_hat = self.model(x)
 		loss = self.loss(y_hat, y)
 		metric = self.metric(y_hat, y)
-		self.log('loss', loss, prog_bar=True)
+		self.log('loss', loss, prog_bar=True,)
 		self.log('metric', metric, prog_bar=True)
 		return loss
 
@@ -47,8 +42,8 @@ class Module(L.LightningModule):
 		y_hat = self.model(x)
 		loss = self.loss(y_hat, y)
 		metric = self.metric(y_hat, y)
-		self.log('val_loss', loss, prog_bar=True)
-		self.log('val_metric', metric, prog_bar=True)
+		self.log('val_loss', loss, prog_bar=True, sync_dist=True) 
+		self.log('val_metric', metric, prog_bar=True, sync_dist=True)
 
 	def configure_optimizers(self):
 		optimizer = getattr(torch.optim, self.hparams.optimizer)(
