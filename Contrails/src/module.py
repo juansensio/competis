@@ -12,7 +12,7 @@ class Module(L.LightningModule):
 		'in_chans': 3,
 		'loss': 'dice', 
 		'optimizer': 'Adam', 
-		'optimizer_params': {}
+		'optimizer_params': {},
 	}):
 		super().__init__()
 		self.save_hyperparameters(hparams)
@@ -29,7 +29,7 @@ class Module(L.LightningModule):
 		return self.model(x)
 
 	def training_step(self, batch, batch_idx):
-		x, y = batch
+		x, y, _ = batch
 		y_hat = self.model(x)
 		loss = self.loss(y_hat, y)
 		metric = self.metric(y_hat, y)
@@ -38,12 +38,16 @@ class Module(L.LightningModule):
 		return loss
 
 	def validation_step(self, batch, batch_idx):
-		x, y = batch
+		x, y, y0 = batch
 		y_hat = self.model(x)
 		loss = self.loss(y_hat, y)
 		metric = self.metric(y_hat, y)
-		self.log('val_loss', loss, prog_bar=True, sync_dist=True) 
-		self.log('val_metric', metric, prog_bar=True, sync_dist=True)
+		probas = torch.sigmoid(y_hat) > 0.5
+		probas = torch.nn.functional.interpolate(probas.float(), size=y0.shape[-2:], mode='bilinear', align_corners=False)
+		metric0 = self.metric(probas, y0)
+		self.log('val_loss', loss, prog_bar=True) 
+		self.log('val_metric', metric0, prog_bar=True)
+		self.log('val_metric2', metric, prog_bar=True)
 
 	def configure_optimizers(self):
 		optimizer = getattr(torch.optim, self.hparams.optimizer)(

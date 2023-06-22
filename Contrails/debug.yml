@@ -2,12 +2,17 @@ datamodule:
   batch_size: 1
   num_workers: 0
   pin_memory: False
-  train_trans: {}
   t: 
     - 4
+  train_trans:
+    Resize:
+        height: 512 
+        width: 512
+  val_trans:
+    Resize:
+      height: 512 
+      width: 512
 
 trainer:
   max_epochs: 400
   overfit_batches: 1
-
-loss: mydice

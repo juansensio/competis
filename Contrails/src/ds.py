@@ -18,7 +18,7 @@ class Dataset(torch.utils.data.Dataset):
             t=tuple(range(8)), 
             norm_mode='mean_std', 
             false_color=False, 
-            trans=None
+            trans=None,
         ):
         if mode not in ['train', 'validation']:
             raise ValueError(f'Invalid mode {mode}')
@@ -70,11 +70,12 @@ class Dataset(torch.utils.data.Dataset):
         else:
             image = self.get_data(ix)
         mask = np.load(f'{self.path}/{self.mode}/{self.records[ix]}/human_pixel_masks.npy')
+        mask_t = mask.copy()
         if self.trans is not None:
             H, W, T, C = image.shape
             image = rearrange(image, 'h w t c -> h w (t c)')
-            trans = self.trans(image=image, mask=mask)
-            image, mask = trans['image'], trans['mask']
+            trans = self.trans(image=image, mask=mask_t)
+            image, mask_t = trans['image'], trans['mask']
             image = rearrange(image, 'h w (t c) -> h w t c', t=T, c=C)
-        return torch.from_numpy(image), torch.from_numpy(mask).squeeze(-1)
+        return torch.from_numpy(image), torch.from_numpy(mask_t).squeeze(-1), torch.from_numpy(mask).squeeze(-1)
     
