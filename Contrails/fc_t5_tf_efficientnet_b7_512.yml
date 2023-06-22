@@ -26,3 +26,12 @@ datamodule:
       width: 512
 
 encoder: tf_efficientnet_b7
+
+
+scheduler:
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 100
+    pct_start: 0.03
+    final_div_factor: 10 
+    verbose: True

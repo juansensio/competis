@@ -30,14 +30,16 @@ RESULTADOS:
 
 PROBAR:
 
-- encoders (seresnext50d_32x4d, efficientnet, convnextv2_base, ...) https://huggingface.co/docs/timm/results
+- encoders (features_only, traceables, < 100M params) https://huggingface.co/docs/timm/results
+
+model, position, size 
+maxvit_base_tf_512, 31, 100
+convnextv2_base, 47, 88
+tf_efficientnet_b7, 79, 66
+seresnextaa101d_32x8d, 87, 100
+
 - label smoothing
-- data augmentation (además de flips: cutout, cutmix, mixup, ...)
-    Data augmentation is applied during training to reduce overfitting:
-    a scale factor is chosen uniformly randomly at each iteration,
-    and then the image is scaled according to the scale factor, and
-    a crop of the scaled image is used for training. We found this
-    significantly helps overall performance. (en paper suben hasta 1024)
+- data augmentation (además de flips y resize: cutout, cutmix, mixup, ...)
 - decoders (fpn, deeplabv3, ...)
 - tta
 - cv
