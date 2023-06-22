@@ -30,7 +30,7 @@ RESULTADOS:
 
 PROBAR:
 
-- encoders (resnet50, resnext50_32d, efficientnet, convnextv2, ...) https://huggingface.co/docs/timm/results
+- encoders (seresnext50d_32x4d, efficientnet, convnextv2_base, ...) https://huggingface.co/docs/timm/results
 - label smoothing
 - data augmentation (además de flips: cutout, cutmix, mixup, ...)
     Data augmentation is applied during training to reduce overfitting:

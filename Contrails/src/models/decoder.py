@@ -102,8 +102,9 @@ class Decoder(nn.Module):
         self,
         channels,
         t=1,
+        scale_factor=2,
         out_channels=1,
-        use_batchnorm=True,
+        use_batchnorm=True
     ):
         super().__init__()
         in_channels = channels[:-1]
@@ -116,12 +117,13 @@ class Decoder(nn.Module):
         ]
         self.blocks = nn.ModuleList(blocks)
         self.out_conv = nn.Conv2d(skip_channels[-1], out_channels, kernel_size=1)
+        self.scale_factor = scale_factor
 
     def forward(self, features):
         features = features[::-1]
         x = features[0]
         for i, decoder_block in enumerate(self.blocks):
             x = decoder_block(x, features[i+1] if i+1 < len(features) else None)
-        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=True)
+        x = F.interpolate(x, scale_factor=self.scale_factor, mode='bilinear', align_corners=True)
         x = self.out_conv(x)
         return x

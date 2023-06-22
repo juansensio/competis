@@ -13,10 +13,11 @@ class Module(L.LightningModule):
 		'loss': 'dice', 
 		'optimizer': 'Adam', 
 		'optimizer_params': {},
+		'scale_factor': 2,
 	}):
 		super().__init__()
 		self.save_hyperparameters(hparams)
-		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t)
+		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t, self.hparams.scale_factor)
 		if hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
 		elif hparams['loss'] == 'focal':

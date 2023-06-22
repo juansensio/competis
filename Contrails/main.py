@@ -15,6 +15,7 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
+    'scale_factor': 2,
     'loss': 'dice',
     'ckpt_path': None, # resume
     'load_from_checkpoint': None, # load from checkpoint

@@ -4,11 +4,11 @@ from .decoder import Decoder
 from einops import rearrange
 
 class Unet(torch.nn.Module):
-	def __init__(self, encoder='resnet18', pretrained=True, in_chans=3, t=1):
+	def __init__(self, encoder='resnet18', pretrained=True, in_chans=3, t=1, scale_factor=2):
 		super().__init__()
 		self.encoder = Encoder(encoder, pretrained, in_chans)
 		self.channels = [self.encoder.encoder.feature_info.channels(i) for i in range(len(self.encoder.encoder.feature_info))]
-		self.decoder = Decoder(self.channels[::-1], t)
+		self.decoder = Decoder(self.channels[::-1], t, scale_factor)
 
 	def forward(self, x):
 		B = x.size(0)
