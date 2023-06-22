@@ -2,6 +2,7 @@ trainer:
   logger: False
   enable_checkpointing: False
   max_epochs: 200
+  accumulate_grad_batches: 4
 
 datamodule:
   false_color: True
