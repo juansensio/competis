@@ -19,7 +19,7 @@ RESULTADOS:
 
 - añadir da (flips) mejora
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
-- t456 ~ t12345 > t158 > all t ~ t5678 > t5
+- t456 ~ t12345 > t158 > all t ~ t5678 > t5 (probar t345, segun paper funciona mejor)
 - dice loss > logcoshdice, focal (van muy lento, probar al final cuando tenga buenos modelos?)
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
@@ -31,7 +31,16 @@ PROBAR:
 - encoders (resnet50, resnext50_32d, efficientnet, convnextv2, ...) https://huggingface.co/docs/timm/results
 - label smoothing
 - data augmentation (además de flips: cutout, cutmix, mixup, ...)
+    Data augmentation is applied during training to reduce overfitting:
+    a scale factor is chosen uniformly randomly at each iteration,
+    and then the image is scaled according to the scale factor, and
+    a crop of the scaled image is used for training. We found this
+    significantly helps overall performance.
+    SUBIR A 784 Y RANDOM CROPS DE 512
+    EN VAL, SUBIR A 512
 - decoders (fpn, deeplabv3, ...)
 - tta
 - cv
 - ensambling
+
+
