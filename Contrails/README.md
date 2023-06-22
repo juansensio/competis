@@ -12,7 +12,7 @@ unet r18 fc t456 da flips e200 lrsch -> 0.58386
 unet r18 fc t456 da flips e200 lrsch AdamW -> 0.57889
 unet resnet34 fc t456 da flips e100  -> 0.59515 / 0.604 / 0.605 (BEST, podría seguir aprendiendo)
 unet resnest26d fc t456 da flips e100 lr3e-4 (peta con lr1e-3) -> 0.60265 (ha petado, usar lr scheduler)
-unet resnest26d fc t456 da flips e100 lrsch -> running...
+unet resnest26d fc t456 da flips e100 lrsch -> 0.61026 / 0.602 (al tracear baja) / 0.601
 
 
 RESULTADOS:
@@ -24,20 +24,14 @@ RESULTADOS:
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
-- encoders: resnest26d > resnet34 > resnet18
+- encoders: resnet34 > resnest26d > resnet18
 
 PROBAR:
 
+- encoders (resnet50, resnext50_32d, efficientnet, convnextv2, ...) https://huggingface.co/docs/timm/results
 - label smoothing
-- encoders (resnest26d, resnext50_32d, efficientnet, convnextv2, ...) https://huggingface.co/docs/timm/results
 - data augmentation (además de flips: cutout, cutmix, mixup, ...)
 - decoders (fpn, deeplabv3, ...)
-- threshold optimization (la gente está usando 0.4)
-- postprocessing:
-	- Contrails must contain at least 10 pixels
-	- At some time in their life, Contrails must be at least 3x longer than they are wide
-	- Contrails must either appear suddenly or enter from the sides of the image
-	- Contrails should be visible in at least two image
 - tta
 - cv
 - ensambling
