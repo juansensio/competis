@@ -1,0 +1,43 @@
+trainer:
+  logger: False
+  enable_checkpointing: False
+  max_epochs: 200
+  accumulate_grad_batches: 16
+
+
+datamodule:
+  false_color: True
+  batch_size: 16
+  t: 
+    - 4
+  train_trans: 
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomResizedCrop: 
+      height: 512 
+      width: 512
+  val_trans:
+    Resize:
+      height: 512 
+      width: 512
+
+encoder: seresnextaa101d_32x8d
+load_from_checkpoint: checkpoints/fc_t5_seresnextaa101d_32x8d_512-val_metric=0.58112-epoch=72.ckpt
+optimizer: SGD
+optimizer_params:
+  lr: 0.02
+  momentum: 0.9
+  weight_decay: 0.0001
+
+scheduler:
+  OneCycleLR:
+    max_lr: 0.02
+    total_steps: 200
+    pct_start: 0.03
+    verbose: True
