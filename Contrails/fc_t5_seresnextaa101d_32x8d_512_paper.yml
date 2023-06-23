@@ -1,6 +1,6 @@
 trainer:
-  logger: False
-  enable_checkpointing: False
+  logger: True
+  enable_checkpointing: True
   max_epochs: 200
   accumulate_grad_batches: 16
 
@@ -31,13 +31,13 @@ encoder: seresnextaa101d_32x8d
 load_from_checkpoint: checkpoints/fc_t5_seresnextaa101d_32x8d_512-val_metric=0.58112-epoch=72.ckpt
 optimizer: SGD
 optimizer_params:
-  lr: 0.02
+  lr: 0.2
   momentum: 0.9
   weight_decay: 0.0001
 
 scheduler:
   OneCycleLR:
-    max_lr: 0.02
+    max_lr: 0.2
     total_steps: 200
-    pct_start: 0.03
+    pct_start: 0.02
     verbose: True

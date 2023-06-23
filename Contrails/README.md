@@ -14,7 +14,7 @@ unet resnet34 fc t456 da flips e100  -> 0.59515 / 0.604 / 0.605 (BEST, podría s
 unet resnest26d fc t456 da flips e100 lr3e-4 (peta con lr1e-3) -> 0.60265 (ha petado, usar lr scheduler)
 unet resnest26d fc t456 da flips e100 lrsch -> 0.61026 / 0.602 (al tracear baja) / 0.601
 unet seresnextaa101d_32x8d fc t5 da flips+resize512 e100 -> 0.58112	 / 0.62321 / 0.605 (seguir entrenando)
-
+unet seresnextaa101d_32x8d fc t5 da flips+resize512 e200 SGD lrsch 0.2 bs256 -> running ...
 
 RESULTADOS:
 
