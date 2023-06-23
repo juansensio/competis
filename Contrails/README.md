@@ -14,18 +14,20 @@ unet resnet34 fc t456 da flips e100  -> 0.59515 / 0.604 / 0.605 (BEST, podría s
 unet resnest26d fc t456 da flips e100 lr3e-4 (peta con lr1e-3) -> 0.60265 (ha petado, usar lr scheduler)
 unet resnest26d fc t456 da flips e100 lrsch -> 0.61026 / 0.602 (al tracear baja) / 0.601
 unet seresnextaa101d_32x8d fc t5 da flips+resize512 e100 -> 0.58112	 / 0.62321 / 0.605 (seguir entrenando)
-unet seresnextaa101d_32x8d fc t5 da flips+resize512 e200 SGD lrsch 0.2 bs256 -> running ...
+unet seresnextaa101d_32x8d fc t5 da flips+resize512 e200 SGD lrsch 0.2 bs256 -> no mejoraba el anterior
+unet efficientnet_b0 fc t5 da (flips+crops) e100 bs64 -> running...
+unet efficientnet_b0 fc t5 da (flips) e100 bs64 -> running...
 
 RESULTADOS:
 
-- añadir da (flips) mejora
+- da flips > no da
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
 - t456 ~ t12345 > t158 > all t ~ t5678 > t5 (probar t345, segun paper funciona mejor)
 - dice loss > logcoshdice, focal (van muy lento, probar al final cuando tenga buenos modelos?)
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
-- encoders: resnet34 > resnest26d (traced) > resnet18
+- encoders: efficentnet_b0 > resnet34 > resnest26d (traced) > resnet18
 - 512 > 256 
 
 PROBAR:
@@ -39,8 +41,9 @@ tf_efficientnet_b7, 79, 66
 seresnextaa101d_32x8d, 87, 100
 
 - label smoothing
-- data augmentation (además de flips y resize: cutout, cutmix, mixup, ...)
-- decoders (fpn, deeplabv3, ...)
+- data augmentation (hard spatial and color augmentations)
+- decoders (bifpn)
+- pseudolabelling (modelo en t5 para anotar t4, t6 y reenetrenar)
 - tta
 - cv
 - ensambling

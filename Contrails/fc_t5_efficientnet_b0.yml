@@ -1,0 +1,12 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+
+datamodule:
+  false_color: True
+  t: 
+    - 4
+  train_trans: {}
+
+
+encoder: efficientnet_b0
