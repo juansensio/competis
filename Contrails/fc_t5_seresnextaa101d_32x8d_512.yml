@@ -1,6 +1,6 @@
 trainer:
-  logger: True
-  enable_checkpointing: True
+  logger: False
+  enable_checkpointing: False
   max_epochs: 100
 
 datamodule:
@@ -26,6 +26,7 @@ datamodule:
       width: 512
 
 encoder: seresnextaa101d_32x8d
+load_from_checkpoint: checkpoints/fc_t5_seresnextaa101d_32x8d_512-val_metric=0.58112-epoch=72.ckpt
 
 scheduler:
   OneCycleLR:

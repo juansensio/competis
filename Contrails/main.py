@@ -54,10 +54,10 @@ def train(config, name):
     if config['datamodule']['false_color']: config['in_chans'] = 3
     else: config['in_chans'] = len(config['datamodule']['bands'])
     config['t'] = len(config['datamodule']['t'])
+    module = Module(config)
     if config['load_from_checkpoint']:
-        module = Module.load_from_checkpoint(config['load_from_checkpoint'])
-    else:
-        module = Module(config)
+        state_dict = torch.load(config['load_from_checkpoint'])['state_dict']
+        module.load_state_dict(state_dict)
     config['trainer']['callbacks'] = []
     if config['trainer']['enable_checkpointing']:
         # esto falla en multi-gpu
