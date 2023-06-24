@@ -42,13 +42,13 @@ class Module(L.LightningModule):
 		x, y, y0 = batch
 		y_hat = self.model(x)
 		loss = self.loss(y_hat, y)
-		metric = self.metric(y_hat, y)
+		# metric0 = self.metric(y_hat, y)
 		probas = torch.sigmoid(y_hat) > 0.5
 		probas = torch.nn.functional.interpolate(probas.float(), size=y0.shape[-2:], mode='bilinear', align_corners=False)
-		metric0 = self.metric(probas, y0)
+		metric = self.metric(probas, y0)
 		self.log('val_loss', loss, prog_bar=True) 
-		self.log('val_metric', metric0, prog_bar=True)
-		self.log('val_metric2', metric, prog_bar=True)
+		self.log('val_metric', metric, prog_bar=True)
+		# self.log('val_metric2', metric0, prog_bar=True)
 
 	def configure_optimizers(self):
 		optimizer = getattr(torch.optim, self.hparams.optimizer)(

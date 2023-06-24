@@ -1,16 +1,11 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  max_epochs: 200
-  accumulate_grad_batches: 4
 
 datamodule:
   false_color: True
-  batch_size: 8
   t: 
-    - 3
     - 4
-    - 5
   train_trans: 
     HorizontalFlip:
       p: 0.5
@@ -20,10 +15,14 @@ datamodule:
       p: 0.5
     Transpose: 
       p: 0.5
-    RandomResizedCrop: 
+    Resize: 
       height: 512 
       width: 512
   val_trans:
     Resize:
       height: 512 
       width: 512
+
+encoder: resnest26d
+optimizer_params:
+  lr: 0.0003

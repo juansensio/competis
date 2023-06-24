@@ -1,7 +1,7 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  max_epochs: 200
+  max_epochs: 300
 
 datamodule:
   false_color: True
@@ -16,7 +16,7 @@ datamodule:
       p: 0.5
     Transpose: 
       p: 0.5
-    RandomResizedCrop: 
+    Resize: 
       height: 512 
       width: 512
   val_trans:
@@ -24,4 +24,5 @@ datamodule:
       height: 512 
       width: 512
 
-ckpt_path: checkpoints/fc_t5_r18_512-val_metric=0.51268-epoch=7.ckpt
+
+encoder: efficientnet_b0
