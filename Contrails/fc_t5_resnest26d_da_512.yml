@@ -1,9 +1,11 @@
 trainer:
   logger: True
   enable_checkpointing: True
+  max_epochs: 300
 
 datamodule:
   false_color: True
+  batch_size: 32
   t: 
     - 4
   train_trans: 
@@ -15,7 +17,7 @@ datamodule:
       p: 0.5
     Transpose: 
       p: 0.5
-    Resize: 
+    RandomResizedCrop: 
       height: 512 
       width: 512
   val_trans:

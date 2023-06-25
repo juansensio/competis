@@ -1,7 +1,6 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  max_epochs: 300
 
 datamodule:
   false_color: True
@@ -26,3 +25,8 @@ datamodule:
 
 
 encoder: efficientnet_b0
+load_from_checkpoint: checkpoints/fc_t5_efficientnet_b0_da_512-val_metric=0.61805-epoch=293.ckpt
+
+loss: focal
+optimizer_params:
+  lr: 0.0003

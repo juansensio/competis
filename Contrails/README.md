@@ -16,14 +16,14 @@ unet resnest26d fc t456 da flips e100 lrsch -> 0.61026 / 0.602 (al tracear baja)
 unet seresnextaa101d_32x8d fc t5 da flips+resize512 e100 -> 0.58112	 / 0.62321 / 0.605 (seguir entrenando)
 unet seresnextaa101d_32x8d fc t5 da flips+resize512 e200 SGD lrsch 0.2 bs256 -> no mejoraba el anterior
 unet efficientnet_b0 fc t5 da (flips+crops) e100 bs64 -> 0.58909
-unet efficientnet_b0 fc t5 da (flips+crops) e300 bs64 512 -> 0.618
+unet efficientnet_b0 fc t5 da (flips+crops) e300 bs64 512 -> 0.618 / 0.628 / 0.594 (podría seguir aprendiendo, pero muy lento)
 
 RESULTADOS:
 
-- da: resize 512 + flips > random resized crop 512 + flips > flips > no da
+- da: random resized crop 512 + flips > resize 512 + flips > flips > no da
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
 - t456 ~ t12345 > t158 > all t ~ t5678 > t5 (probar t345, segun paper funciona mejor)
-- dice loss > logcoshdice, focal (van muy lento, probar al final cuando tenga buenos modelos?)
+- dice loss > focal 
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
@@ -41,6 +41,7 @@ tf_efficientnet_b7, 79, 66
 seresnextaa101d_32x8d, 87, 100
 
 - label smoothing
+- more da (color, blur, cutout, mixup, cutmix, mosaic, mixup mosaic, mixup mosaic cutout, ...)
 - decoders (bifpn)
 - pseudolabelling (modelo en t5 para anotar t4, t6 y reenetrenar)
 

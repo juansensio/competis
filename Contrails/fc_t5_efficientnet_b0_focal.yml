@@ -16,13 +16,10 @@ datamodule:
       p: 0.5
     Transpose: 
       p: 0.5
-    Resize: 
-      height: 512 
-      width: 512
-  val_trans:
-    Resize:
-      height: 512 
-      width: 512
 
 
 encoder: efficientnet_b0
+
+loss: focal
+optimizer_params:
+  lr: 0.0003
