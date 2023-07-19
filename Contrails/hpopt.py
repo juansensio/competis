@@ -32,7 +32,7 @@ config = {
         'precision': '16-mixed',
         'limit_train_batches': 10,
         'limit_val_batches': 10,
-        # 'log_every_n_steps': 1,
+        'log_every_n_steps': 2,
     },
     'datamodule': {
         'batch_size': 64,
