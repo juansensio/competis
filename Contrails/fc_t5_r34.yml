@@ -1,0 +1,14 @@
+trainer:
+  logger: False
+  enable_checkpointing: False
+
+datamodule:
+  batch_size: 256
+  num_workers: 20
+  false_color: True
+  t: 
+    - 4
+  train_trans: {}
+
+
+encoder: resnet34
