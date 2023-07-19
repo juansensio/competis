@@ -51,6 +51,7 @@ config = {
 def objective(trial):
     # hparams suggestions
     config['optimizer_params']['lr'] = trial.suggest_loguniform('lr', 1e-4, 1e-2)
+    config['datamodule']['batch_size'] = trial.suggest_categorical('batch_size', [8, 32, 64])
     # train
     L.seed_everything(42, workers=True)
     dm = DataModule(**config['datamodule'])
@@ -62,12 +63,14 @@ def objective(trial):
         state_dict = torch.load(config['load_from_checkpoint'])['state_dict']
         module.load_state_dict(state_dict)
     config['trainer']['callbacks'] = []
+    wandb_logger = None
     if config['trainer']['logger']:
-        config['trainer']['logger'] = WandbLogger(
+        wandb_logger = WandbLogger(
             project="Contrails-hpopt",
             name=f'lr={config["optimizer_params"]["lr"]}',
             config=config
         )
+        config['trainer']['logger'] = wandb_logger
         if 'scheduler' in config and config['scheduler']:
             config['trainer']['callbacks'] += [
                 LearningRateMonitor(logging_interval='step')]
@@ -75,6 +78,9 @@ def objective(trial):
     torch.set_float32_matmul_precision('medium')
     # module = torch.compile(module)
     trainer.fit(module, dm, ckpt_path=config['ckpt_path'])
+    # score = trainer.test(model, dm.val_dataloader())
+    # if wandb_logger: wandb_logger.experiment.finish()
+    # return score[0]['test_iou']
     return trainer.callback_metrics['val_metric'].item()
 
 
