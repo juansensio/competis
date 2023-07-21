@@ -3,6 +3,7 @@ import torchmetrics
 import torch 
 from .models.unet import Unet
 import segmentation_models_pytorch as smp
+from einops import rearrange
 
 class Module(L.LightningModule):
 	def __init__(self, hparams={
@@ -18,6 +19,7 @@ class Module(L.LightningModule):
 		super().__init__()
 		self.save_hyperparameters(hparams)
 		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t, self.hparams.scale_factor)
+		# self.model = smp.Unet(self.hparams.encoder, encoder_weights='imagenet', in_channels=self.hparams.in_chans*self.hparams.t, classes=1)
 		if hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
 		elif hparams['loss'] == 'focal':
@@ -27,11 +29,12 @@ class Module(L.LightningModule):
 		self.metric = torchmetrics.Dice()
 
 	def forward(self, x):
+		# x = rearrange(x, 'b h w t c -> b (t c) h w')
 		return self.model(x)
 
 	def training_step(self, batch, batch_idx):
 		x, y, _ = batch
-		y_hat = self.model(x)
+		y_hat = self(x)
 		loss = self.loss(y_hat, y)
 		metric = self.metric(y_hat, y)
 		self.log('loss', loss, prog_bar=True,)
@@ -40,7 +43,7 @@ class Module(L.LightningModule):
 
 	def validation_step(self, batch, batch_idx):
 		x, y, y0 = batch
-		y_hat = self.model(x)
+		y_hat = self(x)
 		loss = self.loss(y_hat, y)
 		# metric0 = self.metric(y_hat, y)
 		probas = torch.sigmoid(y_hat) > 0.5

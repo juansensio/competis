@@ -40,15 +40,16 @@ convnextv2_base, 47, 88
 tf_efficientnet_b7, 79, 66
 seresnextaa101d_32x8d, 87, 100
 
+
+- pseudolabelling (modelo en t5 para anotar t4, t6 y reenetrenar)
+- tta
+
+- ensambling
+- cv
+- train with val
 - label smoothing
 - more da (color, blur, cutout, mixup, cutmix, mosaic, mixup mosaic, mixup mosaic cutout, ...)
 - decoders (bifpn)
-- pseudolabelling (modelo en t5 para anotar t4, t6 y reenetrenar)
-
-- tta
-- cv
-- ensambling
-
 
 https://arxiv.org/pdf/2304.02122.pdf 
 
@@ -60,3 +61,9 @@ cosine learning rate decay. To improve training stability, we
 employ a linear warm up learning rate schedule, increasing
 the learning rate linearly from 0 for the first 500 iterations (6 epochs).
 L2 weight decay is used with a factor of 0.0001.
+
+CONCLUSIONES para otros challenges:
+
+- feature engineering
+- hparam opt
+- error analysis
