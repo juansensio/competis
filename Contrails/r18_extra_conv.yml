@@ -1,7 +1,3 @@
 trainer:
   logger: True
   enable_checkpointing: True
-  devices:
-    - 1
-
-ckpt_path: checkpoints/r18_extra_conv-val_metric=0.55210-epoch=7.ckpt

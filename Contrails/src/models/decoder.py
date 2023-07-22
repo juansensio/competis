@@ -67,15 +67,16 @@ class DecoderBlock(nn.Module):
         use_batchnorm=True,
     ):
         super().__init__()
+        up_channels = out_channels # smp usa in_channels, unet paper usa out_channels...
         self.convT = nn.ConvTranspose2d(
             in_channels,
-            out_channels, # smp usa in_channels, unet paper usa out_channels...
+            up_channels, 
             kernel_size=2,
             stride=2,
             padding=0,
         ) 
         self.conv1 = Conv2dReLU(
-            skip_channels + in_channels if skip_channels is not None else in_channels,
+            skip_channels + up_channels if skip_channels is not None else up_channels,
             out_channels,
             kernel_size=3,
             padding=1,
