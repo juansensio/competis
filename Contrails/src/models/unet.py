@@ -15,7 +15,6 @@ class Unet(torch.nn.Module):
 		x = rearrange(x, 'b h w t c -> (b t) c h w')
 		features = self.encoder(x)
 		features = [rearrange(f, '(b t) c h w -> b (t c) h w', b=B) for f in features]
-		# for f in features: print(f.shape)
 		return self.decoder(features)
 	
 

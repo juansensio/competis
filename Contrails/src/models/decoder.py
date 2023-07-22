@@ -67,10 +67,9 @@ class DecoderBlock(nn.Module):
         use_batchnorm=True,
     ):
         super().__init__()
-        # print("iepa", in_channels, skip_channels, out_channels)
         self.convT = nn.ConvTranspose2d(
             in_channels,
-            in_channels, # out_channels
+            out_channels, # smp usa in_channels, unet paper usa out_channels...
             kernel_size=2,
             stride=2,
             padding=0,
@@ -92,16 +91,11 @@ class DecoderBlock(nn.Module):
 
     # def forward(self, x, skip: Optional[torch.Tensor]=None): # hace que el cat pete al hacer el scripting
     def forward(self, x, skip):
-        # print(x.shape, skip.shape if skip is not None else None)
         x = self.convT(x)
-        # x = F.interpolate(x, scale_factor=2, mode="nearest")
-        # print("eo", x.shape)
         if skip is not None:
             x = torch.cat([x, skip], dim=1) # peta el scripting
-        # print("ei", x.shape)
         x = self.conv1(x)
         x = self.conv2(x)
-        # print("io", x.shape)
         return x
 
 class Decoder(nn.Module):
@@ -115,15 +109,10 @@ class Decoder(nn.Module):
         use_batchnorm=True
     ):
         super().__init__()
-        # print(encoder_channels)
-        # print(decoder_channels)
         in_channels = encoder_channels[::-1][:-1] + decoder_channels[-2:-1]
         in_channels[0] = in_channels[0]*t
         skip_channels = encoder_channels[::-1][1:] + [None] 
         out_channels = decoder_channels
-        # print(in_channels)
-        # print(skip_channels)
-        # print(out_channels)
         blocks = [
             DecoderBlock(in_ch, skip_ch*t if skip_ch is not None else None, out_ch, use_batchnorm)
             for in_ch, skip_ch, out_ch in zip(in_channels, skip_channels, out_channels)
@@ -131,13 +120,12 @@ class Decoder(nn.Module):
         self.blocks = nn.ModuleList(blocks)
         self.out_conv = nn.Conv2d(out_channels[-1], num_classes, kernel_size=1)
         # self.scale_factor = scale_factor
-        # print(self.blocks)
 
     def forward(self, features):
         features = features[::-1]
         x = features[0]
         for i, decoder_block in enumerate(self.blocks):
             x = decoder_block(x, features[i+1] if i+1 < len(features) else None)
-        # x = F.interpolate(x, scale_factor=self.scale_factor, mode='bilinear', align_corners=True)
         x = self.out_conv(x)
+        # x = F.interpolate(x, scale_factor=self.scale_factor, mode='bilinear', align_corners=True)
         return x
