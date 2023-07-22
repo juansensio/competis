@@ -19,7 +19,7 @@ unet efficientnet_b0 fc t5 da (flips+crops) e100 bs64 -> 0.58909
 unet efficientnet_b0 fc t5 da (flips+crops) e300 bs64 512 -> 0.618 / 0.628 / 0.594 (podría seguir aprendiendo, pero muy lento)
 REFACTOR 2: en modelo, añadir extra conv para upsample final y mantener numero de filtros en convt del decoder
 unet resnet34 fc t5 e50  -> 0.56470
-unet resnet34 fc t456 e50  -> running pykon...
+unet resnet34 fc t456 e50  -> 0.58335
 unet resnet34 fc 345 e50  -> next
 lo que mejor de
 unet resnet34 fc t5 384 e50  -> next
