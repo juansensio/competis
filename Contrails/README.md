@@ -21,8 +21,10 @@ REFACTOR 2: en modelo, añadir extra conv para upsample final y mantener numero 
 unet resnet34 fc t5 e30  -> 0.56470
 unet resnet34 fc t456 e30  -> 0.58335
 unet resnet34 fc t345 e30  -> 0.58359
-unet resnet50d fc t5 384 lr 5e-4 AdamW -> running...
-unet resnet50d fc t345 384 lr 5e-4 AdamW -> next
+unet resnet50d fc t5 384 lr 5e-4 AdamW -> 0.59095
+unet resnet50d fc t345 384 lr 5e-4 AdamW -> 0.59311
+resnest101e 384 AdamW Cosine sch lr 1e-3 30 epochs (0.628/0.638) -> running...
+regnety_120 384 AdamW Cosine sch lr 1e-3 30 epochs -> next
 
 seresnextaa101d_32x8d
 efficientnet_b0
