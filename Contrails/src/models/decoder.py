@@ -111,7 +111,7 @@ class Decoder(nn.Module):
         super().__init__()
         in_channels = encoder_channels[::-1]
         in_channels[0] = in_channels[0]*t
-        skip_channels = encoder_channels[::-1][1:] + [None] 
+        skip_channels = in_channels[1:] + [None] 
         out_channels = skip_channels[:-1] + [skip_channels[-2] // 2]
         blocks = [
             DecoderBlock(in_ch, skip_ch*t if skip_ch is not None else None, out_ch, use_batchnorm)
