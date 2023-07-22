@@ -8,13 +8,14 @@ class Unet(torch.nn.Module):
 		super().__init__()
 		self.encoder = Encoder(encoder, pretrained, in_chans)
 		self.channels = [self.encoder.encoder.feature_info.channels(i) for i in range(len(self.encoder.encoder.feature_info))]
-		self.decoder = Decoder(self.channels[::-1], t, scale_factor)
+		self.decoder = Decoder(self.encoder.channels, t=t)
 
 	def forward(self, x):
 		B = x.size(0)
 		x = rearrange(x, 'b h w t c -> (b t) c h w')
 		features = self.encoder(x)
 		features = [rearrange(f, '(b t) c h w -> b (t c) h w', b=B) for f in features]
+		# for f in features: print(f.shape)
 		return self.decoder(features)
 	
 

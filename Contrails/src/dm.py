@@ -14,7 +14,7 @@ class DataModule(L.LightningDataModule):
         bands=list(range(8, 17)),
         t=tuple(range(8)),
         norm_mode="mean_std",
-        false_color=False,
+        false_color=True,
         batch_size=16,
         train_trans=None,
         val_trans=None,

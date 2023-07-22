@@ -10,6 +10,7 @@ class Encoder(torch.nn.Module):
 			features_only=True,
 			in_chans=in_chans,
 		)
+		self.channels = [self.encoder.feature_info.channels(i) for i in range(len(self.encoder.feature_info))]
 
 	def forward(self, x):
 		return self.encoder(x)

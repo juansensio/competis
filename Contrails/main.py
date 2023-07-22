@@ -22,7 +22,7 @@ config = {
     'trainer': {
         'accelerator': 'cuda',
         'devices': 1, # con devices 2 el pl me da error al guardar los checkpoints :(
-        'max_epochs': 100,
+        'max_epochs': 20,
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
@@ -34,15 +34,15 @@ config = {
         'num_workers': 10,
         'pin_memory': True,
         'bands': list(range(8,17)),
-        't': tuple(range(8)),
+        't': [4], #tuple(range(8)),
         'norm_mode': 'mean_std',
-        'false_color': False,
+        'false_color': True,
         'stats_path': 'stats.csv',
         'train_trans': {
-            'HorizontalFlip': {'p': 0.5},
-            'VerticalFlip': {'p': 0.5},
-            'RandomRotate90': {'p': 0.5},
-            'Transpose': {'p': 0.5}
+            # 'HorizontalFlip': {'p': 0.5},
+            # 'VerticalFlip': {'p': 0.5},
+            # 'RandomRotate90': {'p': 0.5},
+            # 'Transpose': {'p': 0.5}
         }
     },
 }
