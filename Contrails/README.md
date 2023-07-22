@@ -25,8 +25,8 @@ lo que mejor de
 unet resnet34 fc t345 384 e30  -> running...
 unet resnet34 fc t345 512 e30  -> next
 lo que mejor de
-unet resnet34 fc da filps e200  -> next
-unet resnet34 fc da filps+crops e200  -> next
+unet resnet34 fc t345 512 da filps e200  -> next
+unet resnet34 fc t345 512 da filps+crops e200  -> next
 lo que mejor de
 seresnextaa101d_32x8d
 efficientnet_b0
@@ -38,7 +38,7 @@ AdamW, lr scheduling
 
 
 Maxi
-resnest101e 384 AdamW sin augmentations Cosine sch lr 1e-4 20 epochs (0.62, replicado)
+resnest101e 384 AdamW sin augmentations Cosine sch lr 1e-3 20 epochs (0.628/0.638, replicado)
 
 Alex
 resnest50d 384 lr 5e-4 bs 48 15 epochs optimizer AdamW sin augmentations (0.623) -> probar
@@ -70,7 +70,6 @@ seresnextaa101d_32x8d, 87, 100
 - pseudolabelling (modelo en t5 para anotar t4, t6 y reenetrenar)
 - tta
 - ensambling
-
 - cv
 - train with val
 - label smoothing
