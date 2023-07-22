@@ -20,10 +20,10 @@ encoder: resnest50d
 
 optimizer: AdamW
 optimizer_params:
-  lr: 0.001
+  lr: 0.0005
 
 scheduler: 
   CosineAnnealingLR:
     T_max: 30
-    eta_min: 1.0e-05
+    eta_min: 5.0e-05
     last_epoch: -1

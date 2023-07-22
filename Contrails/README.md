@@ -23,16 +23,16 @@ unet resnet34 fc t456 e30  -> 0.58335
 unet resnet34 fc t345 e30  -> 0.58359
 unet resnet50d fc t5 384 lr 5e-4 AdamW -> 0.59095
 unet resnet50d fc t345 384 lr 5e-4 AdamW -> 0.59311
-resnest101e 384 AdamW Cosine sch lr 1e-3 30 epochs (0.628/0.638) -> running...
-regnety_120 384 AdamW Cosine sch lr 1e-3 30 epochs -> next
+unet resnest50d fc t5 384 sch lr 1e-3 30 epochs AdamW -> running...
+unet resnest101e 384 AdamW Cosine sch lr 1e-3 30 epochs (0.628/0.638) -> next
+unet regnety_120 384 AdamW Cosine sch lr 1e-3 30 epochs -> next
 
 seresnextaa101d_32x8d
 efficientnet_b0
 tf_efficientnet_b7
 convnextv2_base
 maxvit_base_tf_512
-lo que mejor de
-AdamW, lr scheduling
+
 lo que mejor de
 unet resnet34 fc t345 512 da filps e200  -> next
 unet resnet34 fc t345 512 da filps+crops e200  -> next
