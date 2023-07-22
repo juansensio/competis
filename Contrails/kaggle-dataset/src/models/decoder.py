@@ -111,7 +111,7 @@ class Decoder(nn.Module):
         use_batchnorm=True
     ):
         super().__init__()
-        in_channels = encoder_channels[::-1][:-1] + decoder_channels[-2:-1]
+        in_channels = encoder_channels[-1:] + decoder_channels[:-1]
         in_channels[0] = in_channels[0]*t
         skip_channels = encoder_channels[::-1][1:] + [None] 
         out_channels = decoder_channels

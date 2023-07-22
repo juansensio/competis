@@ -1,0 +1,25 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+  max_epochs: 20
+
+datamodule:
+  t: 
+    - 2
+    - 3
+    - 4
+  batch_size: 32
+  train_trans:
+    Resize:
+      width: 384 
+      height: 384
+  val_trans:
+    Resize:
+      width: 384 
+      height: 384
+
+encoder: resnet50d
+
+optimizer: AdamW
+optimizer_params:
+  lr: 5.0e-4
