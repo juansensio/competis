@@ -18,14 +18,14 @@ unet seresnextaa101d_32x8d fc t5 da flips+resize512 e200 SGD lrsch 0.2 bs256 -> 
 unet efficientnet_b0 fc t5 da (flips+crops) e100 bs64 -> 0.58909
 unet efficientnet_b0 fc t5 da (flips+crops) e300 bs64 512 -> 0.618 / 0.628 / 0.594 (podría seguir aprendiendo, pero muy lento)
 REFACTOR 2: en modelo, añadir extra conv para upsample final y mantener numero de filtros en convt del decoder
-unet resnet34 fc t5 e50  -> 0.56470
-unet resnet34 fc t456 e50  -> 0.58335
-unet resnet34 fc 345 e50  -> next
+unet resnet34 fc t5 e30  -> 0.56470
+unet resnet34 fc t456 e30  -> 0.58335
+unet resnet34 fc t345 e30  -> 0.58359
 lo que mejor de
-unet resnet34 fc t5 384 e50  -> next
-unet resnet34 fc 512 e50  -> next
+unet resnet34 fc t345 384 e30  -> running...
+unet resnet34 fc t345 512 e30  -> next
 lo que mejor de
-unet resnet34 fc t456 da filps e200  -> next
+unet resnet34 fc da filps e200  -> next
 unet resnet34 fc da filps+crops e200  -> next
 lo que mejor de
 seresnextaa101d_32x8d
@@ -45,15 +45,16 @@ resnest50d 384 lr 5e-4 bs 48 15 epochs optimizer AdamW sin augmentations (0.623)
 
 RESULTADOS:
 
-- da: random resized crop 512 + flips > resize 512 + flips > flips > no da
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
-- t456 ~ t12345 > t158 > all t ~ t5678 > t5 (probar t345, segun paper funciona mejor)
+- t345 ~t456 ~ t12345 > t158 > all t ~ t5678 > t5 
+- 512 > 384 > 256 
+- da: random resized crop 512 + flips > resize 512 + flips > flips > no da
 - dice loss > focal 
 - Adam > AdamW
 - lr scheduler no mejora casi nada (usar al final con modelos grandes)
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
 - encoders: efficentnet_b0 > resnet34 > resnest26d (traced) > resnet18
-- 512 > 256 
+
 
 PROBAR:
 

@@ -1,0 +1,20 @@
+trainer:
+  logger: False 
+  enable_checkpointing: False 
+
+datamodule:
+  t: 
+    - 2
+    - 3 
+    - 4
+  batch_size: 32
+  train_trans:
+    Resize:
+      width: 512 
+      height: 512
+  val_trans:
+    Resize:
+      width: 512 
+      height: 512
+
+encoder: resnet34

@@ -21,7 +21,7 @@ config = {
     'trainer': {
         'accelerator': 'cuda',
         'devices': 1, # con devices 2 el pl me da error al guardar los checkpoints :(
-        'max_epochs': 50,
+        'max_epochs': 30,
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
