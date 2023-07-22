@@ -1,0 +1,11 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+
+datamodule:
+  t: 
+    - 2
+    - 3 
+    - 4
+
+encoder: resnet34

@@ -15,14 +15,13 @@ config = {
     'optimizer_params': {
         'lr': 1e-3
     },
-    'scale_factor': 2,
     'loss': 'dice',
     'ckpt_path': None, # resume
     'load_from_checkpoint': None, # load from checkpoint
     'trainer': {
         'accelerator': 'cuda',
         'devices': 1, # con devices 2 el pl me da error al guardar los checkpoints :(
-        'max_epochs': 20,
+        'max_epochs': 50,
         'logger': None,
         'enable_checkpointing': False,
         'overfit_batches': 0,
@@ -37,7 +36,7 @@ config = {
         't': [4], #tuple(range(8)),
         'norm_mode': 'mean_std',
         'false_color': True,
-        'stats_path': 'stats.csv',
+        'stats_path': '/fastdata/contrails/stats.csv',
         'train_trans': {
             # 'HorizontalFlip': {'p': 0.5},
             # 'VerticalFlip': {'p': 0.5},
