@@ -20,7 +20,7 @@ class Module(L.LightningModule):
 		self.save_hyperparameters(hparams)
 		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t)
 		# self.model = smp.Unet(self.hparams.encoder, encoder_weights='imagenet', in_channels=self.hparams.in_chans*self.hparams.t, classes=1)
-		if hparams['loss'] == 'dice':
+		if not 'loss' in hparams or hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
 		elif hparams['loss'] == 'focal':
 			self.loss = smp.losses.FocalLoss(mode="binary")
@@ -47,7 +47,7 @@ class Module(L.LightningModule):
 		loss = self.loss(y_hat, y)
 		# metric0 = self.metric(y_hat, y)
 		probas = torch.sigmoid(y_hat) > 0.5
-		probas = torch.nn.functional.interpolate(probas.float(), size=y0.shape[-2:], mode='bilinear', align_corners=False)
+		probas = torch.nn.functional.interpolate(probas.float(), size=y0.shape[-2:], mode='bilinear')
 		metric = self.metric(probas, y0)
 		self.log('val_loss', loss, prog_bar=True) 
 		self.log('val_metric', metric, prog_bar=True)

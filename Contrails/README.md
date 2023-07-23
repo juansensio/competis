@@ -23,10 +23,9 @@ unet resnet34 fc t456 e30  -> 0.58335
 unet resnet34 fc t345 e30  -> 0.58359
 unet resnet50d fc t5 384 lr 5e-4 AdamW -> 0.59095
 unet resnet50d fc t345 384 lr 5e-4 AdamW -> 0.59311
-unet resnest101e 384 AdamW Cosine sch lr 1e-3 30 epochs (0.628/0.638) -> running...
-unet regnety_120 384 AdamW Cosine sch lr 1e-3 30 epochs -> next
-unet resnest50d fc t5 384 sch lr 1e-3 30 epochs AdamW -> next
-unet resnest101e 384 AdamW Cosine sch lr 1e-3 30 epochs t345 -> next
+unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW (0.623) -> 0.60351 (0.62603 / 0.61688) / 0.572
+unet resnest101e 384 AdamW Cosine sch lr 3e-4 30 epochs (0.628/0.638) -> running...
+unet regnety_120 384 AdamW Cosine sch lr 3e-4 30 epochs -> next
 
 seresnextaa101d_32x8d
 efficientnet_b0
@@ -38,16 +37,12 @@ lo que mejor de
 unet resnet34 fc t345 512 da filps e200  -> next
 unet resnet34 fc t345 512 da filps+crops e200  -> next
 
-M: resnest101e 384 AdamW sin augmentations Cosine sch lr 1e-3 20 epochs (0.628/0.638)
-A: resnest50d 384 lr 5e-4 bs 48 15 epochs optimizer AdamW sin augmentations (0.623) -> probar
-
 RESULTADOS:
 
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
 - t345 ~t456 ~ t12345 > t158 > all t ~ t5678 > t5 
 - 512 > 384 > 256 
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
-
 
 PROBAR:
 
