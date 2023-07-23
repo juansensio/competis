@@ -23,9 +23,10 @@ unet resnet34 fc t456 e30  -> 0.58335
 unet resnet34 fc t345 e30  -> 0.58359
 unet resnet50d fc t5 384 lr 5e-4 AdamW -> 0.59095
 unet resnet50d fc t345 384 lr 5e-4 AdamW -> 0.59311
-unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW (0.623) -> 0.60351 (0.62603 / 0.61688) / 0.572
-unet resnest101e 384 AdamW Cosine sch lr 3e-4 30 epochs (0.628/0.638) -> running...
-unet regnety_120 384 AdamW Cosine sch lr 3e-4 30 epochs -> next
+unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW (0.623) -> 0.60351 (0.62603 / 0.61688) / 0.572, 0.58 (nuevo notebook submission)
+unet resnest50d fc t345 384 sch lr 1e-4 30 epochs AdamW -> running...
+
+
 
 seresnextaa101d_32x8d
 efficientnet_b0
