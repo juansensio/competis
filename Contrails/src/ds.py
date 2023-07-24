@@ -41,7 +41,7 @@ class Dataset(torch.utils.data.Dataset):
         self.stats = pd.read_csv(stats_path, index_col=0) if stats_path is not None else None
         self.norm_mode = norm_mode
         self.false_color = false_color
-        self.input_size = input_size
+        self.input_size = (input_size, input_size) if isinstance(input_size, int) else input_size
 
     def __len__(self):
         return len(self.records)
