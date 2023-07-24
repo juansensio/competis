@@ -27,8 +27,10 @@ unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW (0.623) -> 0.60351 (0.6260
 why??? :(
 he comprabado dataset y es igual al ash color
 probando a ver si es por el tamaño de la imagen...
-unet resnest50d fc t5 256 sch lr 5e-4 30 epochs AdamW -> 0.5918 (0.61885) / 0.609 (BEST)
-
+unet resnest50d fc t5 256 sch lr 3e-4 30 epochs AdamW -> 0.5918 (0.61885) / 0.609 
+REFACTOR 3: resize del output del modelo a 256 ANTES de la loss
+unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW -> 0.602 (0.62703) / 0.638 (BEST)
+unet resnest50d fc t345 384 sch lr 3e-4 30 epochs AdamW -> running...
 
 seresnextaa101d_32x8d
 efficientnet_b0

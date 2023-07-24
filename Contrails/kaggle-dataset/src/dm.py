@@ -21,6 +21,7 @@ class DataModule(L.LightningDataModule):
         num_workers=20,
         pin_memory=True,
         fold=None,
+        input_size=(256, 256),
     ):
         super().__init__()
         self.path = Path(path)
@@ -35,6 +36,7 @@ class DataModule(L.LightningDataModule):
         self.norm_mode = norm_mode
         self.false_color = false_color
         self.fold = fold
+        self.input_size = input_size
 
     def get_dataset(self, split, trans, records=None):
         return Dataset(
@@ -46,6 +48,7 @@ class DataModule(L.LightningDataModule):
             norm_mode=self.norm_mode,
             false_color=self.false_color,
             records=records,
+            input_size=self.input_size,
             trans=A.Compose([getattr(A, t)(**params) for t, params in trans.items()])
             if trans is not None
             else None,

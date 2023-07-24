@@ -3,6 +3,8 @@ import numpy as np
 from einops import rearrange
 import pandas as pd
 import os
+from skimage.transform import resize
+import albumentations as A
     
 def normalize_range(data, bounds):
     return (data - bounds[0]) / (bounds[1] - bounds[0])
@@ -18,7 +20,8 @@ class Dataset(torch.utils.data.Dataset):
             t=tuple(range(8)), 
             norm_mode='mean_std', 
             false_color=False, 
-            trans=None,
+            trans=None, # NO PONER RESIZE AQUI !!!
+            input_size=(256, 256),
         ):
         if mode not in ['train', 'validation']:
             raise ValueError(f'Invalid mode {mode}')
@@ -30,6 +33,7 @@ class Dataset(torch.utils.data.Dataset):
             assert t_ in range(8), f'Invalid time index {t_}'
         self.mode = mode
         self.records = os.listdir(f'{path}/{mode}') if records is None else records
+        self.records = sorted(self.records)
         self.path = path
         self.bands = bands
         self.trans = trans
@@ -37,6 +41,7 @@ class Dataset(torch.utils.data.Dataset):
         self.stats = pd.read_csv(stats_path, index_col=0) if stats_path is not None else None
         self.norm_mode = norm_mode
         self.false_color = false_color
+        self.input_size = (input_size, input_size) if isinstance(input_size, int) else input_size
 
     def __len__(self):
         return len(self.records)
@@ -70,12 +75,16 @@ class Dataset(torch.utils.data.Dataset):
         else:
             image = self.get_data(ix)
         mask = np.load(f'{self.path}/{self.mode}/{self.records[ix]}/human_pixel_masks.npy')
-        mask_t = mask.copy()
         if self.trans is not None:
             H, W, T, C = image.shape
             image = rearrange(image, 'h w t c -> h w (t c)')
-            trans = self.trans(image=image, mask=mask_t)
-            image, mask_t = trans['image'], trans['mask']
+            trans = self.trans(image=image, mask=mask)
+            image, mask = trans['image'], trans['mask']
             image = rearrange(image, 'h w (t c) -> h w t c', t=T, c=C)
-        return torch.from_numpy(image), torch.from_numpy(mask_t).squeeze(-1), torch.from_numpy(mask).squeeze(-1)
+        if self.input_size != (256, 256):
+            H, W, T, C = image.shape
+            image = rearrange(image, 'h w t c -> h w (t c)')
+            image = resize(image, self.input_size, anti_aliasing=True)
+            image = rearrange(image, 'h w (t c) -> h w t c', t=T, c=C)
+        return torch.from_numpy(image), torch.from_numpy(mask).long().squeeze(-1)
     

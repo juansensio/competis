@@ -1,31 +1,24 @@
 trainer:
-  logger: True 
-  enable_checkpointing: True 
+  logger: False 
+  enable_checkpointing: False 
   max_epochs: 30
 
 datamodule:
   t: 
-    - 2
+    - 2 
     - 3
     - 4
-  batch_size: 16
-  train_trans:
-    Resize:
-      width: 384 
-      height: 384
-  val_trans:
-    Resize:
-      width: 384 
-      height: 384
+  batch_size: 32
+  input_size: 384
 
 encoder: resnest50d
 
 optimizer: AdamW
 optimizer_params:
-  lr: 1.0e-4
+  lr: 3.0e-4
 
 scheduler: 
   CosineAnnealingLR:
     T_max: 30
-    eta_min: 1.0e-05
+    eta_min: 3.0e-5
     last_epoch: -1
