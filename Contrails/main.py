@@ -37,12 +37,13 @@ config = {
         'norm_mode': 'mean_std',
         'false_color': True,
         'stats_path': '/fastdata/contrails/stats.csv',
-        'train_trans': {
+        'train_trans': { # NO PONER NADA QUE HAGA RESIZE AQUI !!!
             # 'HorizontalFlip': {'p': 0.5},
             # 'VerticalFlip': {'p': 0.5},
             # 'RandomRotate90': {'p': 0.5},
             # 'Transpose': {'p': 0.5}
-        }
+        },
+        'input_size': (256, 256), # PONERLO AQUI, SOLO AFECTA A INPUTS
     },
 }
 

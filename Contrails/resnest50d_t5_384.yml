@@ -7,14 +7,9 @@ datamodule:
   t: 
     - 4
   batch_size: 32
-  train_trans:
-    Resize:
-      width: 384 
-      height: 384
-  val_trans:
-    Resize:
-      width: 384 
-      height: 384
+  input_size:
+    width: 384 
+    height: 384
 
 encoder: resnest50d
 

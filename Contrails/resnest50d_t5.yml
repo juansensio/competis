@@ -1,6 +1,6 @@
 trainer:
-  logger: True 
-  enable_checkpointing: True 
+  logger: False 
+  enable_checkpointing: False 
   max_epochs: 30
 
 datamodule:

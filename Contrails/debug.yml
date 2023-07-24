@@ -1,12 +1,14 @@
 datamodule:
-  batch_size: 1
+  batch_size: 10
   num_workers: 0
   pin_memory: False
   t: 
     - 4
-  train_trans: {}
   false_color: True
+  input_size:
+    - 512
+    - 512
 
 trainer:
-  max_epochs: 400
+  max_epochs: 100
   overfit_batches: 1

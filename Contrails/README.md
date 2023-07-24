@@ -10,7 +10,7 @@ unet r18 all_bands t5 da flips e100 mean_std -> 0.54979
 unet r18 fc t456 da flips e100 -> 0.58363
 unet r18 fc t456 da flips e200 lrsch -> 0.58386 
 unet r18 fc t456 da flips e200 lrsch AdamW -> 0.57889
-unet resnet34 fc t456 da flips e100  -> 0.59515 / 0.604 / 0.605 (BEST, podría seguir aprendiendo)
+unet resnet34 fc t456 da flips e100  -> 0.59515 / 0.604 / 0.605 
 unet resnest26d fc t456 da flips e100 lr3e-4 (peta con lr1e-3) -> 0.60265 (ha petado, usar lr scheduler)
 unet resnest26d fc t456 da flips e100 lrsch -> 0.61026 / 0.602 (al tracear baja) / 0.601
 unet seresnextaa101d_32x8d fc t5 da flips+resize512 e100 -> 0.58112	 / 0.62321 / 0.605 (seguir entrenando)
@@ -27,7 +27,7 @@ unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW (0.623) -> 0.60351 (0.6260
 why??? :(
 he comprabado dataset y es igual al ash color
 probando a ver si es por el tamaño de la imagen...
-unet resnest50d fc t5 256 sch lr 5e-4 30 epochs AdamW -> 0.5918 (0.61885) / 0.609
+unet resnest50d fc t5 256 sch lr 5e-4 30 epochs AdamW -> 0.5918 (0.61885) / 0.609 (BEST)
 
 
 seresnextaa101d_32x8d
