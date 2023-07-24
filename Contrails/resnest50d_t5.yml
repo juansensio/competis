@@ -1,0 +1,21 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+  max_epochs: 30
+
+datamodule:
+  t: 
+    - 4
+  batch_size: 32
+
+encoder: resnest50d
+
+optimizer: AdamW
+optimizer_params:
+  lr: 3.0e-04
+
+scheduler: 
+  CosineAnnealingLR:
+    T_max: 30
+    eta_min: 3.0e-05
+    last_epoch: -1

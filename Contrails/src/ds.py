@@ -30,6 +30,7 @@ class Dataset(torch.utils.data.Dataset):
             assert t_ in range(8), f'Invalid time index {t_}'
         self.mode = mode
         self.records = os.listdir(f'{path}/{mode}') if records is None else records
+        self.records = sorted(self.records)
         self.path = path
         self.bands = bands
         self.trans = trans
