@@ -13,7 +13,7 @@ config = {
     'pretrained': True,
     'optimizer': 'Adam',
     'optimizer_params': {
-        'lr': 3e-4,
+        'lr': 1e-3,
     },
     'loss': 'dice',
     'ckpt_path': None, # resume

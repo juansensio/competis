@@ -34,7 +34,7 @@ unet resnest50d fc t345 384 sch lr 1e-4 30 epochs AdamW -> 0.596 (0.62676) / 0.6
 CAMBIO LOG VAL METRICS (ahora si coincide)
 unet resnest50d fc t5 512 sch lr 3e-4 30 epochs AdamW -> 0.634
 unet resnest50d fc t345 512 sch lr 1e-4 30 epochs AdamW -> running kaggle...
-unet convnextv2_base fc t5 256 sch lr 3e-4 50 epochs -> next 
+unet convnextv2_base fc t5 256 lr 1e-4 30 epochs -> running ... 
 
 seresnextaa101d_32x8d
 efficientnet_b0
