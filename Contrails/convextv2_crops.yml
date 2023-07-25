@@ -1,0 +1,24 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+
+encoder: convnextv2_base
+
+optimizer_params:
+  lr: 1.0e-4 
+
+load_from_checkpoint: checkpoints/convextv2_freeze-val_metric=0.55106-epoch=3.ckpt
+
+datamodule:
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomResizedCrop: 
+      height: 256 
+      width: 256
