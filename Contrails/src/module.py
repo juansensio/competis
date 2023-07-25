@@ -37,9 +37,9 @@ class Module(L.LightningModule):
 		y_hat = self(x)
 		y_hat = torch.nn.functional.interpolate(y_hat, size=y.shape[-2:], mode='bilinear')
 		loss = self.loss(y_hat, y)
-		metric = self.metric(y_hat, y)
-		self.log('loss', loss, prog_bar=True,)
-		self.log('metric', metric, prog_bar=True)
+		self.metric(y_hat, y)
+		self.log('loss', loss, prog_bar=True)
+		self.log('metric', self.metric, prog_bar=True, on_step=True, on_epoch=False)
 		return loss
 
 	def validation_step(self, batch, batch_idx):
@@ -47,9 +47,9 @@ class Module(L.LightningModule):
 		y_hat = self(x)
 		y_hat = torch.nn.functional.interpolate(y_hat, size=y.shape[-2:], mode='bilinear')
 		loss = self.loss(y_hat, y)
-		metric = self.metric(y_hat, y)
+		self.metric(y_hat, y)
 		self.log('val_loss', loss, prog_bar=True) 
-		self.log('val_metric', metric, prog_bar=True)
+		self.log('val_metric', self.metric, prog_bar=True, on_step=False, on_epoch=True)
 
 	def configure_optimizers(self):
 		optimizer = getattr(torch.optim, self.hparams.optimizer)(

@@ -1,7 +1,8 @@
 trainer:
-  logger: True 
-  enable_checkpointing: True 
+  logger: False 
+  enable_checkpointing: False 
   max_epochs: 30
+  limit_train_batches: 1
 
 datamodule:
   t: 
@@ -20,3 +21,5 @@ scheduler:
     T_max: 30
     eta_min: 3.0e-5
     last_epoch: -1
+
+ckpt_path: checkpoints/resnest50d_t5_384-val_metric=0.60678-epoch=16.ckpt
