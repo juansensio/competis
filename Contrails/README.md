@@ -31,6 +31,7 @@ unet resnest50d fc t5 256 sch lr 3e-4 30 epochs AdamW -> 0.5918 (0.61885) / 0.60
 REFACTOR 3: resize del output del modelo a 256 ANTES de la loss
 unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW -> 0.602 (0.62703) / 0.638 (BEST)
 unet resnest50d fc t345 384 sch lr 1e-4 30 epochs AdamW -> 0.596 (0.62676) / 0.621
+CAMBIO LOG VAL METRICS (ahora si coincide)
 unet resnest50d fc t5 512 sch lr 3e-4 30 epochs AdamW -> running...
 unet resnest50d fc t345 512 sch lr 1e-4 30 epochs AdamW -> running kaggle...
 unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW da flips -> next 

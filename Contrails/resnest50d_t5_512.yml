@@ -20,3 +20,5 @@ scheduler:
     T_max: 30
     eta_min: 3.0e-5
     last_epoch: -1
+
+ckpt_path: checkpoints/resnest50d_t5_512-epoch=10.ckpt
