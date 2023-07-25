@@ -41,6 +41,7 @@ unet convnextv2_base fc t5 256 freeze -> 0.55106 (3 epochs)
 + random resized crops
 + cutmix, mixup
 + 384, 512
++ lr scheduler
 
 RESULTADOS:
 

@@ -7,9 +7,10 @@ encoder: convnextv2_base
 optimizer_params:
   lr: 1.0e-4 
 
-load_from_checkpoint: checkpoints/convextv2_freeze-val_metric=0.55106-epoch=3.ckpt
+load_from_checkpoint: checkpoints/convextv2_base-val_metric=0.58134-epoch=3.ckpt
 
 datamodule:
+  batch_size: 32
   train_trans:
     HorizontalFlip:
       p: 0.5
