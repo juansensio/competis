@@ -34,31 +34,28 @@ unet resnest50d fc t345 384 sch lr 1e-4 30 epochs AdamW -> 0.596 (0.62676) / 0.6
 CAMBIO LOG VAL METRICS (ahora si coincide)
 unet resnest50d fc t5 512 sch lr 3e-4 30 epochs AdamW -> 0.634
 unet resnest50d fc t345 512 sch lr 1e-4 30 epochs AdamW -> running kaggle...
-unet convnextv2_base fc t5 256 lr 1e-4 30 epochs -> running ... 
-
-seresnextaa101d_32x8d
-efficientnet_b0
-tf_efficientnet_b7
-convnextv2_base
-maxvit_base_tf_512
-
-lo que mejor de
-unet resnet34 fc t345 512 da filps e200  -> next
-unet resnet34 fc t345 512 da filps+crops e200  -> next
+---
+unet convnextv2_base fc t5 256 freeze -> running ... 
++ unfreeze
++ da flips 
++ random resized crops
++ cutmix, mixup
++ 384, 512
 
 RESULTADOS:
 
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
 - 512 > 384 > 256 
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
+- en modelos grandes, usar varios time steps no parece mejorar
 
 PROBAR:
 
-- encoders (features_only, traceables, < 100M params) https://huggingface.co/docs/timm/results
+- encoders (features_only, < 100M params) https://huggingface.co/docs/timm/results
 
 model, position, size 
 maxvit_base_tf_512, 31, 100
-convnextv2_base.fcmae_ft_in22k_in1k_384, 47, 88
+convnextv2_base, 47, 88
 tf_efficientnet_b7, 79, 66
 seresnextaa101d_32x8d, 87, 100
 

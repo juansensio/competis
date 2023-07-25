@@ -11,6 +11,7 @@ import torch
 config = {
     'encoder': 'resnet18',
     'pretrained': True,
+    'freeze': False,
     'optimizer': 'Adam',
     'optimizer_params': {
         'lr': 1e-3,

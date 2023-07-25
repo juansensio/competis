@@ -14,11 +14,12 @@ class Module(L.LightningModule):
 		'loss': 'dice', 
 		'optimizer': 'Adam', 
 		'optimizer_params': {},
+		'freeze': False,
 		# 'scale_factor': 2,
 	}):
 		super().__init__()
 		self.save_hyperparameters(hparams)
-		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t)
+		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t, self.hparams.freeze)
 		# self.model = smp.Unet(self.hparams.encoder, encoder_weights='imagenet', in_channels=self.hparams.in_chans*self.hparams.t, classes=1)
 		if not 'loss' in hparams or hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
