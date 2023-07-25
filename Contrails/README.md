@@ -32,9 +32,9 @@ REFACTOR 3: resize del output del modelo a 256 ANTES de la loss
 unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW -> 0.602 (0.62703) / 0.638 (BEST)
 unet resnest50d fc t345 384 sch lr 1e-4 30 epochs AdamW -> 0.596 (0.62676) / 0.621
 CAMBIO LOG VAL METRICS (ahora si coincide)
-unet resnest50d fc t5 512 sch lr 3e-4 30 epochs AdamW -> running...
+unet resnest50d fc t5 512 sch lr 3e-4 30 epochs AdamW -> 0.634
 unet resnest50d fc t345 512 sch lr 1e-4 30 epochs AdamW -> running kaggle...
-unet resnest50d fc t5 384 sch lr 3e-4 30 epochs AdamW da flips -> next 
+unet convnextv2_base fc t5 256 sch lr 3e-4 50 epochs -> next 
 
 seresnextaa101d_32x8d
 efficientnet_b0
@@ -49,7 +49,6 @@ unet resnet34 fc t345 512 da filps+crops e200  -> next
 RESULTADOS:
 
 - false color > all bands(mean_std) > all_bands (min_max) (metric & speed)
-- t345 ~t456 ~ t12345 > t158 > all t ~ t5678 > t5 
 - 512 > 384 > 256 
 - eliminar masks con menos de 10 px mejora val pero submission se queda igual (postproc)
 
@@ -59,7 +58,7 @@ PROBAR:
 
 model, position, size 
 maxvit_base_tf_512, 31, 100
-convnextv2_base, 47, 88
+convnextv2_base.fcmae_ft_in22k_in1k_384, 47, 88
 tf_efficientnet_b7, 79, 66
 seresnextaa101d_32x8d, 87, 100
 

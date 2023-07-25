@@ -1,0 +1,9 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+
+datamodule:
+  t: 
+    - 4
+
+encoder: convnextv2_base
