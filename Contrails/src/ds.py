@@ -67,8 +67,7 @@ class Dataset(torch.utils.data.Dataset):
         r = normalize_range(b15 - b14, _TDIFF_BOUNDS)
         g = normalize_range(b14 - b11, _CLOUD_TOP_TDIFF_BOUNDS)
         b = normalize_range(b14, _T11_BOUNDS)
-        data = np.clip(np.stack([r, g, b], axis=-1), 0, 1)
-        return np.save(f'{self.path}/{self.mode}/{self.records[ix]}/false_color_t{self.t}.npy', data)
+        return np.clip(np.stack([r, g, b], axis=-1), 0, 1)
     
     def __getitem__(self, ix):
         if self.false_color:
