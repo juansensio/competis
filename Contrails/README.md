@@ -37,11 +37,13 @@ unet resnest50d fc t345 512 sch lr 1e-4 30 epochs AdamW -> running kaggle...
 ---
 unet convnextv2_base fc t5 256 freeze -> 0.55106 (3 epochs)
 + unfreeze -> 0.58134 (3 epochs)
-+ da flips 
-+ random resized crops
-+ cutmix, mixup
-+ 384, 512
-+ lr scheduler
++ da flips + early stopping -> 0.58710 (9 epochs)
++ random resized crops -> 0.6124 (6 epochs)
++ 384 -> next
++ 512 -> next
++ lr scheduler -> next
+lo mismo pero desde cero -> next
+probar mosaic y cutmix
 
 RESULTADOS:
 

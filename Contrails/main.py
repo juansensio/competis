@@ -77,6 +77,7 @@ def train(config, name):
                 monitor='val_metric',
                 patience=5,
                 mode='max',
+                verbose=True
             )
         ]
     if config['trainer']['logger']:

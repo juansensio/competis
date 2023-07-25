@@ -1,18 +1,18 @@
 trainer:
   logger: True 
   enable_checkpointing: True 
-  max_epochs: 100
-  accumulate_grad_batches: 2
+  accumulate_grad_batches: 4
 
 encoder: convnextv2_base
 
 optimizer_params:
   lr: 1.0e-4 
 
-load_from_checkpoint: checkpoints/convextv2_flips-val_metric=0.58710-epoch=9.ckpt
+load_from_checkpoint: checkpoints/convextv2_crops-val_metric=0.61242-epoch=6.ckpt
 
 datamodule:
-  batch_size: 32
+  batch_size: 16
+  input_size: 512
   train_trans:
     HorizontalFlip:
       p: 0.5
@@ -23,14 +23,7 @@ datamodule:
     Transpose: 
       p: 0.5
     RandomResizedCrop: 
+      p: 0.5
       height: 256 
       width: 256
-
-
-# scheduler:
-#   OneCycleLR:
-#     max_lr: 1.0e-4 
-#     total_steps: 100
-#     pct_start: 0.02
-#     final_div_factor: 10 
-#     verbose: True
+    

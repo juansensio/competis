@@ -1,6 +1,8 @@
 trainer:
   logger: True 
   enable_checkpointing: True 
+  max_epochs: 100
+  accumulate_grad_batches: 2
 
 encoder: convnextv2_base
 
@@ -20,6 +22,3 @@ datamodule:
       p: 0.5
     Transpose: 
       p: 0.5
-    # RandomResizedCrop: 
-    #   height: 512 
-    #   width: 512
