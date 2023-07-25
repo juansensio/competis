@@ -5,7 +5,7 @@ import sys
 import yaml
 from src.utils import deep_update
 from lightning.pytorch.loggers import WandbLogger
-from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
+from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor, EarlyStopping
 import torch
 
 config = {
@@ -72,6 +72,11 @@ def train(config, name):
             ModelCheckpoint( # save last epoch
                     dirpath='./checkpoints',
                     filename=f'{name}-{{epoch}}',
+            ),
+            EarlyStopping(
+                monitor='val_metric',
+                patience=5,
+                mode='max',
             )
         ]
     if config['trainer']['logger']:

@@ -36,7 +36,7 @@ unet resnest50d fc t5 512 sch lr 3e-4 30 epochs AdamW -> 0.634
 unet resnest50d fc t345 512 sch lr 1e-4 30 epochs AdamW -> running kaggle...
 ---
 unet convnextv2_base fc t5 256 freeze -> 0.55106 (3 epochs)
-+ unfreeze -> running...
++ unfreeze -> 0.58134 (3 epochs)
 + da flips 
 + random resized crops
 + cutmix, mixup
