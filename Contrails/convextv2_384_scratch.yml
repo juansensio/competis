@@ -1,0 +1,34 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+  accumulate_grad_batches: 4
+  max_epochs: 30
+
+encoder: convnextv2_base
+
+optimizer_params:
+  lr: 1.0e-4 
+
+datamodule:
+  batch_size: 16
+  input_size: 384
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomResizedCrop: 
+      p: 0.5
+      height: 256 
+      width: 256
+    
+scheduler: 
+  CosineAnnealingLR:
+    T_max: 30
+    eta_min: 1.0e-05
+    last_epoch: -1
+    verbose: True

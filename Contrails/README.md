@@ -39,10 +39,8 @@ unet convnextv2_base fc t5 256 freeze -> 0.55106 (3 epochs)
 + unfreeze -> 0.58134 (3 epochs)
 + da flips + early stopping -> 0.58710 (9 epochs)
 + random resized crops -> 0.6124 (6 epochs)
-+ 384 -> next
-+ 512 -> next
-+ lr scheduler -> next
-lo mismo pero desde cero -> next
++ 384 -> 0.61614 (8 epochs)
+lo mismo pero desde cero -> running...
 probar mosaic y cutmix
 
 RESULTADOS:

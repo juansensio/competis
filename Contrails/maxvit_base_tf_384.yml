@@ -1,0 +1,36 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+  max_epochs: 20
+  accumulate_grad_batches: 2
+
+encoder: maxvit_base_tf_384
+
+optimizer: AdamW
+optimizer_params:
+  lr: 1.0e-4 
+
+datamodule:
+  batch_size: 8
+  input_size: 384
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomResizedCrop: 
+      p: 0.5
+      height: 256 
+      width: 256
+      
+    
+scheduler: 
+  CosineAnnealingLR:
+    T_max: 20
+    eta_min: 1.0e-05
+    last_epoch: -1
+    verbose: True
