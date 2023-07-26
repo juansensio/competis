@@ -2,13 +2,13 @@ trainer:
   logger: True 
   enable_checkpointing: True 
   max_epochs: 20
-  accumulate_grad_batches: 2
+  accumulate_grad_batches: 4
 
 encoder: maxvit_base_tf_384
 
 optimizer: AdamW
 optimizer_params:
-  lr: 1.0e-4 
+  lr: 1.0e-5
 
 datamodule:
   batch_size: 8
@@ -31,6 +31,8 @@ datamodule:
 scheduler: 
   CosineAnnealingLR:
     T_max: 20
-    eta_min: 1.0e-05
+    eta_min: 1.0e-06
     last_epoch: -1
     verbose: True
+
+load_from_checkpoint: checkpoints/maxvit_base_tf_384-val_metric=0.59400-epoch=2.ckpt

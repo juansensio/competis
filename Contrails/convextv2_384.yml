@@ -2,13 +2,12 @@ trainer:
   logger: True 
   enable_checkpointing: True 
   accumulate_grad_batches: 4
+  max_epochs: 30
 
 encoder: convnextv2_base
 
 optimizer_params:
   lr: 1.0e-4 
-
-load_from_checkpoint: checkpoints/convextv2_crops-val_metric=0.61242-epoch=6.ckpt
 
 datamodule:
   batch_size: 16
@@ -27,3 +26,9 @@ datamodule:
       height: 256 
       width: 256
     
+scheduler: 
+  CosineAnnealingLR:
+    T_max: 30
+    eta_min: 1.0e-05
+    last_epoch: -1
+    verbose: True

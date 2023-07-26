@@ -1,7 +1,0 @@
-trainer:
-  logger: True 
-  enable_checkpointing: True 
-
-encoder: convnextv2_base
-
-freeze: True
