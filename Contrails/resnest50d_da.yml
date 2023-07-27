@@ -1,21 +1,14 @@
 trainer:
   logger: True 
   enable_checkpointing: True 
-  max_epochs: 50
+  max_epochs: 100
 
 datamodule:
   t: 
     - 4
   batch_size: 32
+  input_size: 512
   train_trans:
-    HorizontalFlip:
-      p: 0.5
-    VerticalFlip:
-      p: 0.5
-    RandomRotate90:
-      p: 0.5
-    Transpose: 
-      p: 0.5
     RandomResizedCrop: 
       p: 0.5
       height: 256 
@@ -31,6 +24,6 @@ optimizer_params:
 
 scheduler: 
   CosineAnnealingLR:
-    T_max: 50
+    T_max: 100
     eta_min: 3.0e-05
     last_epoch: -1
