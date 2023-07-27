@@ -40,8 +40,8 @@ unet convnextv2_base fc t5 256 freeze -> 0.55106 (3 epochs)
 + da flips + early stopping -> 0.58710 (9 epochs)
 + random resized crops -> 0.6124 (6 epochs)
 + 384 -> 0.61614 (8 epochs)
-lo mismo pero desde cero -> running...
-probar mosaic y cutmix
+lo mismo pero desde cero -> 0.6218 
+maxvit_base_tf_384 -> 0.62258
 
 RESULTADOS:
 

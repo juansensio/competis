@@ -1,0 +1,23 @@
+trainer:
+  logger: False 
+  enable_checkpointing: False 
+  max_epochs: 100
+  accumulate_grad_batches: 4
+
+datamodule:
+  t: 
+    - 4
+  batch_size: 4
+  input_size: 512
+
+encoder: maxvit_base_tf_512
+
+optimizer: AdamW
+optimizer_params:
+  lr: 1.0e-05
+
+scheduler: 
+  CosineAnnealingLR:
+    T_max: 100
+    eta_min: 1.0e-06
+    last_epoch: -1 
