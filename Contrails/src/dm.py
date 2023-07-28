@@ -15,6 +15,7 @@ class DataModule(L.LightningDataModule):
         t=tuple(range(8)),
         norm_mode="mean_std",
         false_color=True,
+        bn=False,
         batch_size=16,
         train_trans=None,
         val_trans=None,
@@ -37,6 +38,7 @@ class DataModule(L.LightningDataModule):
         self.t = t
         self.norm_mode = norm_mode
         self.false_color = false_color
+        self.bn = bn
         self.fold = fold
         self.input_size = input_size
         self.cutmix = cutmix
@@ -51,6 +53,7 @@ class DataModule(L.LightningDataModule):
             t=self.t,
             norm_mode=self.norm_mode,
             false_color=self.false_color,
+            bn=self.bn,
             records=records,
             input_size=self.input_size,
             cutmix=self.cutmix,

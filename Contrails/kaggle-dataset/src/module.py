@@ -14,11 +14,12 @@ class Module(L.LightningModule):
 		'loss': 'dice', 
 		'optimizer': 'Adam', 
 		'optimizer_params': {},
+		'freeze': False,
 		# 'scale_factor': 2,
 	}):
 		super().__init__()
 		self.save_hyperparameters(hparams)
-		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t)
+		self.model = Unet(self.hparams.encoder, self.hparams.pretrained, self.hparams.in_chans, self.hparams.t, self.hparams.freeze)
 		# self.model = smp.Unet(self.hparams.encoder, encoder_weights='imagenet', in_channels=self.hparams.in_chans*self.hparams.t, classes=1)
 		if not 'loss' in hparams or hparams['loss'] == 'dice':
 			self.loss = smp.losses.DiceLoss(mode="binary")
@@ -26,7 +27,8 @@ class Module(L.LightningModule):
 			self.loss = smp.losses.FocalLoss(mode="binary")
 		else:
 			raise ValueError(f'Loss {hparams["loss"]} not implemented')
-		self.metric = torchmetrics.Dice()
+		self.train_metric = torchmetrics.Dice() # si uso la clase tengo que separar train y val para que lo calcule bien
+		self.val_metric = torchmetrics.Dice()
 
 	def forward(self, x):
 		# x = rearrange(x, 'b h w t c -> b (t c) h w')
@@ -37,9 +39,9 @@ class Module(L.LightningModule):
 		y_hat = self(x)
 		y_hat = torch.nn.functional.interpolate(y_hat, size=y.shape[-2:], mode='bilinear')
 		loss = self.loss(y_hat, y)
-		metric = self.metric(y_hat, y)
-		self.log('loss', loss, prog_bar=True,)
-		self.log('metric', metric, prog_bar=True)
+		self.train_metric(y_hat, y)
+		self.log('loss', loss, prog_bar=True)
+		self.log('metric', self.train_metric, prog_bar=True, on_step=True, on_epoch=False)
 		return loss
 
 	def validation_step(self, batch, batch_idx):
@@ -47,9 +49,9 @@ class Module(L.LightningModule):
 		y_hat = self(x)
 		y_hat = torch.nn.functional.interpolate(y_hat, size=y.shape[-2:], mode='bilinear')
 		loss = self.loss(y_hat, y)
-		metric = self.metric(y_hat, y)
+		self.val_metric(y_hat, y)
 		self.log('val_loss', loss, prog_bar=True) 
-		self.log('val_metric', metric, prog_bar=True)
+		self.log('val_metric', self.val_metric, prog_bar=True, on_step=False, on_epoch=True)
 
 	def configure_optimizers(self):
 		optimizer = getattr(torch.optim, self.hparams.optimizer)(

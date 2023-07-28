@@ -1,0 +1,25 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+  max_epochs: 50
+
+datamodule:
+  t: 
+    - 4
+  batch_size: 20
+  input_size: 512
+  false_color: True
+
+encoder: resnest50d
+
+optimizer: AdamW
+optimizer_params:
+  lr: 3.0e-04
+
+scheduler: 
+  CosineAnnealingLR:
+    T_max: 50
+    eta_min: 3.0e-05
+    last_epoch: -1 
+
+ckpt_path: checkpoints/resnest50d_512_chamfer-val_metric=0.62719-epoch=16.ckpt

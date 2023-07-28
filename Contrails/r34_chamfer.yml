@@ -1,0 +1,11 @@
+trainer:
+  logger: True 
+  enable_checkpointing: True 
+
+datamodule:
+  batch_size: 32
+  false_color: True
+
+encoder: resnet34
+
+

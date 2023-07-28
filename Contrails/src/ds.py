@@ -24,6 +24,7 @@ class Dataset(torch.utils.data.Dataset):
         t=tuple(range(8)),
         norm_mode="mean_std",
         false_color=False,
+        bn=False,
         trans=None,  # NO PONER RESIZE AQUI !!!
         input_size=(256, 256),
         cutmix={"p": 0.0, "min_h": 64, "min_w": 64, "max_h": 128, "max_w": 128},
@@ -49,6 +50,7 @@ class Dataset(torch.utils.data.Dataset):
         )
         self.norm_mode = norm_mode
         self.false_color = false_color
+        self.bn = bn
         self.input_size = (
             (input_size, input_size) if isinstance(input_size, int) else input_size
         )
@@ -93,9 +95,22 @@ class Dataset(torch.utils.data.Dataset):
         b = normalize_range(b14, _T11_BOUNDS)
         return np.clip(np.stack([r, g, b], axis=-1), 0, 1)
 
+    def get_bn(self, ix):
+        _TDIFF_BOUNDS = (-7, 0)
+        b13 = np.load(f"{self.path}/{self.mode}/{self.records[ix]}/band_14.npy")[
+            ..., self.t
+        ]
+        b15 = np.load(f"{self.path}/{self.mode}/{self.records[ix]}/band_15.npy")[
+            ..., self.t
+        ]
+        b = normalize_range(b15 - b13, _TDIFF_BOUNDS)
+        return rearrange(np.clip(b, 0, 1), "h w t -> h w t 1")
+
     def __getitem__(self, ix):
         if self.false_color:
             image = self.get_false_color(ix)
+        elif self.bn:
+            image = self.get_bn(ix)
         else:
             image = self.get_data(ix)
         mask = np.load(

@@ -10,7 +10,7 @@ class DataModule(L.LightningDataModule):
     def __init__(
         self,
         path="/fastdata/contrails",
-        stats_path=None, #"/fastdata/contrails/stats.csv",
+        stats_path=None,  # "/fastdata/contrails/stats.csv",
         bands=list(range(8, 17)),
         t=tuple(range(8)),
         norm_mode="mean_std",
@@ -22,6 +22,8 @@ class DataModule(L.LightningDataModule):
         pin_memory=True,
         fold=None,
         input_size=(256, 256),
+        cutmix={"p": 0.0, "min_h": 64, "min_w": 64, "max_h": 128, "max_w": 128},
+        mosaic={"p": 0.0, "min_h": 64, "min_w": 64, "max_h": 192, "max_w": 192},
     ):
         super().__init__()
         self.path = Path(path)
@@ -37,6 +39,8 @@ class DataModule(L.LightningDataModule):
         self.false_color = false_color
         self.fold = fold
         self.input_size = input_size
+        self.cutmix = cutmix
+        self.mosaic = mosaic
 
     def get_dataset(self, split, trans, records=None):
         return Dataset(
@@ -49,6 +53,8 @@ class DataModule(L.LightningDataModule):
             false_color=self.false_color,
             records=records,
             input_size=self.input_size,
+            cutmix=self.cutmix,
+            mosaic=self.mosaic,
             trans=A.Compose([getattr(A, t)(**params) for t, params in trans.items()])
             if trans is not None
             else None,
@@ -73,6 +79,7 @@ class DataModule(L.LightningDataModule):
             shuffle=shuffle,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            collate_fn=self.train_ds.collate_fn,
         )
 
     def val_dataloader(self, shuffle=False):
@@ -82,4 +89,5 @@ class DataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            collate_fn=self.val_ds.collate_fn,
         )
