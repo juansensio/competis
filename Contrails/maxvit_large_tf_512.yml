@@ -1,25 +1,23 @@
 trainer:
   logger: True 
   enable_checkpointing: True 
-  max_epochs: 50
+  max_epochs: 30
+  accumulate_grad_batches: 2
 
 datamodule:
   t: 
     - 4
-  batch_size: 20
+  batch_size: 4
   input_size: 512
-  false_color: True
 
-encoder: resnest50d
+encoder: maxvit_large_tf_512
 
 optimizer: AdamW
 optimizer_params:
-  lr: 3.0e-04
+  lr: 2.0e-05
 
 scheduler: 
   CosineAnnealingLR:
-    T_max: 50
-    eta_min: 3.0e-05
+    T_max: 30
+    eta_min: 2.0e-06
     last_epoch: -1 
-
-ckpt_path: checkpoints/resnest50d_512_chamfer-epoch=9.ckpt

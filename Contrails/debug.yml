@@ -2,8 +2,11 @@ datamodule:
   batch_size: 2
   num_workers: 0
   pin_memory: False
-  bn: True
+  false_color: True
+  input_size: 512
 
 trainer:
   max_epochs: 100
   overfit_batches: 1
+
+encoder: maxvit_large_tf_512

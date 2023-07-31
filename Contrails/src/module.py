@@ -92,19 +92,21 @@ class Module(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        y_hat, y_hat2 = self(x)
+        # y_hat, y_hat2 = self(x)
+        y_hat = self(x)
         y_hat = torch.nn.functional.interpolate(
             y_hat, size=y.shape[-2:], mode="bilinear"
         )
         self.train_metric(y_hat, y)
-        dice = self.loss(y_hat, y)
-        chamfer = self.chamfer_distance(y, y_hat2)
+        loss = self.loss(y_hat, y)
+        # dice = self.loss(y_hat, y)
+        # chamfer = self.chamfer_distance(y, y_hat2)
         # loss = 0.5 * dice + 0.5 * chamfer
-        loss = dice + 10.0 * chamfer
+        # loss = dice + 10.0 * chamfer
         # loss = dice + chamfer
         # loss = dice
-        self.log("dice", dice, prog_bar=True)
-        self.log("chamfer", chamfer, prog_bar=True)
+        # self.log("dice", dice, prog_bar=True)
+        # self.log("chamfer", chamfer, prog_bar=True)
         self.log("loss", loss, prog_bar=True)
         self.log(
             "metric", self.train_metric, prog_bar=True, on_step=True, on_epoch=False
@@ -113,7 +115,8 @@ class Module(L.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        y_hat, y_hat2 = self(x)
+        # y_hat, y_hat2 = self(x)
+        y_hat = self(x)
         y_hat = torch.nn.functional.interpolate(
             y_hat, size=y.shape[-2:], mode="bilinear"
         )

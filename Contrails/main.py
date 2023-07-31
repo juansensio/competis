@@ -82,7 +82,7 @@ def train(config, name):
                 dirpath="./checkpoints",
                 filename=f"{name}-{{epoch}}",
             ),
-            EarlyStopping(monitor="val_metric", patience=5, mode="max", verbose=True),
+            # EarlyStopping(monitor="val_metric", patience=5, mode="max", verbose=True),
         ]
     if config["trainer"]["logger"]:
         config["trainer"]["logger"] = WandbLogger(
