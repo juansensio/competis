@@ -86,3 +86,13 @@ CONCLUSIONES para otros challenges:
 - feature engineering
 - hparam opt
 - error analysis
+
+
+SOLUCIONES:
+
+https://www.kaggle.com/competitions/google-research-identify-contrails-reduce-global-warming/discussion/430491 
+
+LEARNINGS:
+
+- usar varias semillas 
+- una vez encontrado un buen modelo, juntar train y val y hacer 5-fold cv
