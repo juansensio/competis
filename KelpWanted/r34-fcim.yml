@@ -1,0 +1,10 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  Dataset: DatasetFCIm
+
+in_chans: 5
+mask_loss: True
+encoder: resnet34

@@ -1,0 +1,6 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  Dataset: DatasetFC

@@ -1,0 +1,12 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  Dataset: DatasetFCIm
+  batch_size: 32
+
+
+in_chans: 5
+mask_loss: True
+encoder: timm-resnest50d

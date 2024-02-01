@@ -1,0 +1,8 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  Dataset: DatasetFCI
+
+in_chans: 5

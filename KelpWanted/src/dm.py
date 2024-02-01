@@ -1,10 +1,10 @@
 import lightning as L
 from pathlib import Path
 from torch.utils.data import DataLoader
-from .ds import Dataset
 import os
 from sklearn.model_selection import train_test_split
-from .ds import Dataset
+import src
+import albumentations as A
 
 
 class DataModule(L.LightningDataModule):
@@ -12,13 +12,14 @@ class DataModule(L.LightningDataModule):
         self,
         path="data",
         batch_size=32,
-        train_trans=None,
-        val_trans=None,
+        train_trans={},
+        val_trans={},
         num_workers=20,
         pin_memory=True,
         val_size=0.2,
         seed=42,
         image_folder="train_satellite",
+        Dataset="DatasetRGB",
     ):
         super().__init__()
         self.path = Path(path)
@@ -30,6 +31,7 @@ class DataModule(L.LightningDataModule):
         self.image_folder = image_folder
         self.val_size = val_size
         self.seed = seed
+        self.Dataset = getattr(src, Dataset)
 
     def setup(self, stage=None):
         train_images = os.listdir(self.path / self.image_folder)
@@ -37,8 +39,20 @@ class DataModule(L.LightningDataModule):
         train_image_ids, val_image_ids = train_test_split(
             image_ids, test_size=self.val_size, random_state=self.seed
         )
-        self.train_ds = Dataset(train_image_ids, mode="train")
-        self.val_ds = Dataset(val_image_ids, mode="train")
+        self.train_ds = self.Dataset(
+            train_image_ids,
+            mode="train",
+            trans=A.Compose(
+                [getattr(A, t)(**params) for t, params in self.train_trans.items()]
+            ),
+        )
+        self.val_ds = self.Dataset(
+            val_image_ids,
+            mode="train",
+            trans=A.Compose(
+                [getattr(A, t)(**params) for t, params in self.val_trans.items()]
+            ),
+        )
 
     def train_dataloader(self, shuffle=True):
         return DataLoader(

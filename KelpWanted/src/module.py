@@ -16,11 +16,13 @@ class Module(L.LightningModule):
             "optimizer": "Adam",
             "optimizer_params": {},
             "padding": 1,
+            "mask_loss": False,
+            "architecture": "Unet",
         },
     ):
         super().__init__()
         self.save_hyperparameters(hparams)
-        self.model = smp.Unet(
+        self.model = getattr(smp, self.hparams.architecture)(
             self.hparams.encoder,
             encoder_weights="imagenet" if self.hparams.pretrained else None,
             in_channels=self.hparams.in_chans,
@@ -38,6 +40,9 @@ class Module(L.LightningModule):
             torchmetrics.Dice()
         )  # si uso la clase tengo que separar train y val para que lo calcule bien
         self.val_metric = torchmetrics.Dice()
+        self.val_precision = torchmetrics.Precision(task="binary")
+        self.val_recall = torchmetrics.Recall(task="binary")
+        self.val_iou = torchmetrics.JaccardIndex(task="binary")
 
     def forward(self, x):
         # channels first
@@ -64,13 +69,19 @@ class Module(L.LightningModule):
         ]
         return y_hat
 
-    def training_step(self, batch, batch_idx):
+    def shared_step(self, batch):
         x, y = batch
-        y_hat = self(x)
         y = y.unsqueeze(1).long()
-        # print(y.dtype, y_hat.dtype)
-        # print(x.dtype, y.dtype)
-        loss = self.loss(y_hat, y)
+        mask = torch.ones_like(y)
+        if self.hparams.mask_loss:
+            x = x[..., :-1]
+            mask = x[..., -1]
+        y_hat = self(x)
+        loss = self.loss(y_hat * mask, y * mask)
+        return y_hat, y, loss
+
+    def training_step(self, batch, batch_idx):
+        y_hat, y, loss = self.shared_step(batch)
         self.train_metric(y_hat, y)
         self.log("loss", loss, prog_bar=True)
         self.log(
@@ -79,15 +90,24 @@ class Module(L.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
-        y = y.unsqueeze(1).long()
-        loss = self.loss(y_hat, y)
+        y_hat, y, loss = self.shared_step(batch)
         self.val_metric(y_hat, y)
+        self.val_precision(y_hat, y)
+        self.val_recall(y_hat, y)
+        self.val_iou(y_hat, y)
         self.log("val_loss", loss, prog_bar=True)
         self.log(
             "val_metric", self.val_metric, prog_bar=True, on_step=False, on_epoch=True
         )
+        self.log(
+            "precision",
+            self.val_precision,
+            prog_bar=True,
+            on_step=False,
+            on_epoch=True,
+        )
+        self.log("recall", self.val_recall, prog_bar=True, on_step=False, on_epoch=True)
+        self.log("iou", self.val_iou, prog_bar=True, on_step=False, on_epoch=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(
