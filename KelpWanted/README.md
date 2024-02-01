@@ -25,7 +25,10 @@ Architectures: fcim
 Volver a probar data augmentation, debería mejorar...: 
 	- flips + rotate + crops: 0.664 (no mejora)
 	- flips + rotate: 0.670
-hpopt con unet++ resnest50d
+hpopt con unet++ resnest50d (no veo que haya mucha dif, supongo que al hacer finetuning con pocos datos...)
+lr schudler: 
+	- 30 epochs: 0.682 (BEST)
+	- 100 epochs: running...
 Loss
 	- focal
 
@@ -39,23 +42,23 @@ Loss
 - [x] Data augmentation (rotation, flips, random resized, crops, etc)
 - [x] Uso de DEM / nubes como máscaras en la loss (para que no haga caso a esos pixeles)
 	- En muchas imágenes hay pixeles de DEM/cloud que hacen overlap con ground truth...
-- [ ] Diferentes modelos (unet, deeplabv3, ...) y encoders (resnet, efficientnet, ...)
+- [x] Diferentes modelos (unet, deeplabv3, ...) y encoders (resnet, efficientnet, ...)
 	- Encoders
 		- resnet18, 34, 50 (resnest, se_resnext)
 		- efficientnet b3, b5, b7
 		- mit (vision transformer) b1, b2, b4 -> no acepta más de 3 canales a la entrada
 	- Architectures
 		- unet, unet++
-		- pan
-		- deeplabv3 (deeplabv3+)
+		- pan, deeplabv3 (deeplabv3+) no funcionan con los encoders buenos (resnest, efficientnet, ...)
+- [x] lr/seed hpopt
+- [x] lr scheduling
 - [ ] Diferentes loss functions (dice, focal, ...)
-- [ ] lr/seed hpopt
-- [ ] lr scheduling
 - [ ] threshold tuning
 - [ ] tta
 - [ ] ensambles
 - [ ] postprocessing (erosion, dilation, etc) morphological operations
 - [ ] train with val
+- [ ] my unet (encoders de timm + my decoder) solo para validar que está a la par
 
 error analysis:
 - [ ] track other metrics: if precision is low, you might focus on reducing false positives, potentially by adjusting post-processing thresholding or refining the model to better distinguish kelp from similar features

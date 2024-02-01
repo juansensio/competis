@@ -1,0 +1,22 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+  max_epochs: 100
+
+datamodule:
+  Dataset: DatasetFCIm
+  batch_size: 32
+
+in_chans: 5
+mask_loss: True
+encoder: timm-resnest50d
+architecture: UnetPlusPlus
+optimizer: AdamW
+optimizer_params:
+  lr: 0.0003
+scheduler: 
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 100
+    pct_start: 0.1
+    verbose: True
