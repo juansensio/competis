@@ -22,7 +22,10 @@ Encoders
 Architectures: fcim
 	- unet++ (resnest50d): 0.678 (BEST)
 	- pan, deeplabv3 (no tira con las backbones)
-Volver a probar data augmentation, debería mejorar...
+Volver a probar data augmentation, debería mejorar...: 
+	- flips + rotate + crops: 0.664 (no mejora)
+	- flips + rotate: 0.670
+hpopt con unet++ resnest50d
 Loss
 	- focal
 
