@@ -30,7 +30,7 @@ lr schudler:
 	- 30 epochs: 0.682 / 0.6935 (BEST)
 	- 100 epochs: 0.672
 Loss
-	- focal: running...
+	- focal (no va, demasiada memoria)
 
 
 ## Ideas
@@ -56,9 +56,9 @@ Loss
 - [ ] threshold tuning
 - [ ] tta
 - [ ] postprocessing (erosion, dilation, etc) morphological operations
-- [ ] ensambles
-- [ ] train with val
 - [ ] my unet (encoders de timm + my decoder) solo para validar que está a la par
+- [ ] train with val
+- [ ] ensambles
 
 error analysis:
 - [ ] track other metrics: if precision is low, you might focus on reducing false positives, potentially by adjusting post-processing thresholding or refining the model to better distinguish kelp from similar features
