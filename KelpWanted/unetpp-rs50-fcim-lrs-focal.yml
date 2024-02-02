@@ -5,12 +5,13 @@ trainer:
 
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 32
+  batch_size: 16 # focal loss me peta la memoria con 32, y con 16 entra por los pelos (mala implementación?)
 
 in_chans: 5
 mask_loss: True
 encoder: timm-resnest50d
 architecture: UnetPlusPlus
+loss: focal
 optimizer: AdamW
 optimizer_params:
   lr: 0.0003

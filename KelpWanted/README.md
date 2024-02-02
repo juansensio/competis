@@ -27,10 +27,10 @@ Volver a probar data augmentation, debería mejorar...:
 	- flips + rotate: 0.670
 hpopt con unet++ resnest50d (no veo que haya mucha dif, supongo que al hacer finetuning con pocos datos...)
 lr schudler: 
-	- 30 epochs: 0.682 (BEST)
-	- 100 epochs: running...
+	- 30 epochs: 0.682 / 0.6935 (BEST)
+	- 100 epochs: 0.672
 Loss
-	- focal
+	- focal: running...
 
 
 ## Ideas
@@ -52,11 +52,11 @@ Loss
 		- pan, deeplabv3 (deeplabv3+) no funcionan con los encoders buenos (resnest, efficientnet, ...)
 - [x] lr/seed hpopt
 - [x] lr scheduling
-- [ ] Diferentes loss functions (dice, focal, ...)
+- [x] Diferentes loss functions (dice, focal, ...)
 - [ ] threshold tuning
 - [ ] tta
-- [ ] ensambles
 - [ ] postprocessing (erosion, dilation, etc) morphological operations
+- [ ] ensambles
 - [ ] train with val
 - [ ] my unet (encoders de timm + my decoder) solo para validar que está a la par
 
