@@ -42,12 +42,9 @@ MyUnet
 Ensamles:
 	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 (BEST)
 Loss
-	- focal (no va, demasiada memoria)
+	- focal, bce no van bien
 	- lovasz 
-	- lovasz modified
-	- bce 
 	- bce + lovasz 
-	- bce + lovasz modified
 
 ## Ideas
 

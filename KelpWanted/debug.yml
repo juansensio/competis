@@ -7,6 +7,7 @@ datamodule:
 trainer:
   max_epochs: 100
   overfit_batches: 1
+  deterministic: False
   devices:
     - 1
 
@@ -15,4 +16,4 @@ mask_loss: True
 architecture: MyUnet
 encoder: resnet18
 padding: 1
-loss: bce
+loss: bce+mylovasz2

@@ -66,7 +66,8 @@ class ModifiedLovaszLoss(nn.Module):
         labels_sorted = labels[indices.data]
         dice = self.dice_surrogate(logits, labels)
         grad = dice.derivative()
-        losses = grad[indices] * errors_sorted
+        # losses = grad[indices] * errors_sorted
+        losses = grad * errors_sorted
         return losses.mean()
 
     class dice_surrogate:

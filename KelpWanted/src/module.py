@@ -38,26 +38,37 @@ class Module(L.LightningModule):
                 self.hparams.in_chans,
             )
         )
-        if not "loss" in hparams or hparams["loss"] == "bce":
-            self.loss = smp.losses.SoftBCEWithLogitsLoss()
-        elif hparams["loss"] == "dice":
+
+        if not "loss" in hparams or hparams["loss"] == "dice":
             self.loss = smp.losses.DiceLoss(mode="binary")
+        elif hparams["loss"] == "mylovasz":
+            self.loss = LovaszHingeLoss()  # va ok
+        elif (
+            hparams["loss"] == "bce+mylovasz"
+        ):  # va bien, pero no se si la BCE puede estar jodiendo
+            self.loss = None
+            self.loss1 = smp.losses.SoftBCEWithLogitsLoss()
+            self.loss2 = LovaszHingeLoss()
+        elif hparams["loss"] == "bce":
+            # self.loss = smp.losses.SoftBCEWithLogitsLoss() # no va bien
+            self.loss = torch.nn.BCEWithLogitsLoss()  # no va bien
         elif hparams["loss"] == "focal":
-            self.loss = smp.losses.FocalLoss(mode="binary")
+            self.loss = smp.losses.FocalLoss(mode="binary")  # no va bien
         elif hparams["loss"] == "lovasz":
-            self.loss = smp.losses.LovaszLoss(mode="binary")
-        elif hparams["loss"] == "bce+lovasz":
+            self.loss = smp.losses.LovaszLoss(mode="binary")  # no va bien
+        elif hparams["loss"] == "bce+lovasz":  # no va bien
             self.loss = None
             self.loss1 = smp.losses.SoftBCEWithLogitsLoss()
             self.loss2 = smp.losses.LovaszLoss(mode="binary")
-        elif hparams["loss"] == "mylovasz":
-            self.loss = LovaszHingeLoss()
         elif hparams["loss"] == "mylovasz2":
-            self.loss = ModifiedLovaszLoss()
-        elif hparams["loss"] == "bec+mylovasz2":
+            self.loss = (
+                ModifiedLovaszLoss()
+            )  # va pero muy lento, probablemente la implementacion está mal
+        elif hparams["loss"] == "bce+mylovasz2":
             self.loss = None
             self.loss1 = smp.losses.SoftBCEWithLogitsLoss()
             self.loss2 = ModifiedLovaszLoss()
+
         else:
             raise ValueError(f'Loss {hparams["loss"]} not implemented')
         self.train_metric = (
