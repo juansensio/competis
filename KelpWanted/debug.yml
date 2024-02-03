@@ -5,7 +5,7 @@ datamodule:
   pin_memory: False
 
 trainer:
-  max_epochs: 100
+  max_epochs: 3
   overfit_batches: 1
   deterministic: False
   devices:
@@ -16,4 +16,3 @@ mask_loss: True
 architecture: MyUnet
 encoder: resnet18
 padding: 1
-loss: bce+mylovasz2

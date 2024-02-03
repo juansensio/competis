@@ -6,7 +6,7 @@ trainer:
 datamodule:
   Dataset: DatasetFCIm
   batch_size: 32
-  val_size: 0
+  n_folds: 5
 
 in_chans: 5
 mask_loss: True
@@ -21,4 +21,3 @@ scheduler:
     total_steps: 30
     pct_start: 0.1
     verbose: True
-load_from_checkpoint: checkpoints/unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt

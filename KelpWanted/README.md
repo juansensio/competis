@@ -46,6 +46,11 @@ Loss
 	- lovasz (resnes50d): 0.660
 	- bce + lovasz: 0.654
 Postprocessing: nada de lo que he probado mejora...
+train with val
+	- resnest50d: running...
+	- resnest50d + da: 
+Cross validation
+	- resnest50d: next
 
 ## Ideas
 
@@ -73,6 +78,7 @@ Postprocessing: nada de lo que he probado mejora...
 - [x] ensambles
 - [x] postprocessing (erosion, dilation, etc) morphological operations
 - [ ] train with val
+- [ ] cross validation
 
 error analysis:
 - [ ] track other metrics: if precision is low, you might focus on reducing false positives, potentially by adjusting post-processing thresholding or refining the model to better distinguish kelp from similar features
