@@ -46,11 +46,12 @@ Loss
 	- lovasz (resnes50d): 0.660
 	- bce + lovasz: 0.654
 Postprocessing: nada de lo que he probado mejora...
-train with val
-	- resnest50d: running...
-	- resnest50d + da: 
 Cross validation
-	- resnest50d: next
+	- resnest50d: running...
+train with val
+	- resnest50d: 
+	- resnest50d + da: 
+
 
 ## Ideas
 

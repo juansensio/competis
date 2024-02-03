@@ -76,7 +76,7 @@ def train(config, name):
             ]
         if config["trainer"]["logger"]:
             config["trainer"]["logger"] = WandbLogger(
-                project="Kelp", name=name, config=config
+                project="Kelp", name=f"{name}-fold-{fold}", config=config
             )
             if "scheduler" in config and config["scheduler"]:
                 config["trainer"]["callbacks"] += [
