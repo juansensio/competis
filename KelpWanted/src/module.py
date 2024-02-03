@@ -3,6 +3,7 @@ import torchmetrics
 import torch
 import segmentation_models_pytorch as smp
 from einops import rearrange
+from .models.unet import Unet as MyUnet
 
 
 class Module(L.LightningModule):
@@ -22,11 +23,19 @@ class Module(L.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters(hparams)
-        self.model = getattr(smp, self.hparams.architecture)(
-            self.hparams.encoder,
-            encoder_weights="imagenet" if self.hparams.pretrained else None,
-            in_channels=self.hparams.in_chans,
-            classes=1,
+        self.model = (
+            getattr(smp, self.hparams.architecture)(
+                self.hparams.encoder,
+                encoder_weights="imagenet" if self.hparams.pretrained else None,
+                in_channels=self.hparams.in_chans,
+                classes=1,
+            )
+            if self.hparams.architecture != "MyUnet"
+            else MyUnet(
+                self.hparams.encoder,
+                self.hparams.pretrained,
+                self.hparams.in_chans,
+            )
         )
         if not "loss" in hparams or hparams["loss"] == "bce":
             self.loss = torch.nn.BCEWithLogitsLoss()

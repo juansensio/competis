@@ -31,12 +31,21 @@ lr schudler:
 	- 100 epochs: 0.672
 Loss
 	- focal (no va, demasiada memoria)
+Threshold tuning: 0.6934
+tta: he probado soft/hard voting (normal y weighted) pero no mejora. 
+	- En modelos entrenados con data augmentation, el tta si mejora. Aún así la mejora no es mayor que con los mejores modelos entrenados sin data augmentation y sin tta -> no da, no tta 0.682 / 0.6935 (BEST) // da, tta 0.670 (0.675 soft) / 0.6890
+MyUnet
+	- resnest50d: 0.681
+	- seresnext101: 0.669
+	- probando seresnext101 con da a ver si al ser un modelo más grande el da / tta mejora...
+Ensamles:
+	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 (BEST)
 
 
 ## Ideas
 
 - [x] Explorar combinación de bandas / índices (ndvi, ndwi)
-	- False Color: NIR, Red, and Green (enhances vegetation)
+	- False Color: NIR, Red, and Green (enhances vegetation).
 	- NDVI: This index is commonly used to detect live green vegetation and can be useful to distinguish kelp from non-vegetative elements.
 	- NDWI: This index helps in enhancing the presence of water features while suppressing vegetation and soil noise, potentially aiding in the isolation of kelp areas.
 - [x] Data augmentation (rotation, flips, random resized, crops, etc)
@@ -53,10 +62,10 @@ Loss
 - [x] lr/seed hpopt
 - [x] lr scheduling
 - [x] Diferentes loss functions (dice, focal, ...)
-- [ ] threshold tuning
-- [ ] tta
-- [ ] postprocessing (erosion, dilation, etc) morphological operations
+- [x] threshold tuning (no mejora)
+- [x] tta (parece que no mejora, o no lo estoy haciendo bien...)
 - [ ] my unet (encoders de timm + my decoder) solo para validar que está a la par
+- [ ] postprocessing (erosion, dilation, etc) morphological operations
 - [ ] train with val
 - [ ] ensambles
 

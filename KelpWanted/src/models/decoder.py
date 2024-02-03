@@ -108,16 +108,16 @@ class DecoderBlock(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, encoder_channels, t=1, num_classes=1, use_batchnorm=True):
+    def __init__(self, encoder_channels, num_classes=1, use_batchnorm=True):
         super().__init__()
         in_channels = encoder_channels[::-1]
-        in_channels[0] = in_channels[0] * t
+        in_channels[0] = in_channels[0]
         skip_channels = in_channels[1:] + [None]
         out_channels = skip_channels[:-1] + [skip_channels[-2] // 2]
         blocks = [
             DecoderBlock(
                 in_ch,
-                skip_ch * t if skip_ch is not None else None,
+                skip_ch if skip_ch is not None else None,
                 out_ch,
                 use_batchnorm,
             )
@@ -125,21 +125,10 @@ class Decoder(nn.Module):
         ]
         self.blocks = nn.ModuleList(blocks)
         self.out_conv = nn.Conv2d(out_channels[-1], num_classes, kernel_size=1)
-        # self.p_conv = nn.Sequential(
-        #     nn.AdaptiveAvgPool2d(1),
-        #     nn.Flatten(),
-        #     nn.Linear(out_channels[-1], 1000),
-        # )
-        # self.t_conv = nn.Sequential(
-        #     nn.AdaptiveAvgPool2d(1),
-        #     nn.Flatten(),
-        #     nn.Linear(out_channels[-1], 1000),
-        # )
 
     def forward(self, features):
         features = features[::-1]
         x = features[0]
         for i, decoder_block in enumerate(self.blocks):
             x = decoder_block(x, features[i + 1] if i + 1 < len(features) else None)
-        # return self.out_conv(x), torch.stack([self.p_conv(x), self.t_conv(x)], dim=1)
         return self.out_conv(x)

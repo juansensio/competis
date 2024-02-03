@@ -1,0 +1,31 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+  max_epochs: 50
+
+datamodule:
+  Dataset: DatasetFCIm
+  batch_size: 32
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+
+in_chans: 5
+mask_loss: True
+encoder: seresnext101_32x4d
+architecture: MyUnet
+optimizer: AdamW
+optimizer_params:
+  lr: 0.0003
+scheduler: 
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 50
+    pct_start: 0.1
+    verbose: True

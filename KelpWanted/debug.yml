@@ -1,13 +1,17 @@
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 4
+  batch_size: 16
   num_workers: 0
   pin_memory: False
 
 trainer:
   max_epochs: 100
   overfit_batches: 1
+  devices:
+    - 1
 
 in_chans: 5
 mask_loss: True
-architecture: UnetPlusPlus
+architecture: MyUnet
+encoder: maxvit_small_tf_384
+padding: 17
