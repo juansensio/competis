@@ -36,15 +36,16 @@ MyUnet
 	- resnest50d: 0.681
 	- seresnext101: 0.669
 	- seresnext101 + da: 0.681 (mejora sin da pero da casi lo mismo que la resnest50d)
-	- maxvit small: running
+	- maxvit small: 0.678
 	- max vit base
 	- efficientnet v2 (probar)
 Ensamles:
 	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 (BEST)
 Loss
 	- focal, bce no van bien
-	- lovasz 
-	- bce + lovasz 
+	- lovasz (resnes50d): 0.660
+	- bce + lovasz: 0.654
+Postprocessing: nada de lo que he probado mejora...
 
 ## Ideas
 
@@ -70,7 +71,7 @@ Loss
 - [x] tta (parece que no mejora, o no lo estoy haciendo bien...)
 - [x] my unet (encoders de timm + my decoder) solo para validar que está a la par
 - [x] ensambles
-- [ ] postprocessing (erosion, dilation, etc) morphological operations
+- [x] postprocessing (erosion, dilation, etc) morphological operations
 - [ ] train with val
 
 error analysis:

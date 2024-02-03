@@ -36,8 +36,10 @@ class DataModule(L.LightningDataModule):
     def setup(self, stage=None):
         train_images = os.listdir(self.path / self.image_folder)
         image_ids = [image.split("_")[0] for image in train_images]
-        train_image_ids, val_image_ids = train_test_split(
-            image_ids, test_size=self.val_size, random_state=self.seed
+        train_image_ids, val_image_ids = (
+            train_test_split(image_ids, test_size=self.val_size, random_state=self.seed)
+            if self.val_size > 0
+            else (image_ids, [])
         )
         self.train_ds = self.Dataset(
             train_image_ids,
@@ -46,12 +48,16 @@ class DataModule(L.LightningDataModule):
                 [getattr(A, t)(**params) for t, params in self.train_trans.items()]
             ),
         )
-        self.val_ds = self.Dataset(
-            val_image_ids,
-            mode="train",
-            trans=A.Compose(
-                [getattr(A, t)(**params) for t, params in self.val_trans.items()]
-            ),
+        self.val_ds = (
+            self.Dataset(
+                val_image_ids,
+                mode="train",
+                trans=A.Compose(
+                    [getattr(A, t)(**params) for t, params in self.val_trans.items()]
+                ),
+            )
+            if self.val_size > 0
+            else []
         )
 
     def train_dataloader(self, shuffle=True):

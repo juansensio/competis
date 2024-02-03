@@ -58,18 +58,21 @@ def train(config, name):
     config["trainer"]["callbacks"] = []
     if config["trainer"]["enable_checkpointing"]:
         config["trainer"]["callbacks"] += [
-            ModelCheckpoint(
-                dirpath="./checkpoints",
-                filename=f"{name}-{{val_metric:.5f}}-{{epoch}}",
-                monitor="val_metric",
-                mode="max",
-            ),
             ModelCheckpoint(  # save last epoch
                 dirpath="./checkpoints",
                 filename=f"{name}-{{epoch}}",
             ),
             # EarlyStopping(monitor="val_metric", patience=5, mode="max", verbose=True),
         ]
+        if config["datamodule"]["val_size"] > 0:
+            config["trainer"]["callbacks"] += [
+                ModelCheckpoint(
+                    dirpath="./checkpoints",
+                    filename=f"{name}-{{val_metric:.5f}}-{{epoch}}",
+                    monitor="val_metric",
+                    mode="max",
+                )
+            ]
     if config["trainer"]["logger"]:
         config["trainer"]["logger"] = WandbLogger(
             project="Kelp", name=name, config=config
