@@ -4,6 +4,7 @@ import torch
 import segmentation_models_pytorch as smp
 from einops import rearrange
 from .models.unet import Unet as MyUnet
+from .loss import ModifiedLovaszLoss, LovaszHingeLoss
 
 
 class Module(L.LightningModule):
@@ -38,11 +39,25 @@ class Module(L.LightningModule):
             )
         )
         if not "loss" in hparams or hparams["loss"] == "bce":
-            self.loss = torch.nn.BCEWithLogitsLoss()
+            self.loss = smp.losses.SoftBCEWithLogitsLoss()
         elif hparams["loss"] == "dice":
             self.loss = smp.losses.DiceLoss(mode="binary")
         elif hparams["loss"] == "focal":
             self.loss = smp.losses.FocalLoss(mode="binary")
+        elif hparams["loss"] == "lovasz":
+            self.loss = smp.losses.LovaszLoss(mode="binary")
+        elif hparams["loss"] == "bce+lovasz":
+            self.loss = None
+            self.loss1 = smp.losses.SoftBCEWithLogitsLoss()
+            self.loss2 = smp.losses.LovaszLoss(mode="binary")
+        elif hparams["loss"] == "mylovasz":
+            self.loss = LovaszHingeLoss()
+        elif hparams["loss"] == "mylovasz2":
+            self.loss = ModifiedLovaszLoss()
+        elif hparams["loss"] == "bec+mylovasz2":
+            self.loss = None
+            self.loss1 = smp.losses.SoftBCEWithLogitsLoss()
+            self.loss2 = ModifiedLovaszLoss()
         else:
             raise ValueError(f'Loss {hparams["loss"]} not implemented')
         self.train_metric = (
@@ -86,7 +101,11 @@ class Module(L.LightningModule):
             x = x[..., :-1]
             mask = x[..., -1]
         y_hat = self(x)
-        loss = self.loss(y_hat * mask, y * mask)
+        loss = (
+            self.loss(y_hat * mask, y * mask)
+            if self.loss is not None
+            else self.loss1(y_hat * mask, y * mask) + self.loss2(y_hat * mask, y * mask)
+        )
         return y_hat, y, loss
 
     def training_step(self, batch, batch_idx):

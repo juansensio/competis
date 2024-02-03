@@ -1,6 +1,6 @@
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 16
+  batch_size: 4
   num_workers: 0
   pin_memory: False
 
@@ -13,5 +13,6 @@ trainer:
 in_chans: 5
 mask_loss: True
 architecture: MyUnet
-encoder: maxvit_small_tf_384
-padding: 17
+encoder: resnet18
+padding: 1
+loss: bce

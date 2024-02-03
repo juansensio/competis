@@ -8,6 +8,7 @@ datamodule:
   batch_size: 16
 
 in_chans: 5
+padding: 17
 mask_loss: True
 encoder: maxvit_small_tf_384
 architecture: MyUnet
