@@ -5,12 +5,13 @@ trainer:
 
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 16
+  batch_size: 32
 
 in_chans: 5
 padding: 17
 mask_loss: True
-encoder: tf_efficientnetv2_l
+encoder: coatnet_rmlp_2_rw_384
+padding: 17
 architecture: MyUnet
 optimizer: AdamW
 optimizer_params:

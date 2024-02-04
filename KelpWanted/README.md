@@ -39,9 +39,10 @@ MyUnet
 	- maxvit small: 0.678
 	- resnest50d + da: 0.677 (no mejora, pero la curva de aprendizaje me sugiere que entrene más rato)
 	- max vit base (peta, bajar lr)
-	- efficientnet v2 m: running...
+	- efficientnet v2 m: 0.672
+	- resnest101e: running...
 	- efficientnet v2 l: next
-	- resnest101e: next
+	- coatnet: next
 	- convnext v2 (mi implementación de unet no encaja con sus features)
 Ensamles:
 	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 
@@ -60,6 +61,7 @@ Error analysis:
 	- resnest50d: 0.666 (no mejora 0.678) parece que quitar esas imágenes no me ha aportado nada
 	- resnest50d + da: 0.666
 	- resnest50d + lrs: 0.673 (no mejora)
+	- problema con las detecciones pequeñas -> probar a subir el tamaño de las imagenes (x2)
 
 probar run da larga (+200 epochs lr 1e-3) a ver que pasa...
 
@@ -90,6 +92,7 @@ probar run da larga (+200 epochs lr 1e-3) a ver que pasa...
 - [x] postprocessing (erosion, dilation, etc) morphological operations
 - [x] cross validation
 - [x] train with val (no mejora)
+- [ ] subir resolución de las imágenes (x2)
 
 error analysis:
 - [ ] track other metrics: if precision is low, you might focus on reducing false positives, potentially by adjusting post-processing thresholding or refining the model to better distinguish kelp from similar features

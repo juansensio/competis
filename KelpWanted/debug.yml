@@ -1,6 +1,6 @@
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 32
+  batch_size: 4
   num_workers: 0
   pin_memory: False
 
@@ -12,5 +12,6 @@ trainer:
 
 in_chans: 5
 mask_loss: True
-encoder: resnest101e
+encoder: coatnet_rmlp_2_rw_384
 architecture: MyUnet
+padding: 17
