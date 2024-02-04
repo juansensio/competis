@@ -1,0 +1,22 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  Dataset: DatasetFCIm
+  batch_size: 32
+  filter_train: ignore_train.csv
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+
+in_chans: 5
+mask_loss: True
+encoder: timm-resnest50d
+architecture: UnetPlusPlus

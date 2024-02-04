@@ -39,6 +39,7 @@ MyUnet
 	- maxvit small: 0.678
 	- max vit base
 	- efficientnet v2 (probar)
+	- convnext v2 (probar)
 Ensamles:
 	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 (BEST)
 Loss
@@ -47,11 +48,13 @@ Loss
 	- bce + lovasz: 0.654
 Postprocessing: nada de lo que he probado mejora...
 Cross validation
-	- resnest50d: running...
+	- resnest50d: 0.6634 (0.709) / 0.7002 (BEST) raro que no haga overfit al val_set original...
 train with val
-	- resnest50d: 
-	- resnest50d + da: 
-
+	- resnest50d: 0.755 (overfit) / 0.6749 (el problema es que no puedo saber qué checkpoint es el mejor... el último no suele serlo y no puedo usar la dinámica con val porque aquí no hay val y es diferente)
+Error analysis:
+	- hay imágenes con malas labels, las voy a quitar del train a ver si mejora (por eso data augmentation y tta no mejoran?)
+	- con mi mejor single model saco predicciones para todo el dataset (train y val), calculo dice y elimino todo lo que tiene dice < 0.3 (solo de train para single model, de todo el dataset para cv)
+	- resnest50d: 0.666
 
 ## Ideas
 
@@ -78,14 +81,14 @@ train with val
 - [x] my unet (encoders de timm + my decoder) solo para validar que está a la par
 - [x] ensambles
 - [x] postprocessing (erosion, dilation, etc) morphological operations
-- [ ] train with val
-- [ ] cross validation
+- [x] cross validation
+- [x] train with val (no mejora)
 
 error analysis:
 - [ ] track other metrics: if precision is low, you might focus on reducing false positives, potentially by adjusting post-processing thresholding or refining the model to better distinguish kelp from similar features
 	- precision: high false positives (low precision). High precision means that when your model predicts kelp, it's likely to be correct.
 	- recall: false negatives (low recall). High recall means your model is effectively capturing most of the kelp areas.
 	- iou: ensuring that your model is accurate not only in detecting kelp presence but also in predicting the correct size and position of the kelp patches.
-- [ ] visualize the model's predictions on the val set to get a sense of where it's doing well and where it's struggling
+- [x] visualize the model's predictions on the val set to get a sense of where it's doing well and where it's struggling
 - [ ] confusion matrix analysis
 - [ ] band importance and index sensitivity analysis

@@ -40,7 +40,7 @@ class Dataset(torch.utils.data.Dataset):
             if self.trans:
                 trans = self.trans(image=image, mask=mask)
                 image, mask = trans["image"], trans["mask"]
-            return image, mask
+            return image, mask, image_id
         if self.trans:
             image = self.trans(image=image)["image"]
         return image, image_id

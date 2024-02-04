@@ -3,16 +3,14 @@ datamodule:
   batch_size: 4
   num_workers: 0
   pin_memory: False
+  filter_train: ignore_train.csv
 
 trainer:
-  max_epochs: 3
+  max_epochs: 100
   overfit_batches: 1
-  deterministic: False
   devices:
     - 1
 
 in_chans: 5
 mask_loss: True
-architecture: MyUnet
 encoder: resnet18
-padding: 1

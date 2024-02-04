@@ -41,6 +41,7 @@ config = {
         "num_workers": 20,
         "pin_memory": True,
         "train_trans": {},
+        "val_size": 0.2,
         "Dataset": "DatasetRGB",
     },
 }

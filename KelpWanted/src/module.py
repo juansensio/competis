@@ -75,9 +75,9 @@ class Module(L.LightningModule):
             torchmetrics.Dice()
         )  # si uso la clase tengo que separar train y val para que lo calcule bien
         self.val_metric = torchmetrics.Dice()
-        self.val_precision = torchmetrics.Precision(task="binary")
-        self.val_recall = torchmetrics.Recall(task="binary")
-        self.val_iou = torchmetrics.JaccardIndex(task="binary")
+        # self.val_precision = torchmetrics.Precision(task="binary")
+        # self.val_recall = torchmetrics.Recall(task="binary")
+        # self.val_iou = torchmetrics.JaccardIndex(task="binary")
 
     def forward(self, x):
         # channels first
@@ -105,7 +105,7 @@ class Module(L.LightningModule):
         return y_hat
 
     def shared_step(self, batch):
-        x, y = batch
+        x, y, _ = batch
         y = y.unsqueeze(1).long()
         mask = torch.ones_like(y)
         if self.hparams.mask_loss:
@@ -131,22 +131,22 @@ class Module(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         y_hat, y, loss = self.shared_step(batch)
         self.val_metric(y_hat, y)
-        self.val_precision(y_hat, y)
-        self.val_recall(y_hat, y)
-        self.val_iou(y_hat, y)
+        # self.val_precision(y_hat, y)
+        # self.val_recall(y_hat, y)
+        # self.val_iou(y_hat, y)
         self.log("val_loss", loss, prog_bar=True)
         self.log(
             "val_metric", self.val_metric, prog_bar=True, on_step=False, on_epoch=True
         )
-        self.log(
-            "precision",
-            self.val_precision,
-            prog_bar=True,
-            on_step=False,
-            on_epoch=True,
-        )
-        self.log("recall", self.val_recall, prog_bar=True, on_step=False, on_epoch=True)
-        self.log("iou", self.val_iou, prog_bar=True, on_step=False, on_epoch=True)
+        # self.log(
+        #     "precision",
+        #     self.val_precision,
+        #     prog_bar=True,
+        #     on_step=False,
+        #     on_epoch=True,
+        # )
+        # self.log("recall", self.val_recall, prog_bar=True, on_step=False, on_epoch=True)
+        # self.log("iou", self.val_iou, prog_bar=True, on_step=False, on_epoch=True)
 
     def configure_optimizers(self):
         optimizer = getattr(torch.optim, self.hparams.optimizer)(

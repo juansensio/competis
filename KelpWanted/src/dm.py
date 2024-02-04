@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split, KFold
 import src
 import albumentations as A
 import numpy as np
+import pandas as pd
 
 
 class DataModule(L.LightningDataModule):
@@ -21,6 +22,7 @@ class DataModule(L.LightningDataModule):
         seed=42,
         image_folder="train_satellite",
         Dataset="DatasetRGB",
+        filter_train=None,
     ):
         super().__init__()
         self.path = Path(path)
@@ -33,6 +35,11 @@ class DataModule(L.LightningDataModule):
         self.val_size = val_size
         self.seed = seed
         self.Dataset = getattr(src, Dataset)
+        self.filter_train = (
+            pd.read_csv(self.path / filter_train).id.values.tolist()
+            if filter_train
+            else []
+        )
 
     def setup(self, stage=None):
         train_images = os.listdir(self.path / self.image_folder)
@@ -42,6 +49,11 @@ class DataModule(L.LightningDataModule):
             if self.val_size > 0
             else (image_ids, [])
         )
+        train_image_ids = [
+            image_id
+            for image_id in train_image_ids
+            if image_id not in self.filter_train
+        ]
         self.train_ds = self.Dataset(
             train_image_ids,
             mode="train",
@@ -93,6 +105,7 @@ class DataModuleCV(L.LightningDataModule):
         seed=42,
         image_folder="train_satellite",
         Dataset="DatasetRGB",
+        filter_train=None,
     ):
         super().__init__()
         self.path = Path(path)
@@ -105,10 +118,18 @@ class DataModuleCV(L.LightningDataModule):
         self.n_folds = n_folds
         self.seed = seed
         self.Dataset = getattr(src, Dataset)
+        self.filter_train = (
+            pd.read_csv(self.path / filter_train).id.values.tolist()
+            if filter_train
+            else []
+        )
 
     def setup(self, stage=None):
         train_images = os.listdir(self.path / self.image_folder)
         image_ids = [image.split("_")[0] for image in train_images]
+        image_ids = [
+            image_id for image_id in image_ids if image_id not in self.filter_train
+        ]
         kf = KFold(n_splits=self.n_folds, random_state=self.seed, shuffle=True)
         self.train_ds, self.val_ds = [], []
         for i, (train_image_ixs, val_image_ixs) in enumerate(kf.split(image_ids)):
