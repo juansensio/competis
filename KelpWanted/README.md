@@ -64,8 +64,7 @@ Error analysis:
 	- problema con las detecciones pequeñas -> probar a subir el tamaño de las imagenes (x2)
 Upsample x2
 	- resnest50d: running...
-
-probar run da larga (+200 epochs lr 1e-3) a ver que pasa...
+probar run da larga a ver que pasa...
 
 ## Ideas
 
@@ -94,7 +93,7 @@ probar run da larga (+200 epochs lr 1e-3) a ver que pasa...
 - [x] postprocessing (erosion, dilation, etc) morphological operations
 - [x] cross validation
 - [x] train with val (no mejora)
-- [ ] subir resolución de las imágenes (x2)
+- [x] subir resolución de las imágenes (x2)
 
 error analysis:
 - [ ] track other metrics: if precision is low, you might focus on reducing false positives, potentially by adjusting post-processing thresholding or refining the model to better distinguish kelp from similar features

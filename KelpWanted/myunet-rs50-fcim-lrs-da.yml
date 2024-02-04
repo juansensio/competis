@@ -1,7 +1,7 @@
 trainer:
   logger: True
   enable_checkpointing: True 
-  max_epochs: 30
+  max_epochs: 200
 
 datamodule:
   Dataset: DatasetFCIm
@@ -22,10 +22,10 @@ encoder: resnest50d
 architecture: MyUnet
 optimizer: AdamW
 optimizer_params:
-  lr: 0.0003
+  lr: 0.0005
 scheduler: 
   OneCycleLR:
-    max_lr: 0.0003
-    total_steps: 30
+    max_lr: 0.0005
+    total_steps: 200
     pct_start: 0.1
     verbose: True
