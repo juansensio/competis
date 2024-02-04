@@ -40,7 +40,7 @@ MyUnet
 	- resnest50d + da: 0.677 (no mejora, pero la curva de aprendizaje me sugiere que entrene más rato)
 	- max vit base (peta, bajar lr)
 	- efficientnet v2 m: 0.672
-	- resnest101e: running...
+	- resnest101e: 0.678
 	- efficientnet v2 l: next
 	- coatnet: next
 	- convnext v2 (mi implementación de unet no encaja con sus features)
