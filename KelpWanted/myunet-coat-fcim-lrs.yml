@@ -5,7 +5,7 @@ trainer:
 
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 32
+  batch_size: 16
 
 in_chans: 5
 padding: 17
@@ -15,10 +15,10 @@ padding: 17
 architecture: MyUnet
 optimizer: AdamW
 optimizer_params:
-  lr: 0.0003
+  lr: 0.0001
 scheduler: 
   OneCycleLR:
-    max_lr: 0.0003
+    max_lr: 0.0001
     total_steps: 30
     pct_start: 0.1
     verbose: True

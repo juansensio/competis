@@ -20,6 +20,7 @@ class Module(L.LightningModule):
             "padding": 1,
             "mask_loss": False,
             "architecture": "Unet",
+            "upsample": False,
         },
     ):
         super().__init__()
@@ -82,6 +83,10 @@ class Module(L.LightningModule):
     def forward(self, x):
         # channels first
         x = rearrange(x, "b h w c -> b c h w")
+        if self.hparams.upsample:
+            x = torch.nn.functional.interpolate(
+                x, scale_factor=2, mode="bilinear", align_corners=True
+            )
         # paading
         x = torch.nn.functional.pad(
             x,
@@ -102,6 +107,10 @@ class Module(L.LightningModule):
             self.hparams.padding : -self.hparams.padding,
             self.hparams.padding : -self.hparams.padding,
         ]
+        if self.hparams.upsample:
+            y_hat = torch.nn.functional.interpolate(
+                y_hat, scale_factor=0.5, mode="bilinear", align_corners=True
+            )
         return y_hat
 
     def shared_step(self, batch):

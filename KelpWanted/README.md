@@ -41,8 +41,8 @@ MyUnet
 	- max vit base (peta, bajar lr)
 	- efficientnet v2 m: 0.672
 	- resnest101e: 0.678
-	- efficientnet v2 l: next
-	- coatnet: next
+	- efficientnet v2 l: 0.676
+	- coatnet (lrs 1e-4): 0.670
 	- convnext v2 (mi implementación de unet no encaja con sus features)
 Ensamles:
 	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 

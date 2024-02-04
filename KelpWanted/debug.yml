@@ -7,11 +7,13 @@ datamodule:
 trainer:
   max_epochs: 100
   overfit_batches: 1
+  deterministic: False
   devices:
     - 1
 
 in_chans: 5
 mask_loss: True
-encoder: coatnet_rmlp_2_rw_384
+encoder: resnest50d
 architecture: MyUnet
-padding: 17
+padding: 2
+upsample: True

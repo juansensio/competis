@@ -23,6 +23,7 @@ config = {
     "in_chans": 3,
     "mask_loss": False,
     "padding": 1,
+    "upsample": False,
     "ckpt_path": None,  # resume
     "load_from_checkpoint": None,  # load from checkpoint
     "architecture": "Unet",
