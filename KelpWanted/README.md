@@ -63,7 +63,7 @@ Error analysis:
 	- resnest50d + lrs: 0.673 (no mejora)
 	- problema con las detecciones pequeñas -> probar a subir el tamaño de las imagenes (x2)
 Upsample x2
-	- resnest50d: running...
+	- resnest50d: 0.672
 probar run da larga a ver que pasa...
 
 ## Ideas
