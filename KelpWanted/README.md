@@ -33,15 +33,17 @@ Threshold tuning: 0.6934
 tta: he probado soft/hard voting (normal y weighted) pero no mejora. 
 	- En modelos entrenados con data augmentation, el tta si mejora. Aún así la mejora no es mayor que con los mejores modelos entrenados sin data augmentation y sin tta -> no da, no tta 0.682 / 0.6935 (BEST) // da, tta 0.670 (0.675 soft) / 0.6890
 MyUnet
-	- resnest50d: 0.681
+	- resnest50d: 0.681 
 	- seresnext101: 0.669
-	- seresnext101 + da: 0.681 (mejora sin da pero da casi lo mismo que la resnest50d)
+	- seresnext101 + da: 0.681 
 	- maxvit small: 0.678
-	- max vit base
-	- efficientnet v2 (probar)
-	- convnext v2 (probar)
+	- resnest50d + da: 0.677 (no mejora, pero la curva de aprendizaje me sugiere que entrene más rato)
+	- max vit base (peta, bajar lr)
+	- efficientnet v2 m: running...
+	- efficientnet v2 l: next
+	- convnext v2 (mi implementación de unet no encaja con sus features)
 Ensamles:
-	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 (BEST)
+	- unetpp-rs50-fcim-lrs-val_metric=0.68205-epoch=15.ckpt + myunet-rs50-fcim-lrs-val_metric=0.68107-epoch=14.ckpt: 0.687 / 0.6983 
 Loss
 	- focal, bce no van bien
 	- lovasz (resnes50d): 0.660
@@ -54,7 +56,11 @@ train with val
 Error analysis:
 	- hay imágenes con malas labels, las voy a quitar del train a ver si mejora (por eso data augmentation y tta no mejoran?)
 	- con mi mejor single model saco predicciones para todo el dataset (train y val), calculo dice y elimino todo lo que tiene dice < 0.3 (solo de train para single model, de todo el dataset para cv)
-	- resnest50d: 0.666
+	- resnest50d: 0.666 (no mejora 0.678) parece que quitar esas imágenes no me ha aportado nada
+	- resnest50d + da: 0.666
+	- resnest50d + lrs: 0.673 (no mejora)
+
+probar run da larga (+200 epochs lr 1e-3) a ver que pasa...
 
 ## Ideas
 

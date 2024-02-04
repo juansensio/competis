@@ -1,9 +1,8 @@
 datamodule:
   Dataset: DatasetFCIm
-  batch_size: 4
+  batch_size: 32
   num_workers: 0
   pin_memory: False
-  filter_train: ignore_train.csv
 
 trainer:
   max_epochs: 100
@@ -13,4 +12,5 @@ trainer:
 
 in_chans: 5
 mask_loss: True
-encoder: resnet18
+encoder: resnest101e
+architecture: MyUnet
