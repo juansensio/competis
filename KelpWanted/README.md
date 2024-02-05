@@ -64,7 +64,7 @@ Error analysis:
 	- problema con las detecciones pequeñas -> probar a subir el tamaño de las imagenes (x2)
 Upsample x2
 	- resnest50d: 0.672
-probar run da larga a ver que pasa...
+da 200 epochs: 0.678
 
 ## Ideas
 
