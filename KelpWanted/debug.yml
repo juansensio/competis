@@ -5,7 +5,7 @@ datamodule:
   pin_memory: False
 
 trainer:
-  max_epochs: 100
+  max_epochs: 1
   overfit_batches: 1
   deterministic: False
   devices:
@@ -13,7 +13,6 @@ trainer:
 
 in_chans: 5
 mask_loss: True
-encoder: resnest50d
+encoder: resnet18
 architecture: MyUnet
-padding: 2
-upsample: True
+pafpn: True

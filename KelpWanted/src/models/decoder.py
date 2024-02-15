@@ -27,41 +27,6 @@ class Conv2dReLU(nn.Sequential):
         super(Conv2dReLU, self).__init__(conv, bn, relu)
 
 
-class SCSEModule(nn.Module):
-    def __init__(self, in_channels, reduction=16):
-        super().__init__()
-        self.cSE = nn.Sequential(
-            nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(in_channels, in_channels // reduction, 1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels // reduction, in_channels, 1),
-            nn.Sigmoid(),
-        )
-        self.sSE = nn.Sequential(nn.Conv2d(in_channels, 1, 1), nn.Sigmoid())
-
-    def forward(self, x):
-        return x * self.cSE(x) + x * self.sSE(x)
-
-
-class CenterBlock(nn.Sequential):
-    def __init__(self, in_channels, out_channels, use_batchnorm=True):
-        conv1 = Conv2dReLU(
-            in_channels,
-            out_channels,
-            kernel_size=3,
-            padding=1,
-            use_batchnorm=use_batchnorm,
-        )
-        conv2 = Conv2dReLU(
-            out_channels,
-            out_channels,
-            kernel_size=3,
-            padding=1,
-            use_batchnorm=use_batchnorm,
-        )
-        super().__init__(conv1, conv2)
-
-
 class DecoderBlock(nn.Module):
     def __init__(
         self,
@@ -132,3 +97,58 @@ class Decoder(nn.Module):
         for i, decoder_block in enumerate(self.blocks):
             x = decoder_block(x, features[i + 1] if i + 1 < len(features) else None)
         return self.out_conv(x)
+
+
+class PAFPN(nn.Module):
+    def __init__(self, encoder_channels, channels, use_batchnorm=True):
+        super().__init__()
+        print(encoder_channels)
+        self.up_blocks = nn.ModuleList(
+            [
+                Conv2dReLU(
+                    encoder_channels[i] + encoder_channels[i - 1],
+                    encoder_channels[i - 1],
+                    kernel_size=3,
+                    padding=1,
+                    use_batchnorm=use_batchnorm,
+                )
+                for i in reversed(range(1, len(encoder_channels)))
+            ]
+        )
+        self.down_blocks = nn.ModuleList(
+            [
+                torch.nn.Sequential(
+                    Conv2dReLU(
+                        channels[i] if i == len(channels) - 1 else channels[i] * 2,
+                        (channels[i - 1]),
+                        kernel_size=3,
+                        padding=1,
+                        use_batchnorm=use_batchnorm,
+                    ),
+                    torch.nn.MaxPool2d(kernel_size=2, stride=2),
+                )
+                for i in reversed(range(1, len(channels)))
+            ]
+        )
+
+    def forward(self, features):
+        # up
+        x = features[-1]
+        up = [x]
+        for i in reversed(range(1, len(features))):
+            xr = torch.nn.functional.interpolate(x, scale_factor=2, mode="bilinear")
+            x = torch.cat((features[i - 1], xr), 1)
+            x = self.up_blocks[::-1][i - 1](x)
+            up.append(x)
+
+        for i in range(len(up)):
+            print(up[i].shape)
+
+        # down
+        x = up[-1]
+        down = [x]
+        for i in reversed(range(1, len(up))):
+            x = self.blocks[::-1][i - 1](x)
+            x = torch.cat((x, up[i - 1]), 1)
+            down.append(x)
+        return down

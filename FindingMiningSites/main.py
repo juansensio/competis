@@ -13,21 +13,14 @@ import torch
 import random
 
 config = {
-    "encoder": "resnet18",
-    "pafpn": False,
+    "model": "resnet18",
     "pretrained": True,
     "optimizer": "Adam",
     "optimizer_params": {
         "lr": 1e-3,
     },
-    "loss": "dice",
-    "in_chans": 3,
-    "mask_loss": False,
-    "padding": 1,
-    "upsample": False,
     "ckpt_path": None,  # resume
     "load_from_checkpoint": None,  # load from checkpoint
-    "architecture": "Unet",
     "trainer": {
         "accelerator": "cuda",
         "devices": 1,  # con devices 2 el pl me da error al guardar los checkpoints :(
@@ -39,19 +32,19 @@ config = {
         "deterministic": True,
     },
     "datamodule": {
-        "batch_size": 64,
+        "batch_size": 32,
         "num_workers": 20,
         "pin_memory": True,
         "train_trans": {},
         "val_size": 0.2,
-        "Dataset": "DatasetRGB",
+        "bands": (3, 2, 1),
     },
 }
 
 
 def train(config, name):
+    config["in_chans"] = len(config["datamodule"]["bands"])
     seed = random.randint(0, 1000)
-    config["seed"] = seed
     L.seed_everything(seed, workers=True)
     dm = DataModule(**config["datamodule"])
     module = Module(config)
@@ -71,14 +64,14 @@ def train(config, name):
             config["trainer"]["callbacks"] += [
                 ModelCheckpoint(
                     dirpath="./checkpoints",
-                    filename=f"{name}-{{val_metric:.5f}}-{{epoch}}",
-                    monitor="val_metric",
+                    filename=f"{name}-{{val_f1:.5f}}-{{epoch}}",
+                    monitor="val_f1",
                     mode="max",
                 )
             ]
     if config["trainer"]["logger"]:
         config["trainer"]["logger"] = WandbLogger(
-            project="Kelp", name=name, config=config
+            project="FindingMiningSite", name=name, config=config
         )
         if "scheduler" in config and config["scheduler"]:
             config["trainer"]["callbacks"] += [

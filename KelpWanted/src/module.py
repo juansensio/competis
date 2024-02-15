@@ -21,6 +21,7 @@ class Module(L.LightningModule):
             "mask_loss": False,
             "architecture": "Unet",
             "upsample": False,
+            "pafpn": False,
         },
     ):
         super().__init__()
@@ -37,6 +38,7 @@ class Module(L.LightningModule):
                 self.hparams.encoder,
                 self.hparams.pretrained,
                 self.hparams.in_chans,
+                pafpn=self.hparams.pafpn,
             )
         )
 
