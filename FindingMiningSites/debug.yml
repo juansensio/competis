@@ -6,3 +6,5 @@ datamodule:
 trainer:
   max_epochs: 100
   overfit_batches: 1
+
+model: convnextv2_large

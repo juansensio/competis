@@ -5,6 +5,7 @@ https://solafune.com/competitions/58406cd6-c3bb-4f7a-85c7-c5a1ad67ca03?menu=lb&t
 ## Experiments
 
 baseline rgb -> 0.83495 / 0.8247 (overfit a training)
+flips cropt lr sch -> 0.875 / 0.8148 (overfit a validation)
 
 
 ## Ideas
