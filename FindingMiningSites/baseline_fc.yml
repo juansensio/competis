@@ -1,0 +1,9 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  bands: 
+    - 8
+    - 2
+    - 1

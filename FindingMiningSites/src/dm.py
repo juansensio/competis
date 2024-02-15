@@ -23,7 +23,11 @@ class DataModule(L.LightningDataModule):
         metadata_file="answer.csv",
         train_folder="train",
         test_folder="evaluation",
-        bands=(3, 2, 1),
+        bands=(
+            3,
+            2,
+            1,
+        ),  # 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B9', 'B11', 'B12' https://docs.sentinel-hub.com/api/latest/data/sentinel-2-l2a/
     ):
         super().__init__()
         self.path = Path(path)
