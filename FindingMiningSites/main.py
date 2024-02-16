@@ -38,12 +38,15 @@ config = {
         "train_trans": {},
         "val_size": 0.2,
         "bands": (3, 2, 1),
+        "indices": [],
     },
 }
 
 
 def train(config, name):
-    config["in_chans"] = len(config["datamodule"]["bands"])
+    config["in_chans"] = len(config["datamodule"]["bands"]) + len(
+        config["datamodule"]["indices"]
+    )
     seed = random.randint(0, 1000)
     L.seed_everything(seed, workers=True)
     dm = DataModule(**config["datamodule"])

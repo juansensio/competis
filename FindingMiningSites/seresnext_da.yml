@@ -1,0 +1,24 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+  max_epochs: 50
+
+datamodule:
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+
+model: seresnext50_32x4d
+
+scheduler: 
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 50
+    pct_start: 0.05
+    verbose: True

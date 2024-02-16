@@ -2,9 +2,19 @@ datamodule:
   batch_size: 10
   num_workers: 0
   pin_memory: False
+  bands:
+    - 8
+    - 2
+    - 1
+  indices:
+    - ndvi
+    - ndwi
+    - ndwbi
+    - mndwi
+    - ioi
 
 trainer:
-  max_epochs: 100
+  max_epochs: 10
   overfit_batches: 1
-
-model: convnextv2_large
+  devices:
+    - 1

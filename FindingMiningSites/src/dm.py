@@ -23,6 +23,7 @@ class DataModule(L.LightningDataModule):
         metadata_file="answer.csv",
         train_folder="train",
         test_folder="evaluation",
+        indices=[],
         bands=(
             3,
             2,
@@ -43,6 +44,7 @@ class DataModule(L.LightningDataModule):
         self.metadata_file = metadata_file
         self.bands = bands
         self.test_trans = test_trans
+        self.indices = indices
 
     def setup(self, stage=None):
         metadata = pd.read_csv(
@@ -66,6 +68,7 @@ class DataModule(L.LightningDataModule):
             ),
             path=self.path / self.train_folder,
             bands=self.bands,
+            indices=self.indices,
         )
         self.val_ds = (
             Dataset(
@@ -76,6 +79,7 @@ class DataModule(L.LightningDataModule):
                 ),
                 bands=self.bands,
                 path=self.path / self.train_folder,
+                indices=self.indices,
             )
             if self.val_size > 0
             else []
@@ -88,6 +92,7 @@ class DataModule(L.LightningDataModule):
             trans=A.Compose(
                 [getattr(A, t)(**params) for t, params in self.test_trans.items()]
             ),
+            indices=self.indices,
             bands=self.bands,
         )
 
