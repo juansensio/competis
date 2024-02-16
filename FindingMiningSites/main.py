@@ -44,8 +44,9 @@ config = {
 
 
 def train(config, name):
-    config["in_chans"] = len(config["datamodule"]["bands"]) + len(
-        config["datamodule"]["indices"]
+    config["in_chans"] = len(config["datamodule"]["indices"])
+    config["in_chans"] += (
+        len(config["datamodule"]["bands"]) if config["datamodule"]["bands"] else 12
     )
     seed = random.randint(0, 1000)
     L.seed_everything(seed, workers=True)
