@@ -63,10 +63,7 @@ class BaseModule(L.LightningModule):
                 self.fc.parameters(), **self.hparams["optimizer_params"]
             )
         ]
-        if not self.hparams.freeze and (
-            "backbone_optimizer_params" in self.hparams
-            or "backbone_scheduler_params" in self.hparams
-        ):
+        if not self.hparams.freeze:
             optimizer += [
                 getattr(torch.optim, self.hparams.optimizer)(
                     self.backbone.parameters(),
@@ -149,9 +146,12 @@ class PrivthiModule(BaseModule):
         del checkpoint["decoder_pos_embed"]
         _ = backbone.load_state_dict(checkpoint, strict=False)
         fc = torch.nn.Sequential(
-            torch.nn.AdaptiveAvgPool2d((1, 1)),
+            # torch.nn.AdaptiveAvgPool2d((1, 1)),
             torch.nn.Flatten(),
-            torch.nn.Linear(hparams["model_config"]["model_args"]["embed_dim"], 1),
+            # torch.nn.Linear(hparams["model_config"]["model_args"]["embed_dim"], 1),
+            torch.nn.Linear(
+                hparams["model_config"]["model_args"]["embed_dim"] * (14**2 + 1), 1
+            ),  # patch size = 14, pero el config dice 16 (está mal)
         )
         super().__init__(hparams, backbone, fc)
 
@@ -163,13 +163,13 @@ class PrivthiModule(BaseModule):
                 x, _, _ = self.backbone.forward_encoder(x, mask_ratio=0)
         else:
             x, _, _ = self.backbone.forward_encoder(x, mask_ratio=0)
-        reshaped_features = x[:, 1:, :]
-        feature_img_side_length = int(np.sqrt(reshaped_features.shape[1]))
-        reshaped_features = reshaped_features.view(
-            -1,
-            feature_img_side_length,
-            feature_img_side_length,
-            self.hparams["model_config"]["model_args"]["embed_dim"],
-        )
-        x = reshaped_features.permute(0, 3, 1, 2)
+        # reshaped_features = x[:, 1:, :]
+        # feature_img_side_length = int(np.sqrt(reshaped_features.shape[1]))
+        # reshaped_features = reshaped_features.view(
+        #     -1,
+        #     feature_img_side_length,
+        #     feature_img_side_length,
+        #     self.hparams["model_config"]["model_args"]["embed_dim"],
+        # )
+        # x = reshaped_features.permute(0, 3, 1, 2)
         return self.fc(x).squeeze(-1)

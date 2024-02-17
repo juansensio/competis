@@ -1,5 +1,5 @@
 datamodule:
-  batch_size: 64
+  batch_size: 16
   num_workers: 0
   pin_memory: False
   train_trans:
@@ -20,10 +20,13 @@ datamodule:
 
 trainer:
   max_epochs: 100
-  # overfit_batches: 1
+  overfit_batches: 1
 
 module: PrivthiModule
 
+optimizer: AdamW
+optimizer_params:
+  lr: 0.00005
 
 # backbone_optimizer_params:
 #   lr: 0.0001

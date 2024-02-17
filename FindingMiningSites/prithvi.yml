@@ -6,9 +6,9 @@ trainer:
 datamodule:
   batch_size: 32
   train_trans:
-  #   RandomCrop:
-  #     height: 224
-  #     width: 224
+    Resize:
+      height: 224
+      width: 224
     HorizontalFlip:
       p: 0.5
     VerticalFlip:
@@ -17,23 +17,25 @@ datamodule:
       p: 0.5
     RandomRotate90:
       p: 0.5
-  # val_trans:
-  #   CenterCrop:
-  #     height: 224
-  #     width: 224
-  # bands:
-  #   - 1
-  #   - 2
-  #   - 3
-    # - 8
-    # - 10
-    # - 11
+  val_trans:
+    Resize:
+      height: 224
+      width: 224
+  bands:
+    - 1
+    - 2
+    - 3
+    - 8
+    - 10
+    - 11
 
-# module: PrivthiModule
+module: PrivthiModule
 # freeze: False
-# scheduler: OneCycleLR
-# scheduler_params:
-#     max_lr: 0.00001
-#     total_steps: 50
-#     pct_start: 0.05
-#     verbose: True
+
+optimizer: AdamW
+scheduler: OneCycleLR
+scheduler_params:
+    max_lr: 0.0001
+    total_steps: 50
+    pct_start: 0.05
+    verbose: True
