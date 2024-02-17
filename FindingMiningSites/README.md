@@ -14,6 +14,7 @@ maxvit base all bands -> 0.90 / 0.8
 maxvit base rgb + ndvi -> 0.93 / 0.9
 maxvit base rgb + indices -> 0.92 / 0.871
 maxvit large rgb -> 0.93 / 0.915
+maxvit large rgb ft -> running ...
 
 ## Ideas
 
@@ -21,6 +22,7 @@ maxvit large rgb -> 0.93 / 0.915
 - [x] Explorar combinación de bandas / índices (fc, ndvi, ndwi, ...)
 	- rgb > el resto (probablemente porque los modelos tochos han sido entrenados con rgb y hay muy pocos datos para ft con más bandas/indices)
 - [x] Diferentes modelos (resnet, efficientnet, ...) https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv
+- [ ] Diferentes opt/sch (lr) en backbone/head (+ posibilidad de freeze) -> debería ser útil para eva02 y convenextv2
 - [ ] Modelo NASA/IBM https://huggingface.co/ibm-nasa-geospatial
 - [ ] lr/seed hpopt
 - [x] lr scheduling
@@ -29,3 +31,8 @@ maxvit large rgb -> 0.93 / 0.915
 - [ ] ensambles
 - [ ] cross validation
 - [ ] train with val 
+
+
+Ejemplo de como hacer segmentación con ViT (Transformers en general)
+https://github.com/NASA-IMPACT/hls-foundation-os/blob/main/exploration.ipynb 
+

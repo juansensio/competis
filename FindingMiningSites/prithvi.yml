@@ -1,0 +1,39 @@
+trainer:
+  logger: False
+  enable_checkpointing: False 
+  max_epochs: 50
+
+datamodule:
+  batch_size: 32
+  train_trans:
+  #   RandomCrop:
+  #     height: 224
+  #     width: 224
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose: 
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+  # val_trans:
+  #   CenterCrop:
+  #     height: 224
+  #     width: 224
+  # bands:
+  #   - 1
+  #   - 2
+  #   - 3
+    # - 8
+    # - 10
+    # - 11
+
+# module: PrivthiModule
+# freeze: False
+# scheduler: OneCycleLR
+# scheduler_params:
+#     max_lr: 0.00001
+#     total_steps: 50
+#     pct_start: 0.05
+#     verbose: True

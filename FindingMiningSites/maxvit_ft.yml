@@ -1,10 +1,10 @@
 trainer:
-  logger: False
-  enable_checkpointing: False 
+  logger: True
+  enable_checkpointing: True 
   max_epochs: 50
 
 datamodule:
-  batch_size: 8
+  batch_size: 4
   train_trans:
     HorizontalFlip:
       p: 0.5
@@ -19,12 +19,12 @@ model: maxvit_large_tf_512
 
 scheduler: OneCycleLR
 scheduler_params:
-    max_lr: 0.0001
+    max_lr: 0.001
     total_steps: 50
     pct_start: 0.05
     verbose: True
 backbone_scheduler_params:
-  max_lr: 0.00001
+  max_lr: 0.0001
   total_steps: 50
   pct_start: 0.05
   verbose: True

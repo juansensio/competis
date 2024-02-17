@@ -1,4 +1,5 @@
-from src import DataModule, Module
+from src import DataModule
+import src
 import lightning as L
 import sys
 import yaml
@@ -13,12 +14,15 @@ import torch
 import random
 
 config = {
+    "module": "Module",
     "model": "resnet18",
     "pretrained": True,
     "optimizer": "Adam",
     "optimizer_params": {
         "lr": 1e-3,
     },
+    "weights_path": "./prithvi/Prithvi_100M.pt",
+    "model_cfg_path": "./prithvi/Prithvi_100M_config.yaml",
     "freeze": False,
     "ckpt_path": None,  # resume
     "load_from_checkpoint": None,  # load from checkpoint
@@ -52,7 +56,7 @@ def train(config, name):
     seed = random.randint(0, 1000)
     L.seed_everything(seed, workers=True)
     dm = DataModule(**config["datamodule"])
-    module = Module(config)
+    module = getattr(src, config["module"])(config)
     if config["load_from_checkpoint"]:
         state_dict = torch.load(config["load_from_checkpoint"])["state_dict"]
         module.load_state_dict(state_dict)

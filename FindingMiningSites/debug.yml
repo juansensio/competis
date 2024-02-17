@@ -1,26 +1,42 @@
 datamodule:
-  batch_size: 32
+  batch_size: 64
   num_workers: 0
   pin_memory: False
+  train_trans:
+    CenterCrop:
+      height: 224
+      width: 224
+  val_trans:
+    CenterCrop:
+      height: 224
+      width: 224
+  bands:
+    - 1
+    - 2
+    - 3
+    - 8
+    - 10
+    - 11
 
 trainer:
   max_epochs: 100
   # overfit_batches: 1
-  limit_train_batches: 0.1
-  limit_val_batches: 0.5
 
-backbone_optimizer_params:
-  lr: 0.0001
-freeze: False
+module: PrivthiModule
 
-scheduler: OneCycleLR
-scheduler_params:
-  max_lr: 0.001
-  total_steps: 100
-  pct_start: 0.05
-  verbose: True
-backbone_scheduler_params:
-  max_lr: 0.0001
-  total_steps: 100
-  pct_start: 0.05
-  verbose: True
+
+# backbone_optimizer_params:
+#   lr: 0.0001
+# freeze: False
+
+# scheduler: OneCycleLR
+# scheduler_params:
+#   max_lr: 0.001
+#   total_steps: 100
+#   pct_start: 0.05
+#   verbose: True
+# backbone_scheduler_params:
+#   max_lr: 0.0001
+#   total_steps: 100
+#   pct_start: 0.05
+#   verbose: True
