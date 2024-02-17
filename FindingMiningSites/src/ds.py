@@ -39,7 +39,7 @@ class Dataset(torch.utils.data.Dataset):
         ):  # NDVI helps in distinguishing between vegetation and non-vegetation areas. Mining sites typically show low NDVI values due to the absence of vegetation.
             nir = image0[..., 8]
             red = image0[..., 3]
-            ndvi = (nir - red) / (nir + red)
+            ndvi = (nir - red) / (nir + red + 1e-8)
             ndvi = ndvi * 2.0 - 1.0
             image = np.dstack((image, ndvi))
         if (
@@ -47,7 +47,7 @@ class Dataset(torch.utils.data.Dataset):
         ):  # se utiliza como una medida de la cantidad de agua que posee la vegetación o el nivel de saturación de humedad que posee el suelo.
             nir = image0[..., 8]
             swir = image0[..., 10]
-            ndwi = (nir - swir) / (nir + swir)
+            ndwi = (nir - swir) / (nir + swir + 1e-8)
             ndwi = ndwi * 2.0 - 1.0
             image = np.dstack((image, ndwi))
         if (
@@ -55,7 +55,7 @@ class Dataset(torch.utils.data.Dataset):
         ):  # NDBI helps in highlighting built-up areas, including infrastructure associated with mining activities.
             swir = image0[..., 10]
             nir = image0[..., 8]
-            ndbi = (swir - nir) / (swir + nir)
+            ndbi = (swir - nir) / (swir + nir + 1e-8)
             ndbi = ndbi * 2.0 - 1.0
             image = np.dstack((image, ndbi))
         if (
@@ -63,7 +63,7 @@ class Dataset(torch.utils.data.Dataset):
         ):  # MNDWI is useful for identifying water bodies, which are common features around mining sites.
             swir = image0[..., 10]
             green = image0[..., 2]
-            mndwi = (green - swir) / (swir + green)
+            mndwi = (green - swir) / (swir + green + 1e-8)
             mndwi = mndwi * 2.0 - 1.0
             image = np.dstack((image, mndwi))
         if (
@@ -71,7 +71,7 @@ class Dataset(torch.utils.data.Dataset):
         ):  # IOI is particularly useful for detecting iron oxide-rich areas, which are often indicative of mining sites.
             red = image0[..., 3]
             swir = image0[..., 10]
-            ioi = (red - swir) / (swir + red)
+            ioi = (red - swir) / (swir + red + 1e-8)
             ioi = ioi * 2.0 - 1.0
             image = np.dstack((image, ioi))
         if self.trans:

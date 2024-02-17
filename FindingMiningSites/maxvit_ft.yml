@@ -1,6 +1,6 @@
 trainer:
-  logger: True
-  enable_checkpointing: True 
+  logger: False
+  enable_checkpointing: False 
   max_epochs: 50
 
 datamodule:
@@ -14,17 +14,17 @@ datamodule:
       p: 0.5
     RandomRotate90:
       p: 0.5
-  bands:
-    - 8 
-    - 2 
-    - 1
 
-model: maxvit_base_tf_512
+model: maxvit_large_tf_512
 
-scheduler: 
-  OneCycleLR:
+scheduler: OneCycleLR
+scheduler_params:
     max_lr: 0.0001
     total_steps: 50
     pct_start: 0.05
     verbose: True
-
+backbone_scheduler_params:
+  max_lr: 0.00001
+  total_steps: 50
+  pct_start: 0.05
+  verbose: True

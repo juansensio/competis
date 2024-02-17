@@ -4,7 +4,7 @@ trainer:
   max_epochs: 50
 
 datamodule:
-  batch_size: 8
+  batch_size: 4
   train_trans:
     HorizontalFlip:
       p: 0.5
@@ -15,7 +15,7 @@ datamodule:
     RandomRotate90:
       p: 0.5
 
-model: maxvit_base_tf_512
+model: maxvit_large_tf_512
 
 scheduler: 
   OneCycleLR:
@@ -23,5 +23,3 @@ scheduler:
     total_steps: 50
     pct_start: 0.05
     verbose: True
-
-load_from_checkpoint: checkpoints/maxvit_da-val_f1=0.94000-epoch=42.ckpt
