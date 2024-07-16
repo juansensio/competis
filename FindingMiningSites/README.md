@@ -14,7 +14,8 @@ maxvit base all bands -> 0.90 / 0.8
 maxvit base rgb + ndvi -> 0.93 / 0.9
 maxvit base rgb + indices -> 0.92 / 0.871
 maxvit large rgb -> 0.93 / 0.915
-maxvit large rgb ft -> running ...
+privthi resize -> 0.764 / 0.609
+maxvit base rgb (otra vez) -> 0.938 / 0.907 :,(
 
 ## Ideas
 
@@ -22,8 +23,8 @@ maxvit large rgb ft -> running ...
 - [x] Explorar combinación de bandas / índices (fc, ndvi, ndwi, ...)
 	- rgb > el resto (probablemente porque los modelos tochos han sido entrenados con rgb y hay muy pocos datos para ft con más bandas/indices)
 - [x] Diferentes modelos (resnet, efficientnet, ...) https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv
-- [ ] Diferentes opt/sch (lr) en backbone/head (+ posibilidad de freeze) -> debería ser útil para eva02 y convenextv2
-- [ ] Modelo NASA/IBM https://huggingface.co/ibm-nasa-geospatial
+- [x] Diferentes opt/sch (lr) en backbone/head (+ posibilidad de freeze) -> debería ser útil para eva02 y convenextv2
+- [x] Modelo NASA/IBM https://huggingface.co/ibm-nasa-geospatial
 - [ ] lr/seed hpopt
 - [x] lr scheduling
 - [x] threshold tuning 

@@ -6,7 +6,7 @@ trainer:
 datamodule:
   batch_size: 32
   train_trans:
-    Resize:
+    RandomCrop:
       height: 224
       width: 224
     HorizontalFlip:
@@ -18,7 +18,7 @@ datamodule:
     RandomRotate90:
       p: 0.5
   val_trans:
-    Resize:
+    CenterCrop:
       height: 224
       width: 224
   bands:
@@ -33,9 +33,18 @@ module: PrivthiModule
 # freeze: False
 
 optimizer: AdamW
+optimizer_params:
+    lr: 0.0003
+backbone_optimizer_params:
+    lr: 0.00001
 scheduler: OneCycleLR
 scheduler_params:
-    max_lr: 0.0001
+    max_lr: 0.0003
+    total_steps: 50
+    pct_start: 0.05
+    verbose: True
+backbone_scheduler_params:
+    max_lr: 0.00001
     total_steps: 50
     pct_start: 0.05
     verbose: True
