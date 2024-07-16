@@ -1,0 +1,22 @@
+trainer:
+  logger: True
+  enable_checkpointing: True 
+
+datamodule:
+  train_tans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+
+scheduler:
+  OneCycleLR:
+    max_lr: 0.0003
+    total_steps: 100
+    pct_start: 0.03
+    final_div_factor: 10 
+    verbose: True
