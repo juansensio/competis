@@ -8,6 +8,15 @@ Aeronet dataset: https://aeronet.gsfc.nasa.gov/
 
 Trying clay model 
 
-- basline: 0.76286 / 0.8174
-- fine tune encoder: running ...
+- basline (bs 32, 30 eps): 0.76286 / 0.8174
+- baseline (bs 64, 100 eps): 
+- fine tune encoder
+- data augmentation
+- lr scheduler
+- ensamble (5 fold cv)
 
+Compare with traditional models (resnet, ...)
+
+## Conclusions
+
+- transfer learning ~ fine tuning (buen modelo preentrenado)

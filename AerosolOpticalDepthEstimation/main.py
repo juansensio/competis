@@ -23,15 +23,15 @@ config = {
     "trainer": {
         "accelerator": "cuda",
         "devices": 1,  # con devices 2 el pl me da error al guardar los checkpoints :(
-        "max_epochs": 30,
+        "max_epochs": 100,
         "logger": None,
         "enable_checkpointing": False,
         "overfit_batches": 0,
-        # "precision": "16-mixed",
+        "precision": "16-mixed",  # if encoder is frozen use full precision
         "deterministic": True,
     },
     "datamodule": {
-        "batch_size": 32,
+        "batch_size": 64,
         "num_workers": 20,
         "pin_memory": True,
         "train_trans": {},
