@@ -3,7 +3,7 @@ trainer:
   enable_checkpointing: True 
 
 datamodule:
-  train_tans:
+  train_trans:
     HorizontalFlip:
       p: 0.5
     VerticalFlip:

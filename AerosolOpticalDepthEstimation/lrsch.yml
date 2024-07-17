@@ -1,20 +1,11 @@
 trainer:
-  logger: True
-  enable_checkpointing: True 
+  logger: False
+  enable_checkpointing: False 
 
-datamodule:
-  train_tans:
-    HorizontalFlip:
-      p: 0.5
-    VerticalFlip:
-      p: 0.5
-    Transpose:
-      p: 0.5
-    RandomRotate90:
-      p: 0.5
+freeze: False
 
-scheduler:
-  OneCycleLR:
+scheduler: OneCycleLR
+scheduler_params:
     max_lr: 0.0003
     total_steps: 100
     pct_start: 0.03
