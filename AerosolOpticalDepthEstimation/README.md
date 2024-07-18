@@ -18,8 +18,9 @@ Trying clay model
 - train more (500 eps lr scheduler 5e-3): 0.94319
 - data augmentation: 0.941
 	- tta:  0.95008 / 0.9653 (BEST)
-- ensamble (5 fold cv): running
+- ensamble (5 fold cv): running...
 
+Better heads (MLP)
 Compare with traditional models (resnet, ...)
 
 ## Conclusions

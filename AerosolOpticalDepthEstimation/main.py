@@ -56,17 +56,20 @@ def train(config, name):
         if config["load_from_checkpoint"]:
             state_dict = torch.load(config["load_from_checkpoint"])["state_dict"]
             module.load_state_dict(state_dict)
-        config["trainer"]["callbacks"] = []
+        trainer_config["callbacks"] = []
         if config["trainer"]["enable_checkpointing"]:
-            config["trainer"]["callbacks"] += [
+            trainer_config["callbacks"] += [
                 ModelCheckpoint(  # save last epoch
                     dirpath="./checkpoints",
                     filename=f"{name}-{fold}-{{epoch}}",
                 ),
                 # EarlyStopping(monitor="val_metric", patience=5, mode="max", verbose=True),
             ]
-            if config["datamodule"]["val_size"] > 0:
-                config["trainer"]["callbacks"] += [
+            if (
+                config["datamodule"]["val_size"] > 0
+                or config["datamodule"]["n_folds"] > 1
+            ):
+                trainer_config["callbacks"] += [
                     ModelCheckpoint(
                         dirpath="./checkpoints",
                         filename=f"{name}-{fold}-{{val_metric:.5f}}-{{epoch}}",
@@ -81,7 +84,7 @@ def train(config, name):
                 config=config,
             )
             if "scheduler" in config and config["scheduler"]:
-                config["trainer"]["callbacks"] += [
+                trainer_config["callbacks"] += [
                     LearningRateMonitor(logging_interval="step")
                 ]
         trainer = L.Trainer(logger=logger, **trainer_config)
