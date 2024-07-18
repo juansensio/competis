@@ -90,7 +90,6 @@ class DataModule(L.LightningDataModule):
                         ),
                     )
                 )
-            print("iepa", len(self.train_ds), len(self.val_ds))
         else:
             self.val_df, self.val_ds = None, None
             if self.val_size > 0:

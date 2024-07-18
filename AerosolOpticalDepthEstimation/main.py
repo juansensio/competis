@@ -48,6 +48,8 @@ def train(config, name):
     L.seed_everything(seed, workers=True)
     dm = DataModule(**config["datamodule"])
     dm.setup()
+    trainer_config = config["trainer"].copy()
+    trainer_config.pop("logger")
     for fold in range(config["datamodule"]["n_folds"]):
         print(f"Fold {fold+1}")
         module = Module(config)
@@ -73,7 +75,7 @@ def train(config, name):
                     )
                 ]
         if config["trainer"]["logger"]:
-            config["trainer"]["logger"] = WandbLogger(
+            logger = WandbLogger(
                 project="AerosolOpticalDepthEstimation",
                 name=f"{name}-fold-{fold}",
                 config=config,
@@ -82,7 +84,7 @@ def train(config, name):
                 config["trainer"]["callbacks"] += [
                     LearningRateMonitor(logging_interval="step")
                 ]
-        trainer = L.Trainer(**config["trainer"])
+        trainer = L.Trainer(logger=logger, **trainer_config)
         torch.set_float32_matmul_precision("medium")
         # module = torch.compile(module)
         trainer.fit(
@@ -92,7 +94,7 @@ def train(config, name):
             ckpt_path=config["ckpt_path"],
         )
         if config["trainer"]["logger"]:
-            config["trainer"]["logger"].experiment.finish()
+            logger.experiment.finish()
 
 
 if __name__ == "__main__":

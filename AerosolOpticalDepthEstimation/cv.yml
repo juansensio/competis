@@ -13,3 +13,12 @@ scheduler_params:
 
 datamodule:
   n_folds: 5
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5

@@ -17,12 +17,12 @@ Trying clay model
 	- tta: 0.92788 / 0.945
 - train more (500 eps lr scheduler 5e-3): 0.94319
 - data augmentation: 0.941
-	- tta:  0.95008
-- ensamble (5 fold cv)
-- tta
+	- tta:  0.95008 / 0.9653 (BEST)
+- ensamble (5 fold cv): running
 
 Compare with traditional models (resnet, ...)
 
 ## Conclusions
 
 - transfer learning ~ fine tuning (buen modelo preentrenado), unfreezing can give slight boost (but very small)
+- data augmentation no mejora, tta solo mejora si entreno con data augmentation (da+tta mejora overall)
