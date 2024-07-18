@@ -1,6 +1,15 @@
 trainer:
   logger: True
-  enable_checkpointing: True 
+  enable_checkpointing: True
+  max_epochs: 500
+
+scheduler: OneCycleLR
+scheduler_params:
+    max_lr: 0.005
+    total_steps: 500
+    pct_start: 0.03
+    final_div_factor: 10 
+    verbose: True
 
 datamodule:
   train_trans:

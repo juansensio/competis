@@ -16,14 +16,14 @@ config = {
     "freeze": True,
     "optimizer": "Adam",
     "optimizer_params": {
-        "lr": 1e-4,
+        "lr": 3e-4,
     },
     "ckpt_path": None,  # resume
     "load_from_checkpoint": None,  # load from checkpoint
     "trainer": {
         "accelerator": "cuda",
         "devices": 1,  # con devices 2 el pl me da error al guardar los checkpoints :(
-        "max_epochs": 100,
+        "max_epochs": 200,
         "logger": None,
         "enable_checkpointing": False,
         "overfit_batches": 0,

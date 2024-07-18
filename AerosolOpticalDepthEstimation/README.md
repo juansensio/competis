@@ -8,12 +8,17 @@ Aeronet dataset: https://aeronet.gsfc.nasa.gov/
 
 Trying clay model 
 
-- basline (bs 32, 30 eps): 0.76286 / 0.8174
-- baseline (bs 64, 100 eps): 0.83894 / 0.88166
-- fine tune encoder
-- data augmentation
-- lr scheduler
+- basline (bs 32 30 eps lr 1e-4): 0.76286 / 0.8174
+- baseline (bs 64 100 eps lr 3e-4): 0.83894 / 0.88166
+- fine tune encoder (bs 64 100 eps lr 3e-4): 0.84048 
+- data augmentation: 0.82154
+- train more (200 eps lr scheduler 1e-3): 0.92938 / 0.9505
+- train more (500 eps lr scheduler 1e-3): 0.941 / 0.9588
+	- tta: 0.9088 / 0.945
+- train more (500 eps lr scheduler 5e-3): 0.94319
+- data augmentation: running ...
 - ensamble (5 fold cv)
+- tta
 
 Compare with traditional models (resnet, ...)
 
