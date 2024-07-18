@@ -14,9 +14,10 @@ Trying clay model
 - data augmentation: 0.82154
 - train more (200 eps lr scheduler 1e-3): 0.92938 / 0.9505
 - train more (500 eps lr scheduler 1e-3): 0.941 / 0.9588
-	- tta: 0.9088 / 0.945
+	- tta: 0.92788 / 0.945
 - train more (500 eps lr scheduler 5e-3): 0.94319
-- data augmentation: running ...
+- data augmentation: 0.941
+	- tta:  0.95008
 - ensamble (5 fold cv)
 - tta
 
@@ -24,5 +25,4 @@ Compare with traditional models (resnet, ...)
 
 ## Conclusions
 
-- transfer learning ~ fine tuning (buen modelo preentrenado)
-- baseline bs 63 100 eps lr 1e-4 sigue aprendiendo (más epochs, o subir lr)
+- transfer learning ~ fine tuning (buen modelo preentrenado), unfreezing can give slight boost (but very small)

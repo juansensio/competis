@@ -1,9 +1,10 @@
 datamodule:
   batch_size: 4
-  val_size: 0
+  val_size: 0.2
   num_workers: 0
   pin_memory: False
+  n_folds: 3
 
 trainer:
-  max_epochs: 100
+  max_epochs: 10
   overfit_batches: 1
