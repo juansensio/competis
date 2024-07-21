@@ -3,8 +3,16 @@ datamodule:
   val_size: 0.2
   num_workers: 0
   pin_memory: False
-  n_folds: 3
+  n_folds: 1
 
 trainer:
-  max_epochs: 10
+  max_epochs: 50
   overfit_batches: 1
+
+head_layers:
+  - 512
+  - 256
+  - 128
+  - 1
+
+p_drop: 0.1

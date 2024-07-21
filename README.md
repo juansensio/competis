@@ -1,8 +1,3 @@
 # Competitions
 
-- [SIIM-ISIC Melanoma Classificiation](./SIIM-ISIC-Melanoma)
-- [Real or Not? NLP with Disaster Tweets](./NLP_disaster_tweets)
-- [Cassava Leaf Disase Classification](./cassava-leaf-disase-classification)
-- [brystol-Meyers Squibb - Molecular Translation](./brystol-meyers-squibb)
-- [M&Ms-2](./MnMs-2)
-- [Enhanced Sentinel 2 Agriculture](./EnhancedSentinel2Agriculture)
+This repo contains my solutions to multiple data science competitions from Kaggle, DrivenData, Solafuna and other platforms.

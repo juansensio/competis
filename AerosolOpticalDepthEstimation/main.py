@@ -18,6 +18,8 @@ config = {
     "optimizer_params": {
         "lr": 3e-4,
     },
+    "head_layers": [1],
+    "p_drop": 0.0,
     "ckpt_path": None,  # resume
     "load_from_checkpoint": None,  # load from checkpoint
     "trainer": {
@@ -77,6 +79,7 @@ def train(config, name):
                         mode="max",
                     )
                 ]
+        logger = None
         if config["trainer"]["logger"]:
             logger = WandbLogger(
                 project="AerosolOpticalDepthEstimation",

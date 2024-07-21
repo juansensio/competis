@@ -1,0 +1,32 @@
+trainer:
+  logger: True
+  enable_checkpointing: True
+  max_epochs: 500
+
+freeze: False
+
+scheduler: OneCycleLR
+scheduler_params:
+    max_lr: 0.005
+    total_steps: 500
+    pct_start: 0.03
+    final_div_factor: 10 
+    verbose: True
+
+datamodule:
+  n_folds: 5
+  train_trans:
+    HorizontalFlip:
+      p: 0.5
+    VerticalFlip:
+      p: 0.5
+    Transpose:
+      p: 0.5
+    RandomRotate90:
+      p: 0.5
+
+head_layers:
+  - 512
+  - 256
+  - 128
+  - 1

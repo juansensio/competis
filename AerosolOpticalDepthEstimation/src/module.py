@@ -7,7 +7,13 @@ import torchmetrics
 class Module(L.LightningModule):
     def __init__(
         self,
-        hparams={"freeze": True, "optimizer": "Adam", "optimizer_params": {"lr": 3e-4}},
+        hparams={
+            "freeze": True,
+            "optimizer": "Adam",
+            "optimizer_params": {"lr": 3e-4},
+            "head_layers": [1],
+            "p_drop": 0.0,
+        },
     ):
         super().__init__()
         self.save_hyperparameters(hparams)
@@ -20,7 +26,19 @@ class Module(L.LightningModule):
             map_location="cpu",
         )
         # self.model.cuda()
-        self.fc = torch.nn.Linear(768, 1)
+        self.fc = torch.nn.Sequential(
+            *[torch.nn.Linear(768, self.hparams.head_layers[0])]
+            + [
+                torch.nn.Sequential(
+                    torch.nn.Dropout(self.hparams.p_drop),
+                    torch.nn.ReLU(),
+                    torch.nn.Linear(
+                        self.hparams.head_layers[i], self.hparams.head_layers[i + 1]
+                    ),
+                )
+                for i in range(len(self.hparams.head_layers) - 1)
+            ]
+        )
         if self.hparams.freeze:
             for param in self.model.model.encoder.parameters():
                 param.requires_grad = False
