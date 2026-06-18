@@ -21,3 +21,6 @@ submission
 GLC
 *.zip
 prithvi
+.venv
+weights
+.env
