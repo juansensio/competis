@@ -138,13 +138,30 @@ Baseline: best val_rmse 0.7698 tras 3 entrenos de baseline (puedde seguir mejora
 - 1.279 / 1.014
 - 0.8217 / 0.934
 
-Scratch:
-- 32x32 3 frames running ...
+Scratch: resultados similares, pero si que pretrained no hace overfitting
+- 32x32 3 frames (BS 16 lr 3e-4): 0.7579 overfiting ~40 epochs
+- 64x64 3 frames (BS 16 lr 5e-5): 0.7176 overffiting ~20 epochs
 
-## TODO
+DA:
+- flips
+*Al subir a 150 epochs con el resto igual no aprende tan bien. es por el DA o por el LR? probando con 50 epochs otra vez para usar mismo scheduler
+*Con 50 epochs aprende como la basline, por lo que parece que el efecto del LR es bastante heavy. Probar con LR más bajos y reintentar scratch 64
+- crops 32x32 (BS 64 lr 1e-4): running...
+- flips 64x64 (BS 16 lr 5e-5): next
+- crops 64x64 (BS 16 lr 5e-5): 
 
-- train from scratch
-  - 32x32 3 frames
-  - 64x64 3 frames (BS 16)
+
+## Experiments
+
 - data augmentation 
+  + flips 
+  + random resized crops
+    - train: resize a 41 - random crop a 32 - resize target a 41
+    - val: resize inputs a 32 
+    o
+    - train: resize inputs y target a 128 - random crop a 64 - resize target a 41
+    - val: resize inputs a 32
+  + blur, sharpen, noise, etc.
 - tta for inference
+- full train (no val)
+- un modelo para cada satelite 

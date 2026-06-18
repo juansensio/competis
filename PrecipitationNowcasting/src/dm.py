@@ -13,6 +13,7 @@ class DataModule(L.LightningDataModule):
         path=Path('data'),
         satellite_target=None,
         train_trans=None,
+        train_trans2=None,  
         val_trans=None,
         batch_size=1,
         num_workers=0,
@@ -24,6 +25,7 @@ class DataModule(L.LightningDataModule):
         importance_sampling=False,
         rain_boost=5.0,
         weights_cache_dir=None,
+        resize_target=False,
     ):
         super().__init__()
         self.path = path
@@ -41,6 +43,8 @@ class DataModule(L.LightningDataModule):
         self.rain_boost = rain_boost
         self.weights_cache_dir = weights_cache_dir
         self.train_sample_weights = None
+        self.train_trans2 = train_trans2
+        self.resize_target = resize_target
 
     def _parse_last_30_minutes_observation_filename(self, df):
         df['last_30_minutes_observation_filename'] = df['last_30_minutes_observation_filename'].apply(ast.literal_eval)
@@ -68,8 +72,8 @@ class DataModule(L.LightningDataModule):
             num_frames=self.num_frames,
             band_mapping=self.band_mapping,
         )
-        self.train_ds = Dataset(self.path, train, trans=self.train_trans, **ds_kwargs)
-        self.val_ds = Dataset(self.path, val, trans=self.val_trans, **ds_kwargs)
+        self.train_ds = Dataset(self.path, train, trans=self.train_trans, trans2=self.train_trans2, resize_target=self.resize_target, **ds_kwargs)
+        self.val_ds = Dataset(self.path, val, trans=self.val_trans, trans2=None, resize_target=self.resize_target, **ds_kwargs)
 
         if self.importance_sampling:
             self.train_sample_weights = compute_sample_weights(
