@@ -16,46 +16,46 @@ from src.util.class_weights import compute_class_weights
 
 MAX_EPOCHS = 50
 NUM_FRAMES = 3  # pretrained weights expect 4 frames (pad last obs if only 3 available)
-IMAGE_SIZE = 32  # pretrained weights expect 32x32 inputs
-BATCH_SIZE = 64
+IMAGE_SIZE = 64  # pretrained weights expect 32x32 inputs
+BATCH_SIZE = 16
 WEIGHTS_CACHE_DIR = 'data/cache'
-LOAD_FROM_CHECKPOINT = None #'checkpoints/epoch=19-val_rmse=0.7176.ckpt'
+LOAD_FROM_CHECKPOINT = 'checkpoints/epoch=19-val_rmse=0.7176.ckpt'
 # NAME = f'satformer-da-flips'
-NAME = f'satformer-scratch-{IMAGE_SIZE}-da-crop'
-
-# trans = A.Compose([
-#     A.Resize(IMAGE_SIZE, IMAGE_SIZE)
-# ], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)})
-
-# trans2 = A.Compose([
-#     A.HorizontalFlip(p=0.5),
-#     A.VerticalFlip(p=0.5),
-#     A.RandomRotate90(p=0.5),
-#     A.Transpose(p=0.5),
-# ], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)}, is_check_shapes=False)
+NAME = f'satformer-scratch-{IMAGE_SIZE}-da-flips'
 
 trans = A.Compose([
-    A.Resize(41, 41),
-], additional_targets={'image1': 'image', 'image2': 'image', 'image3': 'image'})
-
-val_trans = A.Compose([
-    A.Resize(IMAGE_SIZE, IMAGE_SIZE),
-], additional_targets={'image1': 'image', 'image2': 'image', 'image3': 'image'})
+    A.Resize(IMAGE_SIZE, IMAGE_SIZE)
+], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)})
 
 trans2 = A.Compose([
     A.HorizontalFlip(p=0.5),
     A.VerticalFlip(p=0.5),
     A.RandomRotate90(p=0.5),
     A.Transpose(p=0.5),
-    A.RandomResizedCrop((IMAGE_SIZE, IMAGE_SIZE)),
-], is_check_shapes=False, additional_targets={'image1': 'image', 'image2': 'image', 'image3': 'image'})
+], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)}, is_check_shapes=False)
+
+# trans = A.Compose([
+#     A.Resize(41, 41),
+# ], additional_targets={'image1': 'image', 'image2': 'image', 'image3': 'image'})
+
+# val_trans = A.Compose([
+#     A.Resize(IMAGE_SIZE, IMAGE_SIZE),
+# ], additional_targets={'image1': 'image', 'image2': 'image', 'image3': 'image'})
+
+# trans2 = A.Compose([
+#     A.HorizontalFlip(p=0.5),
+#     A.VerticalFlip(p=0.5),
+#     A.RandomRotate90(p=0.5),
+#     A.Transpose(p=0.5),
+#     A.RandomResizedCrop((IMAGE_SIZE, IMAGE_SIZE)),
+# ], is_check_shapes=False, additional_targets={'image1': 'image', 'image2': 'image', 'image3': 'image'})
 
 dm = DataModule(
     batch_size=BATCH_SIZE,
     num_workers=20,
     pin_memory=True,
     train_trans=trans,
-    val_trans=val_trans,
+    val_trans=trans,
     train_trans2=trans2,
     min_obs=3,
     num_obs=3,
@@ -75,9 +75,9 @@ class_weights = compute_class_weights(
 )
 
 model = Module(hparams={
-    'lr': 1e-4,
-    'encoder_lr': 1e-4,
-    'decoder_lr': 1e-4,
+    'lr': 5e-5,
+    'encoder_lr': 5e-5,
+    'decoder_lr': 5e-5,
     # 'pretrained_path': 'weights/sf-64-cls.pt',
     'class_weights': class_weights,
     'num_frames': NUM_FRAMES,

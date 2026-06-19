@@ -146,9 +146,9 @@ DA:
 - flips
 *Al subir a 150 epochs con el resto igual no aprende tan bien. es por el DA o por el LR? probando con 50 epochs otra vez para usar mismo scheduler
 *Con 50 epochs aprende como la basline, por lo que parece que el efecto del LR es bastante heavy. Probar con LR más bajos y reintentar scratch 64
-- crops 32x32 (BS 64 lr 1e-4): running...
-- flips 64x64 (BS 16 lr 5e-5): next
-- crops 64x64 (BS 16 lr 5e-5): 
+- crops 32x32 (BS 64 lr 1e-4): ko
+- flips 64x64 (BS 16 lr 5e-5): ko
+
 
 
 ## Experiments
