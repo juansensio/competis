@@ -64,7 +64,7 @@ class DataModule(L.LightningDataModule):
         val = pd.read_csv(self.path / 'test_split.csv')
         val = self._parse_last_30_minutes_observation_filename(val)
         val = self._filter_observations(val)
-        if self.satellite_target is not None:
+        if self.satellite_target is not None and self.satellite_target != 'all':
             train = train[train.satellite_target == self.satellite_target]
             val = val[val.satellite_target == self.satellite_target]
         ds_kwargs = dict(

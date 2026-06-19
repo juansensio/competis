@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import sys
 
 load_dotenv()
 
@@ -14,25 +15,34 @@ from src.dm import DataModule
 from src.module import Module
 from src.util.class_weights import compute_class_weights
 
-MAX_EPOCHS = 50
-NUM_FRAMES = 3  # pretrained weights expect 4 frames (pad last obs if only 3 available)
-IMAGE_SIZE = 64  # pretrained weights expect 32x32 inputs
-BATCH_SIZE = 16
+MAX_EPOCHS = 150
+NUM_FRAMES = 4  # pretrained weights expect 4 frames (pad last obs if only 3 available)
+IMAGE_SIZE = 32 # pretrained weights expect 32x32 inputs
+BATCH_SIZE = 64
 WEIGHTS_CACHE_DIR = 'data/cache'
-LOAD_FROM_CHECKPOINT = 'checkpoints/epoch=19-val_rmse=0.7176.ckpt'
-# NAME = f'satformer-da-flips'
-NAME = f'satformer-scratch-{IMAGE_SIZE}-da-flips'
+LOAD_FROM_CHECKPOINT = None #'checkpoints/epoch=19-val_rmse=0.7176.ckpt'
+
+# Parse satellite from argv
+if len(sys.argv) > 1:
+    SATELLITE = sys.argv[1]
+    assert SATELLITE in ['goes', 'himawari', 'meteosat', 'all'], "Invalid satellite"
+    print(f"Using satellite: {SATELLITE}")
+else:
+    SATELLITE = 'all' # default
+    print("No satellite specified. Using default: 'all'")
+
+NAME = f'satformer-{SATELLITE}-{IMAGE_SIZE}'
 
 trans = A.Compose([
     A.Resize(IMAGE_SIZE, IMAGE_SIZE)
 ], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)})
 
-trans2 = A.Compose([
-    A.HorizontalFlip(p=0.5),
-    A.VerticalFlip(p=0.5),
-    A.RandomRotate90(p=0.5),
-    A.Transpose(p=0.5),
-], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)}, is_check_shapes=False)
+# trans2 = A.Compose([
+#     A.HorizontalFlip(p=0.5),
+#     A.VerticalFlip(p=0.5),
+#     A.RandomRotate90(p=0.5),
+#     A.Transpose(p=0.5),
+# ], additional_targets={f'image{i}': 'image' for i in range(1, NUM_FRAMES)}, is_check_shapes=False)
 
 # trans = A.Compose([
 #     A.Resize(41, 41),
@@ -56,14 +66,15 @@ dm = DataModule(
     pin_memory=True,
     train_trans=trans,
     val_trans=trans,
-    train_trans2=trans2,
+    # train_trans2=trans2,
     min_obs=3,
     num_obs=3,
     num_frames=NUM_FRAMES,
     importance_sampling=True,
     rain_boost=5.0,
     weights_cache_dir=WEIGHTS_CACHE_DIR,
-    resize_target=True
+    satellite_target=SATELLITE,
+    # resize_target=True
 )
 
 print('Loading or computing class weights...')
@@ -75,17 +86,17 @@ class_weights = compute_class_weights(
 )
 
 model = Module(hparams={
-    'lr': 5e-5,
+    'lr': 1e-4,
     'encoder_lr': 5e-5,
-    'decoder_lr': 5e-5,
-    # 'pretrained_path': 'weights/sf-64-cls.pt',
+    'decoder_lr': 1e-4,
+    'pretrained_path': 'weights/sf-64-cls.pt',
     'class_weights': class_weights,
     'num_frames': NUM_FRAMES,
     'image_size': IMAGE_SIZE,
     'rotary_emb': False,
     'max_epochs': MAX_EPOCHS,
     'warmup_epochs': 2,
-    # 'freeze_encoder_epochs': 3,
+    'freeze_encoder_epochs': 3,
     'mse_loss_weight': 0.1,
 })
 
@@ -111,7 +122,7 @@ trainer = L.Trainer(
         TQDMProgressBar(refresh_rate=10, leave=True),
         ModelCheckpoint(
             dirpath='checkpoints',
-            filename='{epoch}-{val_rmse:.4f}',
+            filename=f'{SATELLITE}-{{epoch}}-{{val_rmse:.4f}}',
             monitor='val_rmse',
             mode='min',
             save_top_k=1,
