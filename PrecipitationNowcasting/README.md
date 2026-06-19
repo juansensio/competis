@@ -134,13 +134,14 @@ Move to Strategy B (Unified Model) later if you feel your individual models are 
 
 Satformer with bin classification loss, 32x32 4 frames.
 
-Baseline: best val_rmse 0.7698 tras 3 entrenos de baseline (puedde seguir mejorando pero no mucho más como para llegar a 0.6)
+Baseline
 - 1.279 / 1.014
 - 0.8217 / 0.934
+- 0.7245 / ???
 
 Scratch: resultados similares, pero si que pretrained no hace overfitting
 - 32x32 3 frames (BS 16 lr 3e-4): 0.7579 overfiting ~40 epochs
-- 64x64 3 frames (BS 16 lr 5e-5): 0.7176 overffiting ~20 epochs
+- 64x64 3 frames (BS 16 lr 5e-5): 0.7176 / 0.8246 overffiting ~20 epochs
 
 DA:
 - flips
@@ -149,7 +150,7 @@ DA:
 - crops 32x32 (BS 64 lr 1e-4): ko
 - flips 64x64 (BS 16 lr 5e-5): ko
 
-
+un modelo por satelite: 0.7501 / 0.9154
 
 ## Experiments
 
